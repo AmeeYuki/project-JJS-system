@@ -1,8 +1,50 @@
-# React + Vite
+# NHOM 1
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Getting started
 
-Currently, two official plugins are available:
+- `npm run dev` to start
+- `npm run build` to build production
+- `npm run lint` to format src code
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
+
+- React Router DOM
+- Ant Design of React
+- Redux
+- Redux Toolkit
+- React-hook-form
+- zod
+- Axios (optional)
+
+## Folder Structure
+
+    .
+    ├── build                   # Compiled files (alternatively `dist`)
+    ├── src                     # Source files (alternatively `lib` or `app`)
+    ├── config                  # To enable environment-specific configurations for development, testing, and production environments
+    ├── hooks                   # To house custom hooks (encapsulate stateful logic and side effects)
+    ├── services                # Encapsulate data fetching and external API interactions
+    ├── routes                  # Organize the application's navigation structure and user flow
+    ├── slices                  # Group related actions, reducers, and selectors
+    ├── utils                   # Utilities (to house reusable utility functions)
+    └── README.md
+
+[Redux template reference](<[#heading-ids](https://github.com/reduxjs/redux-templates/blob/master/packages/vite-template-redux/src/features/counter/counterSlice.ts)>)
+
+## Call Api
+
+### How to create an API with Redux?
+
+    In progress
+
+### How to use API create by Redux?
+
+    In progress
+
+### What is slice?
+
+    In progress
+
+## How to customize Ant Design
+
+[And Design Documents](https://ant.design/docs/react/customize-theme)
