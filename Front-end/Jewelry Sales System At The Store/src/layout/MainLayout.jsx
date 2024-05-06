@@ -19,8 +19,9 @@ import {
 import useSider from "@/hooks/useSider";
 import { Link, useLocation } from "react-router-dom";
 import HeaderComponent from "../components/header/HeaderComponent";
+import { Header } from "antd/es/layout/layout";
 
-const { Header, Sider, Content } = Layout;
+const { Sider, Content } = Layout;
 
 const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -33,13 +34,44 @@ const MainLayout = () => {
   const siderList = useSider();
   return (
     <>
-      <HeaderComponent></HeaderComponent>
       <Layout
         style={{
           height: "100vh",
         }}
       >
-        <Sider trigger={null} collapsible collapsed={collapsed}>
+        <Layout>
+          <Header style={{ display: "flex", alignItems: "center" }}>
+            <div className="demo-logo" />
+            <Menu
+              theme="dark"
+              mode="horizontal"
+              defaultSelectedKeys={["2"]}
+              items={[
+                ...siderList.map((item) => {
+                  return {
+                    ...item,
+                    key: item.href,
+                    label: <Link to={item.href}>{item.label}</Link>,
+                  };
+                }),
+              ]}
+              style={{ flex: 1, minWidth: 0 }}
+            />
+          </Header>
+          <Content
+            style={{
+              display: "flex",
+              margin: "16px 16px",
+              padding: 12,
+              minHeight: 280,
+              background: other.colorBorderSecondary,
+              borderRadius: borderRadiusLG,
+            }}
+          >
+            <Outlet />
+          </Content>
+        </Layout>
+        {/* <Sider trigger={null} collapsible collapsed={collapsed}>
           <div
             style={{
               height: "100%",
@@ -83,7 +115,7 @@ const MainLayout = () => {
           >
             <Outlet />
           </Content>
-        </Layout>
+        </Layout> */}
       </Layout>
     </>
   );

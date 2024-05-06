@@ -12,7 +12,7 @@ export const flowerApi = createApi({
     // and the expected query argument. If there is no argument, use `void`
     // for the argument type instead.
     getFlowers: builder.query({
-      query: () => `flowerManagement`,
+      query: () => `product`,
       // `providesTags` determines which 'tag' is attached to the
       // cached data returned by the query.
       providesTags: (result, _error, _arg) =>
@@ -27,7 +27,7 @@ export const flowerApi = createApi({
       query: (body) => {
         return {
           method: "POST",
-          url: `flowerManagement`,
+          url: `product`,
           body,
         };
       },
@@ -37,7 +37,7 @@ export const flowerApi = createApi({
       query: (payload) => {
         return {
           method: "PUT",
-          url: `flowerManagement/` + payload.id,
+          url: `product/` + payload.id,
           body: payload.body,
         };
       },
@@ -47,7 +47,7 @@ export const flowerApi = createApi({
       query: (payload) => {
         return {
           method: "DELETE",
-          url: `flowerManagement/` + payload.id,
+          url: `product/` + payload.id,
         };
       },
       invalidatesTags: (_res, _err, _arg) => [

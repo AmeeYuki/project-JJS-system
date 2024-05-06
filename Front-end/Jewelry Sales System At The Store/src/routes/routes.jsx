@@ -13,10 +13,6 @@ const Admin = Loadable({
 });
 export const router = createBrowserRouter([
   {
-    path: "/login",
-    element: Login,
-  },
-  {
     path: "/",
     element: <AuthGuard />,
 
