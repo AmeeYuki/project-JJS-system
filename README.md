@@ -4,8 +4,6 @@
 
 ## Teammate
 
-## Installation
-
 - Nguyễn Lê Vỹ Kha (leader)
 - Nghiêm Trần Nhật Tiến
 - Đỗ Thanh Sơn
