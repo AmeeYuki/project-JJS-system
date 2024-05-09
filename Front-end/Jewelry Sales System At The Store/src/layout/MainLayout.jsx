@@ -1,122 +1,108 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  UserOutlined,
-  LogoutOutlined,
-} from "@ant-design/icons";
-import {
-  Layout,
-  Menu,
-  Button,
-  theme,
-  Avatar,
-  Badge,
-  Dropdown,
-  Space,
-} from "antd";
+import { MenuOutlined, CloseOutlined } from "@ant-design/icons";
+import { Layout, Menu, Button, theme } from "antd";
 import useSider from "@/hooks/useSider";
 import { Link, useLocation } from "react-router-dom";
-import HeaderComponent from "../components/header/HeaderComponent";
-import { Header } from "antd/es/layout/layout";
+import HeaderPage from "../components/header/HeaderPage";
+import FooterPage from "../components/header/FooterPage";
 
 const { Sider, Content } = Layout;
 
 const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   // const dispatcher = useAppDispatch();
-  const {
-    token: { colorBgContainer, borderRadiusLG, ...other },
-  } = theme.useToken();
+
   const location = useLocation();
 
   const siderList = useSider();
   return (
     <>
+      <HeaderPage />
       <Layout
         style={{
-          height: "100vh",
+          background: "#ffffff",
+          height: "100%",
+          minHeight: "100vh",
         }}
       >
-        <Layout>
-          <Header style={{ display: "flex", alignItems: "center" }}>
-            <div className="demo-logo" />
-            <Menu
-              theme="dark"
-              mode="horizontal"
-              defaultSelectedKeys={["2"]}
-              items={[
-                ...siderList.map((item) => {
-                  return {
-                    ...item,
-                    key: item.href,
-                    label: <Link to={item.href}>{item.label}</Link>,
-                  };
-                }),
-              ]}
-              style={{ flex: 1, minWidth: 0 }}
-            />
-          </Header>
-          <Content
-            style={{
-              display: "flex",
-              margin: "16px 16px",
-              padding: 12,
-              minHeight: 280,
-              background: other.colorBorderSecondary,
-              borderRadius: borderRadiusLG,
-            }}
-          >
-            <Outlet />
-          </Content>
-        </Layout>
-        {/* <Sider trigger={null} collapsible collapsed={collapsed}>
+        <Sider width="18%" trigger={null} collapsible collapsed={collapsed}>
           <div
             style={{
               height: "100%",
-              padding: "16px",
+              background: "#ffffff",
               flex: 1,
             }}
           >
+            <div>
+              <Button
+                type="text"
+                icon={collapsed ? <MenuOutlined /> : <CloseOutlined />}
+                onClick={() => setCollapsed(!collapsed)}
+                style={{
+                  fontSize: "16px",
+                  width: 50,
+                  height: 64,
+                  color: "#285D9A",
+                  marginLeft: "10px",
+                }}
+              />
+            </div>
             <Menu
+              className="navigate"
               style={{
-                borderRadius: borderRadiusLG,
-                height: "100%",
-                boxShadow: other.boxShadow,
-                background: other.colorBgBlur,
-                color: other.colorTextLightSolid,
+                // borderRadius: borderRadiusLG,
+                // height: "90%",
+                // boxShadow: other.boxShadow,
+                borderRadius: "20px",
+
+                background: "#cccccc",
+                // color: "#285D9A",
               }}
               theme="light"
               mode="inline"
               selectedKeys={[location.pathname.substring(1)]}
-              items={[
-                ...siderList.map((item) => {
-                  return {
-                    ...item,
-                    key: item.href,
-                    label: <Link to={item.href}>{item.label}</Link>,
-                  };
-                }),
-              ]}
-            />
+            >
+              {siderList.map((item) => {
+                if (item.children && item.children.length > 0) {
+                  return (
+                    <Menu.SubMenu
+                      key={item.label}
+                      icon={item.icon}
+                      title={item.label}
+                    >
+                      {item.children.map((child) => (
+                        <Menu.Item key={child.href}>
+                          <Link to={child.href}>{child.label}</Link>
+                        </Menu.Item>
+                      ))}
+                    </Menu.SubMenu>
+                  );
+                } else {
+                  return (
+                    <Menu.Item key={item.href} icon={item.icon}>
+                      <Link to={item.href}>{item.label}</Link>
+                    </Menu.Item>
+                  );
+                }
+              })}
+            </Menu>
           </div>
         </Sider>
         <Layout>
           <Content
             style={{
-              display: "flex",
-              margin: "16px 16px",
-              padding: 12,
-              minHeight: 280,
-              background: other.colorBorderSecondary,
-              borderRadius: borderRadiusLG,
+              width: "100%",
+              padding: "0 20px",
+              background: "#ffffff",
             }}
           >
             <Outlet />
           </Content>
-        </Layout> */}
+        </Layout>
       </Layout>
+
+      <FooterPage />
     </>
   );
 };

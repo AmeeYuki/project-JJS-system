@@ -8,9 +8,6 @@ const Home = Loadable({ loader: () => import("../pages/home/Home") });
 const Dashboard = Loadable({
   loader: () => import("../pages/dashboard/Dashboard"),
 });
-const Admin = Loadable({
-  loader: () => import("../pages/admin/Admin"),
-});
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -28,13 +25,13 @@ export const router = createBrowserRouter([
             path: "home",
             element: Home,
           },
-          {
-            path: "admin",
-            element: Admin,
-          },
         ],
       },
     ],
+  },
+  {
+    path: "login",
+    element: Login,
   },
   {
     path: "*",
