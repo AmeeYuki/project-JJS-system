@@ -5,7 +5,7 @@ export default function HeaderPage() {
   return (
     <>
       <div className="header-page">
-        <h1 className="title">KING JEWELRY</h1>
+        <h1 className="title">Luminary</h1>
       </div>
     </>
   );

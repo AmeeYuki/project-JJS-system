@@ -1,11 +1,17 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import { MenuOutlined, CloseOutlined } from "@ant-design/icons";
+import {
+  MenuOutlined,
+  CloseOutlined,
+  LeftOutlined,
+  RightOutlined,
+} from "@ant-design/icons";
 import { Layout, Menu, Button, theme } from "antd";
 import useSider from "@/hooks/useSider";
 import { Link, useLocation } from "react-router-dom";
-import HeaderPage from "../components/header/HeaderPage";
-import FooterPage from "../components/header/FooterPage";
+import HeaderPage from "../components/headerVsFooter/HeaderPage";
+import FooterPage from "../components/headerVsFooter/FooterPage";
+import LogoutButton from "../components/LogoutButton/LogoutButton";
 
 const { Sider, Content } = Layout;
 
@@ -26,7 +32,7 @@ const MainLayout = () => {
           minHeight: "100vh",
         }}
       >
-        <Sider width="18%" trigger={null} collapsible collapsed={collapsed}>
+        <Sider width="13%" trigger={null} collapsible collapsed={collapsed}>
           <div
             style={{
               height: "100%",
@@ -34,35 +40,34 @@ const MainLayout = () => {
               flex: 1,
             }}
           >
-            <div>
-              <Button
-                type="text"
-                icon={collapsed ? <MenuOutlined /> : <CloseOutlined />}
-                onClick={() => setCollapsed(!collapsed)}
-                style={{
-                  fontSize: "16px",
-                  width: 50,
-                  height: 64,
-                  color: "#285D9A",
-                  marginLeft: "10px",
-                }}
-              />
-            </div>
             <Menu
               className="navigate"
               style={{
                 // borderRadius: borderRadiusLG,
-                // height: "90%",
+                height: "100%",
                 // boxShadow: other.boxShadow,
-                borderRadius: "20px",
-
-                background: "#cccccc",
-                // color: "#285D9A",
+                // borderRadius: "20px",
+                background: "#CFCFCF",
+                color: "#000000",
               }}
               theme="light"
               mode="inline"
               selectedKeys={[location.pathname.substring(1)]}
             >
+              <div>
+                <Button
+                  type="text"
+                  icon={collapsed ? <RightOutlined /> : <LeftOutlined />}
+                  onClick={() => setCollapsed(!collapsed)}
+                  style={{
+                    fontSize: "16px",
+                    width: 50,
+                    height: 64,
+                    color: "#285D9A",
+                    marginLeft: "12px",
+                  }}
+                />
+              </div>
               {siderList.map((item) => {
                 if (item.children && item.children.length > 0) {
                   return (
@@ -86,6 +91,22 @@ const MainLayout = () => {
                   );
                 }
               })}
+
+              {!collapsed && ( // chỉ hiển thị khi không collapsed
+                <div>
+                  <Menu.ItemGroup style={{ textAlign: "center" }}>
+                    Hello, Zane Pham
+                  </Menu.ItemGroup>
+                  <Menu.ItemGroup style={{ textAlign: "center" }}>
+                    <LogoutButton />
+                  </Menu.ItemGroup>
+                  <Menu.ItemGroup style={{ textAlign: "center" }}>
+                    <Link to={"/login"}>
+                      <button>Login page (để tạm)</button>
+                    </Link>
+                  </Menu.ItemGroup>
+                </div>
+              )}
             </Menu>
           </div>
         </Sider>
