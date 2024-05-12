@@ -16,7 +16,7 @@ Link Figma: [Link View Figma](https://www.figma.com/file/uqPXf40X6TLQhmqYEFGfVP/
 
 Link Jira: [Link View Jira](https://fpt-khanlvse172879.atlassian.net/jira/software/projects/SJSSAS/boards/3?atlOrigin=eyJpIjoiMTg2NTU2MjRhNWM5NDYxMmE0YjhiNDVhOTIzZjA3ZjEiLCJwIjoiaiJ9)
 
-Link Diagram: [View Here](https://drawsql.app/teams/sonteam-1/diagrams/swp391?fbclid=IwZXh0bgNhZW0CMTAAAR2E1zQAPYpzxFHzA9QBXmK8GzI1qsV6eubhW7p2kz48fpkKANm70sh3n0w_aem_Af5tvoBO2uHV3mIkQYHsKSETO6u-OMx7ElaN-x7GaTydJMvOo4cCYJbxkBgx-vGnJwSmK8HZJKF6CgkdlyC3AU65)
+Link Diagram: [View Here](https://drawsql.app/teams/sonteam-1/diagrams/jewelry-sales-diagram)
 
 ---
 
