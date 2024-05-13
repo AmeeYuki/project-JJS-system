@@ -3,9 +3,11 @@ package com.example.swp.services;
 import com.example.swp.components.JwtTokenUtils;
 import com.example.swp.dtos.DataMailDTO;
 import com.example.swp.dtos.UserDTO;
+import com.example.swp.entities.Counters;
 import com.example.swp.entities.Users;
 import com.example.swp.entities.Role;
 import com.example.swp.exceptions.DataNotFoundException;
+import com.example.swp.repositories.CounterRepository;
 import com.example.swp.repositories.RoleRepository;
 import com.example.swp.repositories.UserRepository;
 import com.example.swp.responses.UserResponse;
@@ -38,6 +40,7 @@ public class UserService implements IUserService{
     private final JwtTokenUtils jwtTokenUtils;
     private final AuthenticationManager authenticationManager;
     private final IMailService mailService;
+    private final CounterRepository counterRepository;
     @Override
     @Transactional
     public Users createUser(UserDTO userDTO) throws Exception {
@@ -48,6 +51,16 @@ public class UserService implements IUserService{
         }
         Role role = roleRepository.findById(userDTO.getRoleId())
                 .orElseThrow(()-> new DataNotFoundException("Fail Role"));
+
+        Long counterId = userDTO.getCounterId();
+
+        Counters counter = null;
+        if (counterId != null) {
+            counter = counterRepository.findById(counterId)
+                    .orElseThrow(() -> new DataNotFoundException("Counter not found with ID: " + counterId));
+        }
+
+
 
 //        if(role.getName().toUpperCase().equals(Role.ADMIN)) {
 //            throw new Exception("Không được phép đăng ký tài khoản Admin");
@@ -63,6 +76,7 @@ public class UserService implements IUserService{
                 .dateOfBirth(userDTO.getDateOfBirth())
                 .active(true)
                 .role(role)
+                .counter(counter)
                 .build();
         String encodedPassword = passwordEncoder.encode(randomPassword);
         newUser.setPassword(encodedPassword);

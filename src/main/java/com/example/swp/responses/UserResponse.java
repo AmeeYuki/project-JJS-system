@@ -24,6 +24,8 @@ public class UserResponse extends BaseResponse{
     private boolean active;
     @JsonProperty("role_id")
     private String role;
+    @JsonProperty("counter_id")
+    private String counter;
 
     public static UserResponse fromUser(Users user) {
         UserResponse userResponse = UserResponse.builder()
@@ -35,6 +37,7 @@ public class UserResponse extends BaseResponse{
                 .dateOfBirth(user.getDateOfBirth())
                 .active(user.isActive())
                 .role(user.getRole().getName())
+                .counter(user.getCounter().getLocation())
                 .build();
         userResponse.setCreatedDate(user.getCreatedDate());
         userResponse.setModifiedDate(user.getModifiedDate());

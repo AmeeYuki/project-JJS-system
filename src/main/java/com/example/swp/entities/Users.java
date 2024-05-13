@@ -1,5 +1,6 @@
 package com.example.swp.entities;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -33,8 +34,6 @@ public class Users extends BaseEntity implements UserDetails {
     @Column(name = "phone_number", length = 10, nullable = false)
     private String phoneNumber;
 
-    @Column(name = "address", length = 200)
-    private String address;
 
     @Column(name = "password", length = 200, nullable = false)
     private String password;
@@ -46,7 +45,7 @@ public class Users extends BaseEntity implements UserDetails {
     private String dateOfBirth;
 
     @ManyToOne
-    @JoinColumn(name = "counter_id")
+    @JoinColumn(name = "counter_id", nullable = true)
     private Counters counter;
 
     @ManyToOne

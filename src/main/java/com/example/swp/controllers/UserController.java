@@ -1,5 +1,6 @@
 package com.example.swp.controllers;
 
+import com.example.swp.components.JwtTokenUtils;
 import com.example.swp.dtos.UserDTO;
 import com.example.swp.dtos.UserLoginDTO;
 import com.example.swp.entities.Token;
@@ -31,8 +32,14 @@ import java.util.List;
 @RequestMapping("api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
+    private final JwtTokenUtils jwtTokenUtils;
     private final IUserService userService;
     private final ITokenService tokenService;
+
+    @GetMapping("/generate-secret-key")
+    public ResponseEntity<?> generateSecretKey(){
+        return ResponseEntity.ok(jwtTokenUtils.generateSecretKey());
+    }
 
     private boolean isMobileDevice(String userAgent) {
         return userAgent.toLowerCase().contains("mobile");
@@ -96,7 +103,7 @@ public class UserController {
         }
     }
     @GetMapping("/get_all_users")
-    public ResponseEntity<UserListResponse> getUsers(
+        public ResponseEntity<UserListResponse> getUsers(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam("page") int page, @RequestParam("limit") int limit){
         PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("fullName").ascending());

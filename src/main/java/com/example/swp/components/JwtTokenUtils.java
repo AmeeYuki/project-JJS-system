@@ -33,7 +33,7 @@ public class JwtTokenUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenUtils.class);
     public String generateToken(Users user) throws Exception{
         Map<String, Object> claims = new HashMap<>();
-        this.generateSecretKey();
+//        this.generateSecretKey();
         claims.put("email", user.getEmail());
         claims.put("userId",user.getId());
         try {

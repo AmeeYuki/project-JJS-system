@@ -30,7 +30,6 @@ public class UserDTO {
     @JsonProperty("role_id")
     private Long roleId;
 
-    @NotNull(message = "Counter ID is required")
     @JsonProperty("counter_id")
     private Long counterId;
 }
