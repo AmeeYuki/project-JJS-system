@@ -23,7 +23,7 @@ Link Diagram: [View Here](https://drawsql.app/teams/sonteam-1/diagrams/jewelry-s
 ## Back-End:
 
 Java
-Link Back-end : [Link Here]([https://drawsql.app/teams/sonteam-1/diagrams/jewelry-sales-diagram](https://github.com/doson200220/swp391-BE)) 
+Link Back-end : [Link Here](https://github.com/doson200220/swp391-BE)
 
 ## Front-End
 
