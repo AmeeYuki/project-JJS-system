@@ -1,17 +1,13 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import {
-  MenuOutlined,
-  CloseOutlined,
-  LeftOutlined,
-  RightOutlined,
-} from "@ant-design/icons";
-import { Layout, Menu, Button, theme } from "antd";
+import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
+import { Layout, Menu, Button, ConfigProvider } from "antd";
 import useSider from "@/hooks/useSider";
 import { Link, useLocation } from "react-router-dom";
 import HeaderPage from "../components/headerVsFooter/HeaderPage";
 import FooterPage from "../components/headerVsFooter/FooterPage";
 import LogoutButton from "../components/LogoutButton/LogoutButton";
+import "./MainLayout.css";
 
 const { Sider, Content } = Layout;
 
@@ -32,7 +28,7 @@ const MainLayout = () => {
           minHeight: "100vh",
         }}
       >
-        <Sider width="13%" trigger={null} collapsible collapsed={collapsed}>
+        <Sider width="20%" trigger={null} collapsible collapsed={collapsed}>
           <div
             style={{
               height: "100%",
@@ -40,74 +36,99 @@ const MainLayout = () => {
               flex: 1,
             }}
           >
-            <Menu
-              className="navigate"
-              style={{
-                // borderRadius: borderRadiusLG,
-                height: "100%",
-                // boxShadow: other.boxShadow,
-                // borderRadius: "20px",
-                background: "#CFCFCF",
-                color: "#000000",
+            <ConfigProvider
+              theme={{
+                components: {
+                  Menu: {
+                    iconSize: "24px",
+                    itemHeight: "60px",
+                    itemSelectedColor: "#ffffff",
+                    itemSelectedBg: "#333333",
+                    collapsedIconSize: "20px",
+                  },
+                },
+                token: {
+                  /* here is your global tokens */
+                  motionDurationSlow: "0.1s",
+                  // fontSize: "20px",
+                  // collapsedIconSize: "20px",
+                },
               }}
-              theme="light"
-              mode="inline"
-              selectedKeys={[location.pathname.substring(1)]}
             >
-              <div>
-                <Button
-                  type="text"
-                  icon={collapsed ? <RightOutlined /> : <LeftOutlined />}
-                  onClick={() => setCollapsed(!collapsed)}
-                  style={{
-                    fontSize: "16px",
-                    width: 50,
-                    height: 64,
-                    color: "#285D9A",
-                    marginLeft: "12px",
-                  }}
-                />
-              </div>
-              {siderList.map((item) => {
-                if (item.children && item.children.length > 0) {
-                  return (
-                    <Menu.SubMenu
-                      key={item.label}
-                      icon={item.icon}
-                      title={item.label}
-                    >
-                      {item.children.map((child) => (
-                        <Menu.Item key={child.href}>
-                          <Link to={child.href}>{child.label}</Link>
-                        </Menu.Item>
-                      ))}
-                    </Menu.SubMenu>
-                  );
-                } else {
-                  return (
-                    <Menu.Item key={item.href} icon={item.icon}>
-                      <Link to={item.href}>{item.label}</Link>
-                    </Menu.Item>
-                  );
-                }
-              })}
-
-              {!collapsed && ( // chỉ hiển thị khi không collapsed
+              <Menu
+                className="navigate"
+                style={{
+                  // borderRadius: borderRadiusLG,
+                  height: "100%",
+                  // boxShadow: other.boxShadow,
+                  // borderRadius: "20px",
+                  background: "#ffffff",
+                  color: "#333333",
+                  fontSize: "20px",
+                  boxShadow: "box-shadow: 0px 3px 0px 3px rgba(0, 0, 0, 0.2);",
+                }}
+                theme="light"
+                mode="inline"
+                selectedKeys={[location.pathname.substring(1)]}
+              >
                 <div>
-                  <Menu.ItemGroup style={{ textAlign: "center" }}>
-                    Hello, Zane Pham
-                  </Menu.ItemGroup>
-                  <Menu.ItemGroup style={{ textAlign: "center" }}>
-                    <LogoutButton />
-                  </Menu.ItemGroup>
-                  <Menu.ItemGroup style={{ textAlign: "center" }}>
-                    <Link to={"/login"}>
-                      <button>Login page (để tạm)</button>
-                    </Link>
-                  </Menu.ItemGroup>
+                  <Button
+                    type="text"
+                    icon={
+                      collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />
+                    }
+                    onClick={() => setCollapsed(!collapsed)}
+                    style={{
+                      fontSize: "16px",
+                      width: 50,
+                      height: 64,
+                      color: "#333333",
+                      marginLeft: "12px",
+                    }}
+                  />
                 </div>
-              )}
-            </Menu>
+                {/* <div> */}
+                {siderList.map((item) => {
+                  if (item.children && item.children.length > 0) {
+                    return (
+                      <Menu.SubMenu
+                        key={item.label}
+                        icon={item.icon}
+                        title={item.label}
+                      >
+                        {item.children.map((child) => (
+                          <Menu.Item key={child.href}>
+                            <Link to={child.href}>{child.label}</Link>
+                          </Menu.Item>
+                        ))}
+                      </Menu.SubMenu>
+                    );
+                  } else {
+                    return (
+                      <Menu.Item key={item.href} icon={item.icon}>
+                        <Link to={item.href}>{item.label}</Link>
+                      </Menu.Item>
+                    );
+                  }
+                })}
+
+                {!collapsed && ( // chỉ hiển thị khi không collapsed
+                  <div className="menu-footer">
+                    <Menu.ItemGroup style={{ textAlign: "center" }}>
+                      Hello, Zane Pham
+                    </Menu.ItemGroup>
+                    <Menu.ItemGroup style={{ textAlign: "center" }}>
+                      <LogoutButton />
+                    </Menu.ItemGroup>
+                    <Menu.ItemGroup style={{ textAlign: "center" }}>
+                      <Link to={"/login"}>
+                        <button>Login page (để tạm)</button>
+                      </Link>
+                    </Menu.ItemGroup>
+                  </div>
+                )}
+              </Menu>
+            </ConfigProvider>
           </div>
         </Sider>
         <Layout>

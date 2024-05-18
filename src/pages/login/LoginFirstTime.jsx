@@ -1,7 +1,7 @@
 import React, { useState } from "react"; // Import React if not already imported
 
 // Import the image file
-import "./Login.css";
+import "./LoginFirstTime.css";
 import { Alert, Button, Form, Input } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -9,7 +9,10 @@ import { useDispatch } from "react-redux";
 function Login() {
   const [form] = Form.useForm(); // Sử dụng hook Form của Ant Design
   const [error, setError] = useState(null); // Khai báo state error
-  const dispatch = useDispatch();
+  const [oldPassword, setOldPassword] = useState("");
+
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
 
   // const [loginUser, { isLoading }] = useLoginUserMutation();
@@ -44,18 +47,33 @@ function Login() {
   // };
 
   const handleSubmit = () => {
+    if (!password.trim()) {
+      setError("Password is required");
+      return;
+    }
+    if (!confirmPassword.trim()) {
+      setError("Confirm Password is required");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Confirm Password does not match");
+      return;
+    }
+
     navigate("/");
   };
 
   return (
-    <div className="login-page">
-      <div className="img-background"></div>
-
+    <div className="login-first-time">
       <div className="login-space">
         <h1 className="title"> Luminary</h1>
-        <h3 className="sub-title">Hello, Let's Sign In</h3>
+        <h3 className="sub-title">
+          Welcome Luminary, this is your first login. <br />
+          Please change your password
+        </h3>
+        {/* <Form form={form} onFinish={handleSubmit}> */}
         <Form form={form} className="login-form" onFinish={handleSubmit}>
-          {/* <Form form={form} className="login-form"> */}
           {error && (
             <>
               <Alert message={error} type="error" showIcon />
@@ -63,38 +81,57 @@ function Login() {
             </>
           )}
           {/* Hiển thị thông báo lỗi */}
-          <p>Email Address</p>
+          <p>Old Password</p>
           <Form.Item
-            name="email"
+            name="oldPassword"
             rules={[
               {
                 required: true,
-                // pattern: /^[\w-]+(\.[\w-]+)*@(gmail\.com|fpt\.edu\.vn)$/,
-                message: "Please input valid Email!",
+                message: "Please input your old password!",
               },
             ]}
           >
-            <Input
-              type=""
-              placeholder="your@email.com"
+            <Input.Password
+              placeholder="Enter old password"
               className="form-input"
+              value={oldPassword}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </Form.Item>
-          <p>Password</p>
+          <p>New Password</p>
           <Form.Item
-            name="password"
-            rules={[{ required: true, message: "Please input your password!" }]}
+            name="newPassword"
+            rules={[
+              {
+                required: true,
+                message: "Please input your new password!",
+              },
+            ]}
           >
             <Input.Password
               placeholder="Enter password"
               className="form-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </Form.Item>
-          <div className="forget-pass ">
-            <p>
-              <Link to={"/forget-password"}>Forget Password</Link>
-            </p>
-          </div>
+          <p>Confirm Password</p>
+          <Form.Item
+            name="confirmPassword"
+            rules={[
+              {
+                required: true,
+                message: "Please confirm your new password!",
+              },
+            ]}
+          >
+            <Input.Password
+              placeholder="Enter password"
+              className="form-input"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+          </Form.Item>
           <Form.Item>
             <Button
               type="primary"

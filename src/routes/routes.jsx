@@ -5,6 +5,12 @@ import MainLayout from "../layout/MainLayout";
 import AuthGuard from "./AuthGuard";
 
 const Login = Loadable({ loader: () => import("../pages/login/Login") });
+const ForgetPassword = Loadable({
+  loader: () => import("../pages/login/ForgetPassword"),
+});
+const LoginFirstTime = Loadable({
+  loader: () => import("../pages/login/LoginFirstTime"),
+});
 
 const Counter = Loadable({
   loader: () => import("../pages/counter/Counter"),
@@ -33,7 +39,8 @@ export const router = createBrowserRouter([
         element: <MainLayout />,
         children: [
           {
-            path: "",
+            index: true,
+            // path: "",
             element: Home,
           },
           {
@@ -72,6 +79,14 @@ export const router = createBrowserRouter([
   {
     path: "login",
     element: Login,
+  },
+  {
+    path: "forget-password",
+    element: ForgetPassword,
+  },
+  {
+    path: "login-first-time",
+    element: LoginFirstTime,
   },
   {
     path: "*",

@@ -1,20 +1,13 @@
-.login-page {
+.login-first-time {
   display: flex;
 }
-.login-page .img-background {
-  background-image: url("./background.png");
-  width: 50%;
-  height: 100vh;
-  background-repeat: no-repeat;
-  background-size: cover;
-}
 
-.login-page .login-space {
-  width: 50%;
+.login-first-time .login-space {
   padding: 50px 30px;
+  width: 100%;
   /* text-align: center; */
 }
-.login-page .login-space .title {
+.login-first-time .login-space .title {
   font-family: "Beau Rivage";
   font-size: 100px;
   font-weight: 300;
@@ -23,36 +16,32 @@
   text-align: center;
 }
 
-.login-page .login-space .sub-title {
+.login-first-time .login-space .sub-title {
   font-weight: 100;
   font-size: 42px;
   text-align: center;
   margin-bottom: 20px;
 }
 
-.login-page .login-space .login-form {
+.login-first-time .login-space .login-form {
   width: 350px;
   margin: 0 auto;
 }
 
-.login-page .login-space .login-form .submit-btn {
+.login-first-time .login-space .login-form .submit-btn {
   width: 100%;
   color: #ffffff;
   background-color: #000000;
 }
 
-.login-page .login-space .login-form .submit-btn:hover {
-  opacity: 0.6;
-}
-
-.login-page .login-space .login-form .forget-pass {
+.login-first-time .login-space .login-form .forget-pass {
   text-align: end;
 }
-.login-page .login-space .login-form .forget-pass p a {
+.login-first-time .login-space .login-form .forget-pass p a {
   color: #65635f;
   text-decoration: underline;
 }
-.login-page .login-space .login-form .forget-pass p :hover {
+.login-first-time .login-space .login-form .forget-pass p :hover {
   opacity: 0.6;
 }
 .back-to-login {
