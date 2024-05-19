@@ -1,88 +1,76 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./User.css";
-import { Button, Input, Space, Table, Tag } from "antd";
-import { FilterOutlined, SearchOutlined } from "@ant-design/icons";
+import { Input, Button, Space, Table, Tag } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 import ButtonFilter from "../../components/ButtonFilter/ButtonFilter";
 import ButtonCreate from "../../components/ButtonFilter/ButtonCreate";
-import UserList from "./UserList";
+import { useGetUsersQuery } from "../../services/userAPI";
+import UserList from "./UserManage/UserList";
+import CreateUserModal from "./UserManage/CreateUserModal";
+
 export default function User() {
-  //Fuction
+  const { data: users, isLoading, refetch } = useGetUsersQuery();
+  const [userData, setUserData] = useState([]);
+  const [originalUserData, setOriginalUserData] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
-  //Data Table ----------------------------------------------------
-  const columns = [
-    {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
-      render: (text) => <a>{text}</a>,
-    },
-    {
-      title: "Age",
-      dataIndex: "age",
-      key: "age",
-    },
-    {
-      title: "Address",
-      dataIndex: "address",
-      key: "address",
-    },
-    {
-      title: "Tags",
-      key: "tags",
-      dataIndex: "tags",
-      render: (_, { tags }) => (
-        <>
-          {tags.map((tag) => {
-            let color = tag.length > 5 ? "geekblue" : "green";
-            if (tag === "loser") {
-              color = "volcano";
-            }
-            return (
-              <Tag color={color} key={tag}>
-                {tag.toUpperCase()}
-              </Tag>
-            );
-          })}
-        </>
-      ),
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (_, record) => (
-        <Space size="middle">
-          <a>Invite {record.name}</a>
-          <a>Delete</a>
-        </Space>
-      ),
-    },
-  ];
+  useEffect(() => {
+    if (users) {
+      const indexedUsers = users.map((user, index) => ({
+        ...user,
+        index: index + 1,
+      }));
+      setUserData(indexedUsers);
+      setOriginalUserData(indexedUsers);
+    }
+  }, [users]);
 
-  const data = [
-    {
-      key: "1",
-      name: "John Brown",
-      age: 32,
-      address: "New York No. 1 Lake Park",
-      tags: ["nice", "developer"],
-    },
-    {
-      key: "2",
-      name: "Jim Green",
-      age: 42,
-      address: "London No. 1 Lake Park",
-      tags: ["loser"],
-    },
-    {
-      key: "3",
-      name: "Joe Black",
-      age: 32,
-      address: "Sydney No. 1 Lake Park",
-      tags: ["cool", "teacher"],
-    },
-  ];
+  // Hàm xử lý tìm kiếm
+  const handleSearch = (value) => {
+    setSearchValue(value);
+    const filteredData = originalUserData.filter(
+      (user) =>
+        user.name.toLowerCase().includes(value.toLowerCase()) ||
+        user.phone.toLowerCase().includes(value.toLowerCase())
+    );
+    setUserData(
+      filteredData.map((user, index) => ({ ...user, index: index + 1 }))
+    );
+  };
 
-  //Data Table-------------------------------------------------
+  // Hàm xử lý thay đổi giá trị của ô tìm kiếm
+  const onChangeSearch = (e) => {
+    const { value } = e.target;
+    setSearchValue(value);
+    if (value === "") {
+      setUserData(
+        originalUserData.map((user, index) => ({ ...user, index: index + 1 }))
+      );
+    }
+  };
+
+  const handleCreateUser = (values) => {
+    // Logic to create a user goes here
+    console.log("New User Data: ", values);
+
+    // Assuming an API call or other logic is used here to create the user
+    // After successful creation, refetch or update the user list
+
+    setUserData([
+      ...userData,
+      { ...values, index: userData.length + 1, id: new Date().getTime() },
+    ]);
+    setOriginalUserData([
+      ...originalUserData,
+      {
+        ...values,
+        index: originalUserData.length + 1,
+        id: new Date().getTime(),
+      },
+    ]);
+    setIsModalVisible(false);
+  };
 
   return (
     <div className="user-manage-page">
@@ -94,18 +82,28 @@ export default function User() {
           <Input
             style={{ borderRadius: 20, width: "350px" }}
             size="large"
-            placeholder="Search by name or phone number "
+            placeholder="Search by name or phone number"
             prefix={<SearchOutlined />}
+            value={searchValue}
+            onChange={onChangeSearch}
+            onPressEnter={() => handleSearch(searchValue)}
           />
           <ButtonFilter contentBtn={"Filter"} />
         </div>
         <div className="action-right">
-          <ButtonCreate contentBtn={"Create User"} />
+          <div onClick={() => setIsModalVisible(true)}>
+            <ButtonCreate contentBtn={"Create User"}></ButtonCreate>
+          </div>
         </div>
       </div>
       <div className="user-list">
-        <Table columns={columns} dataSource={data} />
+        <UserList userData={userData} />
       </div>
+      <CreateUserModal
+        visible={isModalVisible}
+        onCreate={handleCreateUser}
+        onCancel={() => setIsModalVisible(false)}
+      />
     </div>
   );
 }

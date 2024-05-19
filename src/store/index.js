@@ -1,10 +1,13 @@
-import { flowerApi } from "../services/flowerApi";
 import { combineReducers } from "redux";
 import { configureStore } from "@reduxjs/toolkit";
-// ...import { persistStore, persistReducer } from 'redux-persist';
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // Sử dụng localStorage
+import { flowerApi } from "../services/flowerApi";
 import flowerReducer from "../slices/flower.slice";
+import userReducer from "../slices/user.slice";
+import { userAPI } from "../services/userAPI";
+import { useReducer } from "react";
+
 const persistConfig = {
   key: "root",
   storage,
@@ -15,14 +18,22 @@ const staticReducers = {
 };
 
 const persistedReducer = persistReducer(persistConfig, flowerReducer);
+const persistedUserReducer = persistReducer(persistConfig, userReducer);
 
 export const store = configureStore({
   reducer: {
     [flowerApi.reducerPath]: flowerApi.reducer,
+    [userAPI.reducerPath]: userAPI.reducer,
+
     flower: persistedReducer,
+    user: persistedUserReducer,
   },
+  // middleware: (getDefaultMiddleware) =>
+  //   getDefaultMiddleware().concat(flowerApi.middleware),
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(flowerApi.middleware),
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }).concat(flowerApi.middleware, userAPI.middleware), //user them API test
 });
 
 // Add a dictionary to keep track of the registered async reducers
