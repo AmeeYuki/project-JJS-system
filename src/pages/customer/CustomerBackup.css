@@ -56,3 +56,9 @@
 .tb_customer {
   margin-top: 50px;
 }
+
+.modalActions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
