@@ -65,6 +65,7 @@ const MainLayout = () => {
                   background: "#ffffff",
                   color: "#333333",
                   fontSize: "20px",
+
                   boxShadow: "box-shadow: 0px 3px 0px 3px rgba(0, 0, 0, 0.2);",
                 }}
                 theme="light"
@@ -98,7 +99,12 @@ const MainLayout = () => {
                       >
                         {item.children.map((child) => (
                           <Menu.Item key={child.href}>
-                            <Link to={child.href}>{child.label}</Link>
+                            <Link
+                              style={{ fontFamily: "Inter" }}
+                              to={child.href}
+                            >
+                              {child.label}
+                            </Link>
                           </Menu.Item>
                         ))}
                       </Menu.SubMenu>
@@ -106,7 +112,9 @@ const MainLayout = () => {
                   } else {
                     return (
                       <Menu.Item key={item.href} icon={item.icon}>
-                        <Link to={item.href}>{item.label}</Link>
+                        <Link style={{ fontFamily: "Inter" }} to={item.href}>
+                          {item.label}
+                        </Link>
                       </Menu.Item>
                     );
                   }
@@ -135,7 +143,7 @@ const MainLayout = () => {
           <Content
             style={{
               width: "100%",
-              padding: "0 20px",
+              // padding: "0 20px",
               background: "#ffffff",
             }}
           >
