@@ -22,7 +22,7 @@
     "@reduxjs/toolkit": "^2.1.0",
     "@remixicon/react": "^4.2.0",
     "antd": "^5.13.2",
-    "axios": "^1.6.8",
+    "axios": "^1.7.0",
     "bootstrap": "^5.3.3",
     "path": "^0.12.7",
     "prop-types": "^15.8.1",

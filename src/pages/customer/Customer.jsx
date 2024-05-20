@@ -17,7 +17,7 @@ import {
   Typography,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import AddIcon from "@mui/icons-material/Add";
+// import AddIcon from "@mui/icons-material/Add";
 import "./Customer.css";
 
 const columns = (
@@ -265,7 +265,7 @@ export default function Customer() {
             <button className="filterButton">Filter</button>
           </div>
           <button className="addCustomerButton" onClick={handleOpen}>
-            <AddIcon /> + Add Customer
+            Add Customer
           </button>
         </div>
       </div>
