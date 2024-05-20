@@ -1,6 +1,7 @@
 import { FilterOutlined } from "@ant-design/icons";
 import { Button, ConfigProvider } from "antd";
 import React from "react";
+import { RiFilter3Line } from "@remixicon/react";
 
 export default function ButtonFilter({
   contentBtn,
@@ -25,8 +26,10 @@ export default function ButtonFilter({
       <Button
         // style={{ fontFamily: "Inter" }}
         type="primary"
-        icon={<FilterOutlined />}
+        // icon={<RiFile3Fill />}
+        style={{ display: "flex" }}
       >
+        <RiFilter3Line />
         {contentBtn}
       </Button>
     </ConfigProvider>

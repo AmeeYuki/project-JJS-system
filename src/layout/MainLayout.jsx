@@ -40,8 +40,8 @@ const MainLayout = () => {
               theme={{
                 components: {
                   Menu: {
-                    iconSize: "24px",
-                    itemHeight: "60px",
+                    iconSize: "20px",
+                    itemHeight: "55px",
                     itemSelectedColor: "#ffffff",
                     itemSelectedBg: "#333333",
                     collapsedIconSize: "20px",
@@ -64,7 +64,7 @@ const MainLayout = () => {
                   // borderRadius: "20px",
                   background: "#ffffff",
                   color: "#333333",
-                  fontSize: "20px",
+                  fontSize: "15px",
 
                   boxShadow: "box-shadow: 0px 3px 0px 3px rgba(0, 0, 0, 0.2);",
                 }}

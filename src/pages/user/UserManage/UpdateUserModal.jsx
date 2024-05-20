@@ -1,18 +1,29 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Form, Input, Select, Radio, DatePicker } from "antd";
+import moment from "moment";
 import "./CreateUserModal.css";
 
 const { Option } = Select;
 
-const CreateUserModal = ({ visible, onCreate, onCancel }) => {
+const UpdateUserModal = ({ visible, onUpdate, onCancel, user }) => {
   const [form] = Form.useForm();
+  const [isUpdating, setIsUpdating] = useState(false); // State để theo dõi trạng thái loading của nút
+
+  useEffect(() => {
+    if (user) {
+      form.setFieldsValue({
+        ...user,
+        dob: moment(user.date_of_birth),
+      });
+    }
+  }, [user, form]);
 
   return (
-    <div className="create-user-page">
+    <div className="update-user-page">
       <Modal
         visible={visible}
-        title="Create a new user"
-        okText="Create"
+        title="Update user"
+        okText="Update"
         cancelText="Cancel"
         onCancel={onCancel}
         onOk={() => {
@@ -20,21 +31,14 @@ const CreateUserModal = ({ visible, onCreate, onCancel }) => {
             .validateFields()
             .then((values) => {
               form.resetFields();
-              onCreate(values);
+              onUpdate({ ...values, id: user.id });
             })
             .catch((info) => {
               console.log("Validate Failed:", info);
             });
         }}
       >
-        <Form
-          form={form}
-          //   layout="vertical"
-          name="form_in_modal"
-          initialValues={{
-            modifier: "public",
-          }}
-        >
+        <Form form={form} name="form_in_modal">
           <Form.Item
             name="name"
             label="User Name:"
@@ -65,17 +69,15 @@ const CreateUserModal = ({ visible, onCreate, onCancel }) => {
             rules={[
               {
                 required: true,
-
                 message: "Please input the phone number of the user!",
               },
             ]}
           >
             <Input />
           </Form.Item>
-
           <Form.Item
             label="DOB"
-            name="Day of birth:"
+            name="dob"
             rules={[
               {
                 required: true,
@@ -99,10 +101,8 @@ const CreateUserModal = ({ visible, onCreate, onCancel }) => {
               <Option value="ADMIN">Admin</Option>
               <Option value="MANAGER">Manager</Option>
               <Option value="STAFF">Staff</Option>
-              {/* Add more options as needed */}
             </Select>
           </Form.Item>
-
           <Form.Item
             name="counter"
             label="Counter:"
@@ -117,7 +117,6 @@ const CreateUserModal = ({ visible, onCreate, onCancel }) => {
               <Option value="counter 1">Counter 1</Option>
               <Option value="counter 2">Counter 2</Option>
               <Option value="counter 3">Counter 3</Option>
-              {/* Add more options as needed */}
             </Select>
           </Form.Item>
           {/* <Form.Item
@@ -141,7 +140,7 @@ const CreateUserModal = ({ visible, onCreate, onCancel }) => {
             rules={[
               {
                 required: true,
-                message: "Please select the gender of the user!",
+                message: "Please select the status of the user!",
               },
             ]}
           >
@@ -156,4 +155,4 @@ const CreateUserModal = ({ visible, onCreate, onCancel }) => {
   );
 };
 
-export default CreateUserModal;
+export default UpdateUserModal;
