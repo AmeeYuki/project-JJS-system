@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Input, Col, Row, Table, Button } from "antd";
-import { RiAddLine, RiFilter3Line, RiSearchLine } from "@remixicon/react";
+import { Input, Col, Row, Table, Button, Dropdown, Menu, Modal } from "antd";
+import {
+  RiAddLine,
+  RiFilter3Line,
+  RiMoreFill,
+  RiSearchLine,
+} from "@remixicon/react";
 import "./Product.css";
 import CustomButton from "../../components/CustomButton/CustomButton";
 import CustomModal from "../../components/modal/Modal";
@@ -9,15 +14,11 @@ export default function Product() {
   const [data, setData] = useState([]);
   const [searchValue, setSearchValue] = useState("");
   const [loading, setLoading] = useState(true);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [inputValues, setInputValues] = useState({
-    productName: "",
-    category: "",
-    barcode: "",
-    weight: "",
-    price: "",
-  });
+  const [addModalVisible, setAddModalVisible] = useState(false);
   const [fileList, setFileList] = useState([]);
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [detailModalVisible, setDetailModalVisible] = useState(false);
 
   useEffect(() => {
     fetchDataFromAPI();
@@ -31,6 +32,7 @@ export default function Product() {
       const formattedData = responseData.map((item, index) => ({
         ...item,
         key: index + 1,
+        material: "Material Details",
       }));
       setData(formattedData);
     } catch (error) {
@@ -40,31 +42,24 @@ export default function Product() {
     }
   };
 
-  const handleInputChange = (fieldName) => (e) => {
-    const { value } = e.target;
-    setInputValues({ ...inputValues, [fieldName]: value });
+  const handleInputChange = (name) => (e) => {
+    let value = e.target.value;
+    setInputValues({ ...inputValues, [name]: value });
   };
 
-  const handleModalOk = () => {
-    console.log("Input values:", inputValues);
-    console.log("File list:", fileList);
-    setModalVisible(false);
-    setInputValues({
-      productName: "",
-      category: "",
-      barcode: "",
-      weight: "",
-      price: "",
-    });
-    setFileList([]);
+  const handleSelectChange = (value) => {
+    setInputValues({ ...inputValues, category: value });
   };
 
   const handleFileChange = ({ fileList }) => {
     setFileList(fileList);
   };
 
-  const sharedOnCell = (_, index) => {
-    return {};
+  const handleModalOk = (inputValues, selectValues, fileList) => {
+    console.log("Input values:", inputValues);
+    console.log("Select values:", selectValues);
+    console.log("File list:", fileList);
+    setModalVisible(false);
   };
 
   const onChangeSearch = (e) => {
@@ -72,11 +67,16 @@ export default function Product() {
     setSearchValue(value);
   };
 
+  const handleViewDetail = (record) => {
+    setSelectedProduct(record);
+    setDetailModalVisible(true);
+  };
+
   const filteredData = searchValue
     ? data.filter(
         (item) =>
-          (item.name &&
-            item.name.toLowerCase().includes(searchValue.toLowerCase())) ||
+          (item.title &&
+            item.title.toLowerCase().includes(searchValue.toLowerCase())) ||
           (item.barcode &&
             item.barcode.toLowerCase().includes(searchValue.toLowerCase())) ||
           (item.category &&
@@ -92,38 +92,43 @@ export default function Product() {
     },
     {
       title: "Product Name",
-      dataIndex: "name",
-      onCell: sharedOnCell,
+      dataIndex: "title",
     },
     {
       title: "Barcode",
       dataIndex: "barcode",
-      onCell: sharedOnCell,
     },
     {
       title: "Category",
       dataIndex: "category",
-      onCell: sharedOnCell,
     },
     {
       title: "Weight",
       dataIndex: "weight",
-      onCell: sharedOnCell,
     },
     {
       title: "Price",
       dataIndex: "price",
-      onCell: sharedOnCell,
-    },
-    {
-      title: "Counter",
-      dataIndex: "counter",
-      onCell: sharedOnCell,
     },
     {
       title: "",
-      dataIndex: "",
-      onCell: sharedOnCell,
+      dataIndex: "actions",
+      render: (text, record) => (
+        <Dropdown
+          overlay={
+            <Menu style={{ width: "250px" }}>
+              <Menu.Item key="1" onClick={() => handleViewDetail(record)}>
+                View Detail
+              </Menu.Item>
+              <Menu.Item key="2">Update</Menu.Item>
+              <Menu.Item key="3">Delete</Menu.Item>
+            </Menu>
+          }
+          trigger={["click"]}
+        >
+          <RiMoreFill style={{ cursor: "pointer" }} />
+        </Dropdown>
+      ),
     },
   ];
 
@@ -157,6 +162,7 @@ export default function Product() {
             iconPosition="left"
             fontSize="14px"
             padding="5px 10px"
+            onClick={() => setFilterModalVisible(true)}
           />
         </Col>
         <Col style={{ marginLeft: "auto" }}>
@@ -175,7 +181,7 @@ export default function Product() {
             iconPosition="left"
             fontSize="16px"
             padding="5px 20px"
-            onClick={() => setModalVisible(true)} // Mở modal khi click vào nút "Add Product"
+            onClick={() => setAddModalVisible(true)}
           />
         </Col>
         <Col>
@@ -200,65 +206,124 @@ export default function Product() {
 
       {/* Modal */}
       <CustomModal
-        visible={modalVisible}
-        onCancel={() => setModalVisible(false)}
+        visible={addModalVisible}
+        onCancel={() => setAddModalVisible(false)}
         title="Add Product"
         content={[
           {
-            type: "input",
-            name: "productName",
             label: "Product Name",
+            type: "input",
             placeholder: "Name of product...",
-            value: inputValues.productName,
-            onChange: handleInputChange("productName"),
+            name: "productName",
+            inputType: "text",
           },
           {
-            type: "input",
-            name: "category",
             label: "Category",
-            placeholder: "Category of product...",
-            value: inputValues.category,
-            onChange: handleInputChange("category"),
+            type: "select",
+            name: "category",
+            placeholder: "Category of product..",
+            options: [
+              { value: "gold", label: "Gold" },
+              { value: "silver", label: "Silver" },
+              { value: "diamond", label: "Diamond" },
+            ],
           },
           {
-            type: "input",
-            name: "barcode",
             label: "Barcode",
+            type: "input",
             placeholder: "Barcode of product...",
-            value: inputValues.barcode,
-            onChange: handleInputChange("barcode"),
+            name: "barcode",
+            inputType: "text",
           },
           {
-            type: "input",
-            name: "weight",
             label: "Weight",
-            placeholder: "Weight of product...",
-            value: inputValues.weight,
-            onChange: handleInputChange("weight"),
-          },
-          {
             type: "input",
-            name: "price",
-            label: "Price",
-            placeholder: "Price of product...",
-            value: inputValues.price,
-            onChange: handleInputChange("price"),
+            placeholder: "Weight of product...",
+            name: "weight",
+            inputType: "number",
           },
           {
-            type: "file",
+            label: "Price",
+            type: "input",
+            placeholder: "Price of product...",
+            name: "price",
+            inputType: "number",
+          },
+          {
             label: "Image (png,jpg)",
-            onChange: handleFileChange,
+            type: "file",
+            name: "importFile",
           },
         ]}
-        footerButtons={[
-          <Button key="cancel" onClick={() => setModalVisible(false)}>
-            Cancel
-          </Button>,
-          <Button key="create" type="primary" onClick={handleModalOk}>
-            Create
+        onOk={handleModalOk}
+        okText="Create"
+        cancelText="Cancel"
+      />
+
+      <CustomModal
+        visible={filterModalVisible}
+        onCancel={() => setFilterModalVisible(false)}
+        title="Filter Products"
+        content={[
+          {
+            label: "Category",
+            type: "checkboxGroup",
+            name: "category",
+            options: [
+              { label: "Gold", value: "gold" },
+              { label: "Silver", value: "silver" },
+              { label: "Diamond", value: "diamond" },
+            ],
+          },
+          {
+            label: "Price Range",
+            type: "slider",
+            name: "priceRange",
+            min: 0,
+            max: 1000000000,
+            defaultValue: [0, 1000000000],
+          },
+        ]}
+        onOk={handleModalOk}
+        okText="Apply"
+        cancelText="Cancel"
+      />
+
+      <Modal
+        title={"View Detail"}
+        visible={detailModalVisible}
+        onCancel={() => setDetailModalVisible(false)}
+        footer={[
+          <Button
+            key="back"
+            onClick={() => setDetailModalVisible(false)}
+            style={{
+              backgroundColor: "#555555",
+              color: "white",
+              padding: "5px 40px",
+            }}
+          >
+            Back
           </Button>,
         ]}
-      />
+      >
+        <div>{selectedProduct ? selectedProduct.title : ""}</div>
+        <Row justify="center" style={{ margin: "20px" }}>
+          <Col span={12}>
+            <img
+              src={selectedProduct ? selectedProduct.image : ""}
+              alt={selectedProduct ? selectedProduct.title : ""}
+              style={{ width: "100%" }}
+            />
+          </Col>
+          <Col span={12}>
+            <p>Material: {selectedProduct ? selectedProduct.material : ""}</p>
+            <p>Barcode: {selectedProduct ? selectedProduct.barcode : ""}</p>
+            <p>Weight: {selectedProduct ? selectedProduct.weight : ""}</p>
+            <p>Price: {selectedProduct ? selectedProduct.price : ""}</p>
+          </Col>
+        </Row>
+      </Modal>
     </div>
   );
 }

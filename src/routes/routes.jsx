@@ -29,6 +29,9 @@ const Home = Loadable({ loader: () => import("../pages/home/Home") });
 const Dashboard = Loadable({
   loader: () => import("../pages/dashboard/Dashboard"),
 });
+const Category = Loadable({
+  loader: () => import("../pages/category/Category"),
+});
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -71,6 +74,10 @@ export const router = createBrowserRouter([
           {
             path: "user",
             element: User,
+          },
+          {
+            path: "category",
+            element: Category,
           },
         ],
       },

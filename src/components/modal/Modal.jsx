@@ -1,6 +1,4 @@
-// Trong file CustomModal.js
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   Button,
@@ -10,47 +8,91 @@ import {
   Col,
   Select,
   Upload,
-  message,
+  Checkbox,
+  Slider,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
-const CustomModal = ({ visible, onCancel, title, content, footerButtons }) => {
-  const [inputValue, setInputValue] = useState("");
-  const [inputError, setInputError] = useState("");
+const CustomModal = ({
+  visible,
+  onCancel,
+  title,
+  content,
+  footerButtons,
+  onOk,
+  okText = "Create",
+  cancelText = "Cancel",
+}) => {
+  const [inputValues, setInputValues] = useState({});
+  const [inputErrors, setInputErrors] = useState({});
   const [radioValue, setRadioValue] = useState("");
-  const [selectValue, setSelectValue] = useState(null);
+  const [selectValue, setSelectValue] = useState({});
   const [fileList, setFileList] = useState([]);
+  const [checkboxValues, setCheckboxValues] = useState({});
+  const [sliderValues, setSliderValues] = useState({});
 
+  useEffect(() => {
+    if (!visible) {
+      setInputValues({});
+      setInputErrors({});
+      setRadioValue("");
+      setSelectValue({});
+      setFileList([]);
+      setCheckboxValues({});
+      setSliderValues({});
+    }
+  }, [visible]);
 
-  const handleInputChange = (e) => {
-    setInputValue(e.target.value);
-    setInputError(""); 
+  const handleInputChange = (name, type) => (e) => {
+    let value = e.target.value;
+    if (type === "number") {
+      value = value.replace(/[^0-9]/g, "");
+    }
+    setInputValues({ ...inputValues, [name]: value });
+    setInputErrors({ ...inputErrors, [name]: "" });
   };
 
   const handleRadioChange = (e) => {
     setRadioValue(e.target.value);
   };
 
-  const handleSelectChange = (value) => {
-    setSelectValue(value);
+  const handleSelectChange = (name) => (value) => {
+    setSelectValue({ ...selectValue, [name]: value });
   };
 
   const handleFileChange = ({ fileList }) => {
     setFileList(fileList);
   };
 
-  const handleOk = () => {
-    if (!inputValue.trim()) {
-      setInputError("This field is required");
-      return;
-    }
+  const handleCheckboxChange = (name, value) => {
+    setCheckboxValues({ ...checkboxValues, [name]: value });
+  };
 
-    console.log("Input value:", inputValue);
-    console.log("Radio value:", radioValue);
-    console.log("Select value:", selectValue);
-    console.log("File list:", fileList);
+  const handleSliderChange = (name, value) => {
+    setSliderValues({ ...sliderValues, [name]: value });
+  };
+
+  const handleOk = () => {
+    let hasError = false;
+    const newInputErrors = {};
+
+    content.forEach((item) => {
+      if (item.type === "input" && !inputValues[item.name]?.trim()) {
+        newInputErrors[item.name] = "This field is required";
+        hasError = true;
+      }
+      if (item.type === "select" && !selectValue[item.name]) {
+        newInputErrors[item.name] = "This field is required";
+        hasError = true;
+      }
+    });
+
+    setInputErrors(newInputErrors);
+    if (hasError) return;
+
+    onOk(inputValues, selectValue, fileList, checkboxValues, sliderValues);
     onCancel();
   };
 
@@ -62,9 +104,43 @@ const CustomModal = ({ visible, onCancel, title, content, footerButtons }) => {
   return (
     <Modal
       visible={visible}
-      title={title}
+      title={
+        <div
+          style={{
+            textAlign: "center",
+            marginBottom: "25px",
+            fontSize: "16px",
+          }}
+        >
+          {title}
+        </div>
+      }
       onCancel={onCancel}
-      footer={footerButtons}
+      footer={[
+        <div
+          key="buttons"
+          style={{ display: "flex", justifyContent: "space-between" }}
+        >
+          <Button
+            key="cancel"
+            onClick={onCancel}
+            style={{
+              border: "none",
+              color: "red",
+            }}
+          >
+            <u>{cancelText}</u>
+          </Button>
+          <Button
+            key="submit"
+            type="primary"
+            onClick={handleOk}
+            style={{ backgroundColor: "#333333", padding: "5px 25px" }}
+          >
+            {okText}
+          </Button>
+        </div>,
+      ]}
     >
       <Row gutter={[16, 16]}>
         {content.map((item, index) => (
@@ -90,12 +166,19 @@ const CustomModal = ({ visible, onCancel, title, content, footerButtons }) => {
                 {item.type === "input" && (
                   <>
                     <Input
+                      type={item.inputType || "text"}
                       placeholder={item.placeholder}
-                      value={inputValue}
-                      onChange={handleInputChange}
+                      value={inputValues[item.name] || ""}
+                      onChange={handleInputChange(item.name, item.inputType)}
                     />
-                    <div style={{ color: "red", fontSize: "10px" }}>
-                      {inputError}
+                    <div
+                      style={{
+                        color: "red",
+                        fontSize: "12px",
+                        marginTop: "5px",
+                      }}
+                    >
+                      {inputErrors[item.name]}
                     </div>
                   </>
                 )}
@@ -107,22 +190,66 @@ const CustomModal = ({ visible, onCancel, title, content, footerButtons }) => {
                   />
                 )}
                 {item.type === "select" && (
-                  <Select
-                    value={selectValue}
-                    onChange={handleSelectChange}
-                    style={{ width: "100%" }}
-                  >
-                    {item.options.map((option, index) => (
-                      <Option key={index} value={option.value}>
-                        {option.label}
-                      </Option>
-                    ))}
-                  </Select>
+                  <>
+                    <Select
+                      value={selectValue[item.name] || undefined}
+                      onChange={handleSelectChange(item.name)}
+                      style={{ width: "100%" }}
+                    >
+                      {item.options.map((option, index) => (
+                        <Option key={index} value={option.value}>
+                          {option.label}
+                        </Option>
+                      ))}
+                    </Select>
+                    <div
+                      style={{
+                        color: "red",
+                        fontSize: "12px",
+                        marginTop: "5px",
+                      }}
+                    >
+                      {inputErrors[item.name]}
+                    </div>
+                  </>
                 )}
                 {item.type === "file" && (
                   <Upload {...uploadProps}>
-                    <Button icon={<UploadOutlined />}>Import File</Button>
+                    <Button
+                      style={{ color: "white", backgroundColor: "#555555" }}
+                      icon={<UploadOutlined />}
+                    >
+                      Import File
+                    </Button>
                   </Upload>
+                )}
+                {item.type === "checkbox" && (
+                  <Checkbox
+                    onChange={(e) =>
+                      handleCheckboxChange(item.name, e.target.checked)
+                    }
+                    checked={checkboxValues[item.name]}
+                  >
+                    {item.label}
+                  </Checkbox>
+                )}
+                {item.type === "checkboxGroup" && (
+                  <Checkbox.Group
+                    options={item.options}
+                    onChange={(checkedValues) =>
+                      handleCheckboxChange(item.name, checkedValues)
+                    }
+                    value={checkboxValues[item.name]}
+                    style={{ display: "flex", flexDirection: "row" }}
+                  />
+                )}
+                {item.type === "slider" && (
+                  <Slider
+                    min={item.min}
+                    max={item.max}
+                    value={sliderValues[item.name]}
+                    onChange={(value) => handleSliderChange(item.name, value)}
+                  />
                 )}
                 {item.type === "link" && <a href={item.href}>{item.text}</a>}
               </div>
@@ -135,5 +262,3 @@ const CustomModal = ({ visible, onCancel, title, content, footerButtons }) => {
 };
 
 export default CustomModal;
-
-// example how to use: Product.jsx
