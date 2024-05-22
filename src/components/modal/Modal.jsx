@@ -108,8 +108,9 @@ const CustomModal = ({
         <div
           style={{
             textAlign: "center",
-            marginBottom: "25px",
-            fontSize: "16px",
+            fontSize: "24px",
+            fontWeight: "bold",
+            color: "#333333",
           }}
         >
           {title}

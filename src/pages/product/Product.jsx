@@ -19,6 +19,9 @@ export default function Product() {
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
+  const [selectedProductForUpdate, setSelectedProductForUpdate] =
+    useState(null);
 
   useEffect(() => {
     fetchDataFromAPI();
@@ -72,6 +75,11 @@ export default function Product() {
     setDetailModalVisible(true);
   };
 
+  const handleUpdateProduct = (record) => {
+    setSelectedProductForUpdate(record);
+    setUpdateModalVisible(true);
+  };
+
   const filteredData = searchValue
     ? data.filter(
         (item) =>
@@ -120,7 +128,9 @@ export default function Product() {
               <Menu.Item key="1" onClick={() => handleViewDetail(record)}>
                 View Detail
               </Menu.Item>
-              <Menu.Item key="2">Update</Menu.Item>
+              <Menu.Item key="2" onClick={() => handleUpdateProduct(record)}>
+                Update
+              </Menu.Item>
               <Menu.Item key="3">Delete</Menu.Item>
             </Menu>
           }
@@ -290,7 +300,18 @@ export default function Product() {
       />
 
       <Modal
-        title={"View Detail"}
+        title={
+          <div
+            style={{
+              textAlign: "center",
+              fontSize: "24px",
+              fontWeight: "bold",
+              color: "#333333",
+            }}
+          >
+            View Detail
+          </div>
+        }
         visible={detailModalVisible}
         onCancel={() => setDetailModalVisible(false)}
         footer={[
@@ -307,23 +328,138 @@ export default function Product() {
           </Button>,
         ]}
       >
-        <div>{selectedProduct ? selectedProduct.title : ""}</div>
-        <Row justify="center" style={{ margin: "20px" }}>
-          <Col span={12}>
+        <Row justify="center" style={{ marginBottom: "20px" }}>
+          <Col span={24} style={{ textAlign: "center" }}>
+            <div
+              style={{
+                fontSize: "20px",
+                fontWeight: "500",
+                marginBottom: "10px",
+              }}
+            >
+              {selectedProduct ? selectedProduct.title : ""}
+            </div>
+          </Col>
+        </Row>
+        <Row
+          justify="center"
+          align="middle"
+          style={{
+            padding: "10px 20px",
+            backgroundColor: "#f9f9f9",
+            borderRadius: "10px",
+            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          <Col span={10}>
             <img
               src={selectedProduct ? selectedProduct.image : ""}
               alt={selectedProduct ? selectedProduct.title : ""}
-              style={{ width: "100%" }}
+              style={{
+                width: "100%",
+                borderRadius: "10px",
+                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+              }}
             />
           </Col>
-          <Col span={12}>
-            <p>Material: {selectedProduct ? selectedProduct.material : ""}</p>
-            <p>Barcode: {selectedProduct ? selectedProduct.barcode : ""}</p>
-            <p>Weight: {selectedProduct ? selectedProduct.weight : ""}</p>
-            <p>Price: {selectedProduct ? selectedProduct.price : ""}</p>
+          <Col span={14} style={{ paddingLeft: "20px" }}>
+            <p style={{ marginBottom: "10px" }}>
+              <strong>Material:</strong>{" "}
+              {selectedProduct ? selectedProduct.material : ""}
+            </p>
+            <p style={{ marginBottom: "10px" }}>
+              <strong>Barcode:</strong>{" "}
+              {selectedProduct ? selectedProduct.barcode : ""}
+            </p>
+            <p style={{ marginBottom: "10px" }}>
+              <strong>Weight:</strong>{" "}
+              {selectedProduct ? selectedProduct.weight : ""}
+            </p>
+            <p style={{ marginBottom: "0" }}>
+              <strong>Price:</strong>{" "}
+              {selectedProduct ? selectedProduct.price : ""}
+            </p>
           </Col>
         </Row>
       </Modal>
+      <CustomModal
+        visible={updateModalVisible}
+        onCancel={() => {
+          setUpdateModalVisible(false);
+          setSelectedProductForUpdate(null); 
+        }}
+        title="Update Product"
+        content={[
+          {
+            label: "Product Name",
+            type: "input",
+            placeholder: "Name of product...",
+            name: "productName",
+            inputType: "text",
+            initialValue: selectedProductForUpdate
+              ? selectedProductForUpdate.title
+              : "",
+          },
+          {
+            label: "Category",
+            type: "select",
+            placeholder: "Select category...",
+            name: "category",
+            options: [
+              { value: "gold", label: "Gold" },
+              { value: "silver", label: "Silver" },
+              { value: "diamond", label: "Diamond" },
+            ],
+            initialValue: selectedProductForUpdate
+              ? selectedProductForUpdate.category
+              : "",
+          },
+          {
+            label: "Barcode",
+            type: "input",
+            placeholder: "Barcode of product...",
+            name: "barcode",
+            inputType: "text",
+            initialValue: selectedProductForUpdate
+              ? selectedProductForUpdate.barcode
+              : "",
+          },
+          {
+            label: "Weight",
+            type: "input",
+            placeholder: "Weight of product...",
+            name: "weight",
+            inputType: "number",
+            initialValue: selectedProductForUpdate
+              ? selectedProductForUpdate.weight
+              : "",
+          },
+          {
+            label: "Price",
+            type: "input",
+            placeholder: "Price of product...",
+            name: "price",
+            inputType: "number",
+            initialValue: selectedProductForUpdate
+              ? selectedProductForUpdate.price
+              : "",
+          },
+          {
+            label: "Image (png,jpg)",
+            type: "file",
+            name: "importFile",
+          },
+        ]}
+        onOk={(inputValues, selectValues, fileList) => {
+          console.log("Updated input values:", inputValues);
+          console.log("Updated select values:", selectValues);
+          console.log("Updated file list:", fileList);
+          setUpdateModalVisible(false);
+          setSelectedProductForUpdate(null);
+        }}
+        okText="Save"
+        cancelText="Cancel"
+      />
     </div>
   );
 }
