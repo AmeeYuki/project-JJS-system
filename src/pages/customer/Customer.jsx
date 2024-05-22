@@ -17,7 +17,6 @@ import {
   Typography,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-// import AddIcon from "@mui/icons-material/Add";
 import "./Customer.css";
 
 const columns = (
@@ -66,6 +65,7 @@ const ActionsMenu = ({
   };
 
   const handleMenuItemClick = (action) => {
+    handleClose();
     switch (action) {
       case "view":
         handleViewDetail(customerId);
@@ -82,7 +82,6 @@ const ActionsMenu = ({
       default:
         break;
     }
-    handleClose();
   };
 
   return (
@@ -286,7 +285,6 @@ export default function Customer() {
               },
             }}
             pageSizeOptions={[5, 10]}
-            checkboxSelection
           />
         </div>
       </div>
