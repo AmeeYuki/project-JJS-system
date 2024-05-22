@@ -19,14 +19,23 @@
 .d-flex-between-two {
   display: flex;
 }
-:where(.css-dev-only-do-not-override-1qhpsh8).ant-btn-primary {
+.ant-btn-primary {
   color: #fff;
   background: #000000;
   box-shadow: 0 2px 0 rgba(5, 145, 255, 0.1);
 }
-:where(.css-dev-only-do-not-override-1qhpsh8).ant-btn-primary:not(
-    :disabled
-  ):not(.ant-btn-disabled):hover {
+.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover {
   color: #fff;
   background: #373737;
+}
+
+.ant-table-wrapper .ant-table-thead > tr > th,
+.ant-table-wrapper .ant-table-thead > tr > td {
+  background-color: #373737;
+  color: #ffffff;
+}
+
+.ant-table-wrapper table {
+  border: 1px solid #d2d2d2;
+  box-shadow: 2px 2px 0px 0px rgba(138, 138, 138, 0.1);
 }

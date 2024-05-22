@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import "./User.css";
 import { Input, message } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
-import ButtonFilter from "../../components/ButtonFilter/ButtonFilter";
 import ButtonCreate from "../../components/ButtonFilter/ButtonCreate";
 import {
   useAddUserMutation,
@@ -18,7 +17,6 @@ import { CircularProgress } from "@mui/material";
 export default function User() {
   const { data: users, isLoading, refetch } = useGetUsersQuery();
   const [userData, setUserData] = useState([]);
-  // const [originalUserData, setOriginalUserData] = useState([]);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -37,9 +35,23 @@ export default function User() {
         index: index + 1,
       }));
       setUserData(indexedUsers);
-      // setOriginalUserData(indexedUsers);
     }
   }, [users]);
+
+  useEffect(() => {
+    if (users) {
+      const filteredUsers = users.filter(
+        (user) =>
+          user.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+          user.phone.includes(searchValue)
+      );
+      const indexedUsers = filteredUsers.map((user, index) => ({
+        ...user,
+        index: index + 1,
+      }));
+      setUserData(indexedUsers);
+    }
+  }, [searchValue, users]);
 
   const handleSearch = (value) => {
     setSearchValue(value);
