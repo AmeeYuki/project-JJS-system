@@ -5,7 +5,7 @@ import "./CreateUserModal.css";
 
 const { Option } = Select;
 
-const UpdateUserModal = ({ visible, onUpdate, onCancel, user }) => {
+const UpdateUserModal = ({ visible, onUpdate, onCancel, user, loading }) => {
   const [form] = Form.useForm();
   const [isUpdating, setIsUpdating] = useState(false); // State để theo dõi trạng thái loading của nút
 
@@ -25,12 +25,13 @@ const UpdateUserModal = ({ visible, onUpdate, onCancel, user }) => {
         title="Update user"
         okText="Update"
         cancelText="Cancel"
+        okButtonProps={{ loading }}
         onCancel={onCancel}
         onOk={() => {
           form
             .validateFields()
             .then((values) => {
-              form.resetFields();
+              // form.resetFields();
               onUpdate({ ...values, id: user.id });
             })
             .catch((info) => {

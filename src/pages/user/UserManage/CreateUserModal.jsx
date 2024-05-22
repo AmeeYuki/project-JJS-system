@@ -1,13 +1,18 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Modal, Form, Input, Select, Radio, DatePicker } from "antd";
 import moment from "moment";
 import "./CreateUserModal.css";
 
 const { Option } = Select;
 
-const CreateUserModal = ({ visible, onCreate, onCancel }) => {
+const CreateUserModal = ({ visible, onCreate, onCancel, loading }) => {
   const [form] = Form.useForm();
 
+  useEffect(() => {
+    if (!visible) {
+      form.resetFields(); // Reset form fields when modal is closed
+    }
+  }, [visible]);
   return (
     <div className="create-user-page">
       <Modal
@@ -16,11 +21,12 @@ const CreateUserModal = ({ visible, onCreate, onCancel }) => {
         okText="Create"
         cancelText="Cancel"
         onCancel={onCancel}
+        okButtonProps={{ loading }}
         onOk={() => {
           form
             .validateFields()
             .then((values) => {
-              form.resetFields();
+              // form.resetFields();
               onCreate(values);
             })
             .catch((info) => {
@@ -86,8 +92,7 @@ const CreateUserModal = ({ visible, onCreate, onCancel }) => {
             rules={[
               {
                 required: true,
-
-                message: "Please input a valid 10-digit phone number!",
+                message: "Please input the date of birth!",
               },
             ]}
           >
@@ -111,7 +116,6 @@ const CreateUserModal = ({ visible, onCreate, onCancel }) => {
               <Option value="Admin">Admin</Option>
               <Option value="Manager">Manager</Option>
               <Option value="Staff">Staff</Option>
-              {/* Add more options as needed */}
             </Select>
           </Form.Item>
 

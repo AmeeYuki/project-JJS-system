@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./User.css";
-import { Input, message } from "antd";
+import { Input, message, notification } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import ButtonCreate from "../../components/ButtonFilter/ButtonCreate";
 import {
@@ -68,7 +68,11 @@ export default function User() {
       .then((data) => {
         setIsCreateModalVisible(false);
         refetch();
+        notification.success({
+          message: "Create user successfully",
+        });
       })
+
       .catch((error) => {
         console.error("Error creating user: ", error);
       });
@@ -80,6 +84,9 @@ export default function User() {
       .then((data) => {
         setIsUpdateModalVisible(false);
         refetch();
+        notification.success({
+          message: "Update user successfully",
+        });
       })
       .catch((error) => {
         console.error("Error updating user: ", error);
@@ -89,12 +96,10 @@ export default function User() {
   const handleDeleteUser = async (userId) => {
     try {
       const result = await deleteUserMutation(userId);
-      if (result.error.originalStatus === 200) {
-        refetch();
-        message.success("User deleted successfully!", 1.5);
-      } else {
-        message.error("User deletion unsuccessful!", 1.5);
-      }
+      refetch();
+      notification.success({
+        message: "Delete user successfully",
+      });
     } catch (error) {
       console.error(error);
     }
@@ -151,6 +156,7 @@ export default function User() {
       <CreateUserModal
         visible={isCreateModalVisible}
         onCreate={handleCreateUser}
+        loading={isLoadingAdd}
         onCancel={() => setIsCreateModalVisible(false)}
       />
       {selectedUser && (
@@ -158,6 +164,7 @@ export default function User() {
           visible={isUpdateModalVisible}
           onUpdate={handleUpdateUser}
           onCancel={() => setIsUpdateModalVisible(false)}
+          loading={isLoadingEdit}
           user={selectedUser}
         />
       )}
