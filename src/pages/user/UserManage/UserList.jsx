@@ -72,7 +72,7 @@ export default function UserList({ userData, onEditUser, handleDeleteUser }) {
     },
     {
       title: "Name",
-      dataIndex: "name",
+      dataIndex: "fullname",
       key: "name",
     },
     {
@@ -82,17 +82,18 @@ export default function UserList({ userData, onEditUser, handleDeleteUser }) {
     },
     {
       title: "Phone",
-      dataIndex: "phone",
+      dataIndex: "phone_number",
       key: "phone",
     },
     {
       title: "Counter",
-      dataIndex: "counter",
+      dataIndex: "counter_id",
       key: "counter",
+      render: (counter_id) => (counter_id ? counter_id : "No counter"),
     },
     {
       title: "Role",
-      dataIndex: "role",
+      dataIndex: "role_id",
       key: "role",
     },
     {

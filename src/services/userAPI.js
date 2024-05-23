@@ -1,21 +1,32 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { USER_API_URL } from "../config";
+import { API_URL_BE } from "../config";
+import { selectToken } from "../slices/auth.slice";
 
 export const userAPI = createApi({
   reducerPath: "userManagement",
   tagTypes: ["UserList"],
-  baseQuery: fetchBaseQuery({ baseUrl: USER_API_URL }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: API_URL_BE,
+    prepareHeaders: (headers, { getState }) => {
+      const token = selectToken(getState()); // Retrieve token from Redux state using selectToken selector
+      if (token) {
+        headers.append("Authorization", `Bearer ${token}`);
+      }
+      headers.append("Content-Type", "application/json");
+      return headers;
+    },
+  }),
   endpoints: (builder) => ({
-    getUsers: builder.query({
-      query: () => `userManager`,
-      providesTags: (result, _error, _arg) =>
+    getAllUser: builder.query({
+      query: () => `users/get_all_users?page=0&limit=10000 `,
+      // `providesTags` determines which 'tag' is attached to the
+      // cached data returned by the query.
+      providesTags: (result) =>
         result
-          ? [
-              ...result.map(({ id }) => ({ type: "UserList", id })),
-              { type: "UserList", id: "LIST" },
-            ]
-          : [{ type: "UserList", id: "LIST" }],
+          ? result.users.map(({ id }) => ({ type: "UserList", id }))
+          : [{ type: "UserList", id: " LIST " }],
     }),
+
     addUser: builder.mutation({
       query: (body) => ({
         method: "POST",
@@ -43,7 +54,7 @@ export const userAPI = createApi({
 });
 
 export const {
-  useGetUsersQuery,
+  useGetAllUserQuery,
   useAddUserMutation,
   useEditUserMutation,
   useDeleteUserMutation,

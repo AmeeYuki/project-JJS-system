@@ -7,7 +7,7 @@ import {
   useAddUserMutation,
   useDeleteUserMutation,
   useEditUserMutation,
-  useGetUsersQuery,
+  useGetAllUserQuery,
 } from "../../services/userAPI";
 import UserList from "./UserManage/UserList";
 import CreateUserModal from "./UserManage/CreateUserModal";
@@ -15,7 +15,7 @@ import UpdateUserModal from "./UserManage/UpdateUserModal";
 import { CircularProgress } from "@mui/material";
 
 export default function User() {
-  const { data: users, isLoading, refetch } = useGetUsersQuery();
+  const { data: users, isLoading, refetch } = useGetAllUserQuery();
   const [userData, setUserData] = useState([]);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
@@ -28,9 +28,11 @@ export default function User() {
   const [deleteUserMutation, { isLoading: isLoadingDelete }] =
     useDeleteUserMutation();
 
+  const usersData = users?.users;
+  console.log(usersData);
   useEffect(() => {
     if (users) {
-      const indexedUsers = users.map((user, index) => ({
+      const indexedUsers = usersData?.map((user, index) => ({
         ...user,
         index: index + 1,
       }));
@@ -40,9 +42,9 @@ export default function User() {
 
   useEffect(() => {
     if (users) {
-      const filteredUsers = users.filter(
+      const filteredUsers = usersData?.filter(
         (user) =>
-          user.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+          user.fullname.toLowerCase().includes(searchValue.toLowerCase()) ||
           user.phone.includes(searchValue)
       );
       const indexedUsers = filteredUsers.map((user, index) => ({
