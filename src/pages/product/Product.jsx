@@ -22,6 +22,10 @@ export default function Product() {
   const [updateModalVisible, setUpdateModalVisible] = useState(false);
   const [selectedProductForUpdate, setSelectedProductForUpdate] =
     useState(null);
+  const [inputValues, setInputValues] = useState({});
+  const [selectValue, setSelectValue] = useState({});
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [priceRange, setPriceRange] = useState([0, 1000000000]);
 
   useEffect(() => {
     fetchDataFromAPI();
@@ -35,7 +39,6 @@ export default function Product() {
       const formattedData = responseData.map((item, index) => ({
         ...item,
         key: index + 1,
-        material: "Material Details",
       }));
       setData(formattedData);
     } catch (error) {
@@ -50,8 +53,8 @@ export default function Product() {
     setInputValues({ ...inputValues, [name]: value });
   };
 
-  const handleSelectChange = (value) => {
-    setInputValues({ ...inputValues, category: value });
+  const handleSelectChange = (name) => (value) => {
+    setSelectValue({ ...selectValue, [name]: value });
   };
 
   const handleFileChange = ({ fileList }) => {
@@ -59,10 +62,14 @@ export default function Product() {
   };
 
   const handleModalOk = (inputValues, selectValues, fileList) => {
-    console.log("Input values:", inputValues);
-    console.log("Select values:", selectValues);
-    console.log("File list:", fileList);
-    setModalVisible(false);
+    const newProduct = {
+      title: inputValues.productName,
+      category: selectValues.category,
+      barcode: inputValues.barcode,
+      weight: inputValues.weight,
+      price: inputValues.price,
+    };
+    addProduct(newProduct);
   };
 
   const onChangeSearch = (e) => {
@@ -78,6 +85,19 @@ export default function Product() {
   const handleUpdateProduct = (record) => {
     setSelectedProductForUpdate(record);
     setUpdateModalVisible(true);
+  };
+
+  const handleFilterApply = () => {
+    const filteredData = data.filter((item) => {
+      const categoryMatch =
+        selectedCategories.length === 0 ||
+        selectedCategories.includes(item.category);
+      const priceMatch =
+        item.price >= priceRange[0] && item.price <= priceRange[1];
+      return categoryMatch && priceMatch;
+    });
+    setData(filteredData);
+    setFilterModalVisible(false);
   };
 
   const filteredData = searchValue
@@ -142,6 +162,24 @@ export default function Product() {
     },
   ];
 
+  const addProduct = async (newProduct) => {
+    try {
+      const response = await fetch("https://fakestoreapi.com/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newProduct),
+      });
+      const responseData = await response.json();
+      const updatedData = [...data, responseData];
+      setData(updatedData);
+      setAddModalVisible(false);
+    } catch (error) {
+      console.error("Error adding product:", error);
+    }
+  };
+
   return (
     <div>
       <div className="product_title">Product Page</div>
@@ -168,10 +206,11 @@ export default function Product() {
               marginBottom: "10px",
               border: "none",
               borderRadius: "5px",
+              cursor: "pointer",
             }}
             iconPosition="left"
             fontSize="14px"
-            padding="5px 10px"
+            padding="10px 10px"
             onClick={() => setFilterModalVisible(true)}
           />
         </Col>
@@ -187,10 +226,11 @@ export default function Product() {
               marginBottom: "10px",
               border: "none",
               borderRadius: "5px",
+              cursor: "pointer",
             }}
             iconPosition="left"
             fontSize="16px"
-            padding="5px 20px"
+            padding="10px 20px"
             onClick={() => setAddModalVisible(true)}
           />
         </Col>
@@ -205,10 +245,11 @@ export default function Product() {
               marginBottom: "10px",
               border: "none",
               borderRadius: "5px",
+              cursor: "pointer",
             }}
             iconPosition="left"
             fontSize="16px"
-            padding="5px 15px"
+            padding="10px 15px"
           />
         </Col>
       </Row>
@@ -294,11 +335,10 @@ export default function Product() {
             defaultValue: [0, 1000000000],
           },
         ]}
-        onOk={handleModalOk}
+        onOk={handleFilterApply}
         okText="Apply"
         cancelText="Cancel"
       />
-
       <Modal
         title={
           <div
@@ -351,17 +391,24 @@ export default function Product() {
             boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
           }}
         >
-          <Col span={10}>
-            <img
-              src={selectedProduct ? selectedProduct.image : ""}
-              alt={selectedProduct ? selectedProduct.title : ""}
-              style={{
-                width: "100%",
-                borderRadius: "10px",
-                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-              }}
-            />
+          <Col span={10} style={{ display: "flex", justifyContent: "center" }}>
+            <div
+              style={{ width: "200px", height: "200px", overflow: "hidden" }}
+            >
+              <img
+                src={selectedProduct ? selectedProduct.image : ""}
+                alt={selectedProduct ? selectedProduct.title : ""}
+                style={{
+                  width: "100%",
+                  height: "auto",
+                  objectFit: "cover",
+                  borderRadius: "10px",
+                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                }}
+              />
+            </div>
           </Col>
+
           <Col span={14} style={{ paddingLeft: "20px" }}>
             <p style={{ marginBottom: "10px" }}>
               <strong>Material:</strong>{" "}
@@ -386,7 +433,7 @@ export default function Product() {
         visible={updateModalVisible}
         onCancel={() => {
           setUpdateModalVisible(false);
-          setSelectedProductForUpdate(null); 
+          setSelectedProductForUpdate(null);
         }}
         title="Update Product"
         content={[
@@ -452,6 +499,7 @@ export default function Product() {
         ]}
         onOk={(inputValues, selectValues, fileList) => {
           console.log("Updated input values:", inputValues);
+          console;
           console.log("Updated select values:", selectValues);
           console.log("Updated file list:", fileList);
           setUpdateModalVisible(false);
