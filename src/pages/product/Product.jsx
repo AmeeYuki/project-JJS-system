@@ -9,6 +9,11 @@ import {
 import "./Product.css";
 import CustomButton from "../../components/CustomButton/CustomButton";
 import CustomModal from "../../components/modal/Modal";
+import { Navigate, useNavigate } from "react-router-dom";
+import {
+  useGetCategoriesQuery,
+  useGetProductsQuery,
+} from "../../services/productApi";
 
 export default function Product() {
   const [data, setData] = useState([]);
@@ -26,6 +31,24 @@ export default function Product() {
   const [selectValue, setSelectValue] = useState({});
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [priceRange, setPriceRange] = useState([0, 1000000000]);
+  const navigate = useNavigate();
+  //-----------------------------------------------------------
+  //Test API
+  const {
+    data: products,
+    isLoadingProduct,
+    refetchProduct,
+  } = useGetProductsQuery();
+  const {
+    data: categories,
+    isLoadingCategories,
+    refetchCategories,
+  } = useGetCategoriesQuery();
+
+  // console.log(products);
+  // console.log(categories);
+
+  //-----------------------------------------------------------
 
   useEffect(() => {
     fetchDataFromAPI();
@@ -46,6 +69,9 @@ export default function Product() {
     } finally {
       setLoading(false);
     }
+  };
+  const changePageCategory = () => {
+    navigate("/category");
   };
 
   const handleInputChange = (name) => (e) => {
@@ -250,6 +276,7 @@ export default function Product() {
             iconPosition="left"
             fontSize="16px"
             padding="10px 15px"
+            onClick={changePageCategory}
           />
         </Col>
       </Row>

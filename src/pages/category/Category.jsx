@@ -4,13 +4,20 @@ import { RiAddLine, RiMoreFill, RiSearchLine } from "@remixicon/react";
 import CustomButton from "../../components/CustomButton/CustomButton";
 import CustomModal from "../../components/modal/Modal";
 import "./Category.css";
+import { useGetCategoriesQuery } from "../../services/productApi";
 
 export default function Category() {
   const [data, setData] = useState([]);
   const [searchValue, setSearchValue] = useState("");
   const [loading, setLoading] = useState(true);
   const [addCategoryModalVisible, setAddCategoryModalVisible] = useState(false);
+  const {
+    data: categories,
+    isLoadingCategories,
+    refetchCategories,
+  } = useGetCategoriesQuery();
 
+  console.log(categories);
   useEffect(() => {
     fetchDataFromAPI();
   }, []);
