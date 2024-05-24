@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import axios from "axios";
-import PropTypes from "prop-types";
 import {
   Modal,
   Box,
@@ -11,13 +10,22 @@ import {
   RadioGroup,
   FormControlLabel,
   FormLabel,
-  IconButton,
-  Menu,
-  MenuItem,
+  Snackbar,
+  Alert,
   Typography,
 } from "@mui/material";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import ActionsMenu from "./ActionsMenu";
+import {
+  handleViewDetail,
+  handleUpdateCustomer,
+  handleDeleteCustomer,
+  handleCreatePromotion,
+  handleSaveUpdate,
+  handleSavePromotion,
+} from "./CustomerActions";
+import { handleAddCustomer } from "./handleAddCustomer";
 import "./Customer.css";
+import "./AddCustomer.css";
 
 const columns = (
   handleViewDetail,
@@ -47,74 +55,6 @@ const columns = (
   },
 ];
 
-const ActionsMenu = ({
-  customerId,
-  handleViewDetail,
-  handleUpdateCustomer,
-  handleDeleteCustomer,
-  handleCreatePromotion,
-}) => {
-  const [anchorEl, setAnchorEl] = useState(null);
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleMenuItemClick = (action) => {
-    handleClose();
-    switch (action) {
-      case "view":
-        handleViewDetail(customerId);
-        break;
-      case "update":
-        handleUpdateCustomer(customerId);
-        break;
-      case "delete":
-        handleDeleteCustomer(customerId);
-        break;
-      case "promotion":
-        handleCreatePromotion(customerId);
-        break;
-      default:
-        break;
-    }
-  };
-
-  return (
-    <>
-      <IconButton onClick={handleClick}>
-        <MoreVertIcon />
-      </IconButton>
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-        <MenuItem onClick={() => handleMenuItemClick("view")}>
-          View Detail
-        </MenuItem>
-        <MenuItem onClick={() => handleMenuItemClick("update")}>
-          Update
-        </MenuItem>
-        <MenuItem onClick={() => handleMenuItemClick("delete")}>
-          Delete
-        </MenuItem>
-        <MenuItem onClick={() => handleMenuItemClick("promotion")}>
-          Create Promotion for Customers
-        </MenuItem>
-      </Menu>
-    </>
-  );
-};
-
-ActionsMenu.propTypes = {
-  customerId: PropTypes.number.isRequired,
-  handleViewDetail: PropTypes.func.isRequired,
-  handleUpdateCustomer: PropTypes.func.isRequired,
-  handleDeleteCustomer: PropTypes.func.isRequired,
-  handleCreatePromotion: PropTypes.func.isRequired,
-};
-
 export default function Customer() {
   const [rows, setRows] = useState([]);
   const [filteredRows, setFilteredRows] = useState([]);
@@ -132,17 +72,26 @@ export default function Customer() {
     point: 0,
   });
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   useEffect(() => {
     axios
       .get("https://65edbd9708706c584d9a764a.mockapi.io/LoginForm")
       .then((response) => {
-        console.log("Data fetched successfully: ", response.data);
         setRows(response.data);
         setFilteredRows(response.data);
       })
       .catch((error) => {
         console.error("Error fetching data: ", error);
+        setSnackbar({
+          open: true,
+          message: "Error fetching data",
+          severity: "error",
+        });
       });
   }, []);
 
@@ -166,86 +115,11 @@ export default function Customer() {
   const handleCloseDetail = () => setOpenDetail(false);
   const handleCloseUpdate = () => setOpenUpdate(false);
   const handleClosePromotion = () => setOpenPromotion(false);
+  const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewCustomer({ ...newCustomer, [name]: value });
-  };
-
-  const handleAddCustomer = () => {
-    axios
-      .post(
-        "https://65edbd9708706c584d9a764a.mockapi.io/LoginForm",
-        newCustomer
-      )
-      .then((response) => {
-        console.log("Customer added successfully: ", response.data);
-        setRows([...rows, response.data]);
-        setFilteredRows([...rows, response.data]);
-        handleClose();
-      })
-      .catch((error) => {
-        console.error("Error adding customer: ", error);
-      });
-  };
-
-  const handleViewDetail = (customerId) => {
-    const customer = rows.find((row) => row.id === customerId);
-    setSelectedCustomer(customer);
-    setOpenDetail(true);
-  };
-
-  const handleUpdateCustomer = (customerId) => {
-    const customer = rows.find((row) => row.id === customerId);
-    setSelectedCustomer(customer);
-    setOpenUpdate(true);
-  };
-
-  const handleSaveUpdate = () => {
-    axios
-      .put(
-        `https://65edbd9708706c584d9a764a.mockapi.io/LoginForm/${selectedCustomer.id}`,
-        selectedCustomer
-      )
-      .then((response) => {
-        console.log("Customer updated successfully: ", response.data);
-        const updatedRows = rows.map((row) =>
-          row.id === response.data.id ? response.data : row
-        );
-        setRows(updatedRows);
-        setFilteredRows(updatedRows);
-        handleCloseUpdate();
-      })
-      .catch((error) => {
-        console.error("Error updating customer: ", error);
-      });
-  };
-
-  const handleDeleteCustomer = (customerId) => {
-    axios
-      .delete(
-        `https://65edbd9708706c584d9a764a.mockapi.io/LoginForm/${customerId}`
-      )
-      .then(() => {
-        console.log("Customer deleted successfully");
-        const updatedRows = rows.filter((row) => row.id !== customerId);
-        setRows(updatedRows);
-        setFilteredRows(updatedRows);
-      })
-      .catch((error) => {
-        console.error("Error deleting customer: ", error);
-      });
-  };
-
-  const handleCreatePromotion = (customerId) => {
-    const customer = rows.find((row) => row.id === customerId);
-    setSelectedCustomer(customer);
-    setOpenPromotion(true);
-  };
-
-  const handleSavePromotion = () => {
-    // Logic to save promotion for the customer
-    handleClosePromotion();
   };
 
   return (
@@ -290,20 +164,10 @@ export default function Customer() {
       </div>
 
       <Modal open={open} onClose={handleClose}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "background.paper",
-            border: "2px solid #000",
-            boxShadow: 24,
-            p: 4,
-          }}
-        >
-          <h2>Add a new customer</h2>
+        <Box className="addCustomerModal">
+          <Typography variant="h6" className="addCustomerTitle">
+            Add a new customer
+          </Typography>
           <TextField
             label="Name"
             name="name"
@@ -346,6 +210,7 @@ export default function Customer() {
             name="gender"
             value={newCustomer.gender}
             onChange={handleInputChange}
+            className="radioGroup"
           >
             <FormControlLabel value="male" control={<Radio />} label="Male" />
             <FormControlLabel
@@ -354,12 +219,21 @@ export default function Customer() {
               label="Female"
             />
           </RadioGroup>
-          <div className="modalActions">
-            <Button onClick={handleClose} style={{ color: "red" }}>
+          <div className="addCustomerActions">
+            <Button onClick={handleClose} className="cancelButton">
               Cancel
             </Button>
             <Button
-              onClick={handleAddCustomer}
+              onClick={() =>
+                handleAddCustomer(
+                  newCustomer,
+                  setRows,
+                  setFilteredRows,
+                  setOpen,
+                  setSnackbar
+                )
+              }
+              className="addButton"
               variant="contained"
               color="primary"
             >
@@ -370,22 +244,12 @@ export default function Customer() {
       </Modal>
 
       <Modal open={openDetail} onClose={handleCloseDetail}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "background.paper",
-            border: "2px solid #000",
-            boxShadow: 24,
-            p: 4,
-          }}
-        >
+        <Box className="modalContent">
           {selectedCustomer && (
             <>
-              <Typography variant="h6">Customer Detail</Typography>
+              <Typography variant="h6" className="modalTitle">
+                Customer Detail
+              </Typography>
               <Typography>Name: {selectedCustomer.name}</Typography>
               <Typography>Phone: {selectedCustomer.phone}</Typography>
               <Typography>Email: {selectedCustomer.email}</Typography>
@@ -407,22 +271,12 @@ export default function Customer() {
       </Modal>
 
       <Modal open={openUpdate} onClose={handleCloseUpdate}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "background.paper",
-            border: "2px solid #000",
-            boxShadow: 24,
-            p: 4,
-          }}
-        >
+        <Box className="modalContent">
           {selectedCustomer && (
             <>
-              <Typography variant="h6">Update Customer</Typography>
+              <Typography variant="h6" className="modalTitle">
+                Update Customer
+              </Typography>
               <TextField
                 label="Name"
                 name="name"
@@ -505,11 +359,21 @@ export default function Customer() {
             </>
           )}
           <div className="modalActions">
-            <Button onClick={handleCloseUpdate} style={{ color: "red" }}>
+            <Button onClick={handleCloseUpdate} className="cancelButton">
               Cancel
             </Button>
             <Button
-              onClick={handleSaveUpdate}
+              onClick={() =>
+                handleSaveUpdate(
+                  selectedCustomer,
+                  rows,
+                  setRows,
+                  setFilteredRows,
+                  setOpenUpdate,
+                  setSnackbar
+                )
+              }
+              className="addButton"
               variant="contained"
               color="primary"
             >
@@ -520,22 +384,10 @@ export default function Customer() {
       </Modal>
 
       <Modal open={openPromotion} onClose={handleClosePromotion}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "background.paper",
-            border: "2px solid #000",
-            boxShadow: 24,
-            p: 4,
-          }}
-        >
+        <Box className="modalContent">
           {selectedCustomer && (
             <>
-              <Typography variant="h6">
+              <Typography variant="h6" className="modalTitle">
                 Create Promotion for {selectedCustomer.name}
               </Typography>
               <TextField
@@ -548,11 +400,18 @@ export default function Customer() {
             </>
           )}
           <div className="modalActions">
-            <Button onClick={handleClosePromotion} style={{ color: "red" }}>
+            <Button onClick={handleClosePromotion} className="cancelButton">
               Cancel
             </Button>
             <Button
-              onClick={handleSavePromotion}
+              onClick={() =>
+                handleSavePromotion(
+                  selectedCustomer,
+                  setOpenPromotion,
+                  setSnackbar
+                )
+              }
+              className="addButton"
               variant="contained"
               color="primary"
             >
@@ -561,6 +420,20 @@ export default function Customer() {
           </div>
         </Box>
       </Modal>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
