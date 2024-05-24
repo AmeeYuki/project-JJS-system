@@ -6,8 +6,10 @@ import { flowerApi } from "../services/flowerApi";
 import flowerReducer from "../slices/flower.slice";
 import userReducer from "../slices/user.slice";
 import productReducer from "../slices/product.slice";
+import counterReducer from "../slices/counter.slice";
 import { userAPI } from "../services/userAPI";
 import { productAPI } from "../services/productAPI";
+import { counterAPI } from "../services/counterAPI";
 
 const persistConfig = {
   key: "root",
@@ -26,17 +28,24 @@ export const store = configureStore({
     [flowerApi.reducerPath]: flowerApi.reducer,
     [userAPI.reducerPath]: userAPI.reducer,
     [productAPI.reducerPath]: productAPI.reducer,
+    [counterAPI.reducerPath]: counterAPI.reducer,
 
     flower: persistedReducer,
     user: persistedUserReducer,
     product: productReducer,
+    counter: counterReducer,
   },
   // middleware: (getDefaultMiddleware) =>
   //   getDefaultMiddleware().concat(flowerApi.middleware),
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
-    }).concat(flowerApi.middleware, userAPI.middleware, productAPI.middleware), //user them API test
+    }).concat(
+      flowerApi.middleware,
+      userAPI.middleware,
+      productAPI.middleware,
+      counterAPI.middleware
+    ), //user them API test
 });
 
 // Add a dictionary to keep track of the registered async reducers

@@ -1,31 +1,31 @@
-.category-manage-page {
+.counter-manage-page {
   padding: 10px 20px;
 }
 
-.category-manage-page .header {
+.counter-manage-page .header {
   margin-bottom: 20px;
 }
 
-.category-manage-page .title {
+.counter-manage-page .title {
   font-family: "Playfair Display";
   font-size: 40px;
   font-weight: 500;
 }
 
-.category-manage-page .action {
+.counter-manage-page .action {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
 
-.category-manage-page .action-left {
+.counter-manage-page .action-left {
   display: flex;
   gap: 10px;
   align-items: center;
 }
 
-.category-manage-page .action-right {
+.counter-manage-page .action-right {
   display: flex;
   gap: 10px;
 }

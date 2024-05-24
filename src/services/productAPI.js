@@ -17,14 +17,14 @@ export const productAPI = createApi({
           : [{ type: "ProductList", id: "LIST" }],
     }),
     getCategories: builder.query({
-      query: () => `products/categories`,
+      query: () => `categories`,
       providesTags: (result, _error, _arg) =>
         result
           ? [
-              ...result.map(({ id }) => ({ type: "ProductList", id })),
-              { type: "ProductList", id: "LIST" },
+              ...result.map(({ id }) => ({ type: "CategoryList", id })),
+              { type: "CategoryList", id: "LIST" },
             ]
-          : [{ type: "ProductList", id: "LIST" }],
+          : [{ type: "CategoryList", id: "LIST" }],
     }),
     addProduct: builder.mutation({
       query: (body) => ({
@@ -49,6 +49,24 @@ export const productAPI = createApi({
       }),
       invalidatesTags: [{ type: "ProductList", id: "LIST" }],
     }),
+    editCategory: builder.mutation({
+      query: ({ id, ...patch }) => ({
+        url: `categories/${id}`,
+        method: "PUT",
+        body: patch,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "CategoryList", id: "LIST" },
+      ],
+    }),
+    addCategory: builder.mutation({
+      query: (body) => ({
+        url: `categories`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: [{ type: "CategoryList", id: "LIST" }],
+    }),
   }),
 });
 
@@ -58,4 +76,6 @@ export const {
   useEditProductMutation,
   useGetProductsQuery,
   useGetCategoriesQuery,
+  useEditCategoryMutation,
+  useAddCategoryMutation,
 } = productAPI;

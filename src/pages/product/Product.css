@@ -1,9 +1,30 @@
-.product_title {
-  font-size: 40px;
-  margin: 2rem 0;
-  font-family: "Playfair Display";
+.product-manage-page {
+  padding: 10px 20px;
 }
 
-.table-controls {
-  margin-bottom: 1rem;
+.product-manage-page .header {
+  margin-bottom: 20px;
+}
+
+.product-manage-page .title {
+  font-family: "Playfair Display";
+  font-size: 40px;
+  font-weight: 500;
+}
+
+.product-manage-page .action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.product-manage-page .action-left {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.product-manage-page .action-right {
+  display: flex;
+  gap: 10px;
 }

@@ -1,42 +1,62 @@
-import React, { useState, useEffect } from "react";
-import { Input, Col, Row, Table, Dropdown, Menu } from "antd";
-import { RiAddLine, RiMoreFill, RiSearchLine } from "@remixicon/react";
-import CustomButton from "../../components/CustomButton/CustomButton";
-import CustomModal from "../../components/modal/Modal";
+import React, { useEffect, useState } from "react";
 import "./Category.css";
-import { useGetCategoriesQuery } from "../../services/productApi";
+import { Input, notification } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+import {
+  useAddCategoryMutation,
+  useEditCategoryMutation,
+  useGetCategoriesQuery,
+} from "../../services/productAPI";
+import CategoryList from "./CategoryManage/CategoryList";
+import UpdateCategoryModal from "./CategoryManage/UpdateCategoryModal";
+import CreateCategoryModal from "./CategoryManage/CreateCategoryModal";
+import CustomButton from "../../components/CustomButton/CustomButton";
+import { useNavigate } from "react-router-dom";
+import { RiAddLine } from "@remixicon/react";
 
 export default function Category() {
-  const [data, setData] = useState([]);
+  const { data: categories, isLoading, refetch } = useGetCategoriesQuery();
+  const [categoryData, setCategoryData] = useState([]);
   const [searchValue, setSearchValue] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [addCategoryModalVisible, setAddCategoryModalVisible] = useState(false);
-  const {
-    data: categories,
-    isLoadingCategories,
-    refetchCategories,
-  } = useGetCategoriesQuery();
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
 
-  console.log(categories);
+  const [addCategoryMutation, { isLoading: isLoadingAdd }] =
+    useAddCategoryMutation();
+  const [editCategoryMutation, { isLoading: isLoadingEdit }] =
+    useEditCategoryMutation();
+
   useEffect(() => {
-    fetchDataFromAPI();
-  }, []);
-
-  const fetchDataFromAPI = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch("https://fakestoreapi.com/products");
-      const responseData = await response.json();
-      const formattedData = responseData.map((item, index) => ({
-        ...item,
-        key: index + 1,
+    if (categories) {
+      const indexedCategories = categories.map((category, index) => ({
+        ...category,
+        index: index + 1,
       }));
-      setData(formattedData);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
+      setCategoryData(indexedCategories);
     }
+  }, [categories]);
+
+  useEffect(() => {
+    if (categories) {
+      let filteredCategories = categories;
+      if (searchValue) {
+        filteredCategories = categories.filter((category) =>
+          category.categoryName
+            ?.toLowerCase()
+            .includes(searchValue.toLowerCase())
+        );
+      }
+      const indexedCategories = filteredCategories.map((category, index) => ({
+        ...category,
+        index: index + 1,
+      }));
+      setCategoryData(indexedCategories);
+    }
+  }, [searchValue, categories]);
+
+  const handleSearch = (value) => {
+    setSearchValue(value);
   };
 
   const onChangeSearch = (e) => {
@@ -44,65 +64,62 @@ export default function Category() {
     setSearchValue(value);
   };
 
-  const filteredData = searchValue
-    ? data.filter(
-        (item) =>
-          (item.title &&
-            item.title.toLowerCase().includes(searchValue.toLowerCase())) ||
-          (item.barcode &&
-            item.barcode.toLowerCase().includes(searchValue.toLowerCase())) ||
-          (item.category &&
-            item.category.toLowerCase().includes(searchValue.toLowerCase()))
-      )
-    : data;
+  const handleUpdateCategory = (values) => {
+    editCategoryMutation(values)
+      .unwrap()
+      .then((data) => {
+        setIsUpdateModalVisible(false);
+        refetch();
+        notification.success({
+          message: "Update category successfully",
+        });
+      })
+      .catch((error) => {
+        console.error("Error updating category: ", error);
+      });
+  };
 
-  const columns = [
-    {
-      title: "No",
-      dataIndex: "key",
-      render: (text) => <div>{text}</div>,
-    },
-    {
-      title: "Category Name",
-      dataIndex: "title",
-    },
-    {
-      title: "",
-      dataIndex: "actions",
-      render: (text, record) => (
-        <Dropdown
-          overlay={
-            <Menu style={{ width: "250px" }}>
-              <Menu.Item key="1">View Detail</Menu.Item>
-              <Menu.Item key="2">Update</Menu.Item>
-              <Menu.Item key="3">Delete</Menu.Item>
-            </Menu>
-          }
-          trigger={["click"]}
-        >
-          <RiMoreFill style={{ cursor: "pointer" }} />
-        </Dropdown>
-      ),
-    },
-  ];
+  const handleAddCategory = (values) => {
+    addCategoryMutation(values)
+      .unwrap()
+      .then((data) => {
+        setIsAddModalVisible(false);
+        refetch();
+      })
+      .catch((error) => {
+        console.error("Error adding category: ", error);
+      });
+  };
+
+  const navigate = useNavigate();
+
+  const changePageProduct = () => {
+    navigate("/product");
+  };
+
+  const handleEditCategory = (category) => {
+    setSelectedCategory(category);
+    setIsUpdateModalVisible(true);
+  };
 
   return (
-    <div>
-      <div className="category_title">Category Page</div>
-      <Row gutter={[16, 16]} className="table-controls">
-        <Col>
+    <div className="category-manage-page">
+      <div className="header">
+        <h1 className="title">Category Management</h1>
+      </div>
+      <div className="action">
+        <div className="action-left">
           <Input
             style={{ borderRadius: 20, width: "350px" }}
-            size="medium"
-            placeholder="Search by category name"
-            prefix={<RiSearchLine />}
+            size="large"
+            placeholder="Search by name"
+            prefix={<SearchOutlined />}
             value={searchValue}
             onChange={onChangeSearch}
+            onPressEnter={() => handleSearch(searchValue)}
           />
-        </Col>
-        <Col></Col>
-        <Col style={{ marginLeft: "auto" }}></Col>
-        <Col>
+        </div>
+        <div className="action-right">
           <CustomButton
             icon={RiAddLine}
             text="Add Category"
@@ -114,36 +131,57 @@ export default function Category() {
               marginBottom: "10px",
               border: "none",
               borderRadius: "5px",
+              cursor: "pointer",
             }}
             iconPosition="left"
             fontSize="16px"
             padding="10px 20px"
-            onClick={() => setAddCategoryModalVisible(true)}
+            onClick={() => setIsAddModalVisible(true)}
           />
-        </Col>
-      </Row>
-      <Table columns={columns} dataSource={filteredData} loading={loading} />
 
-      {/* Modal */}
-      <CustomModal
-        visible={addCategoryModalVisible}
-        onCancel={() => setAddCategoryModalVisible(false)}
-        title="Add Category"
-        content={[
-          {
-            label: "Category Name",
-            type: "input",
-            placeholder: "Name of category...",
-            name: "categoryName",
-            inputType: "text",
-          },
-        ]}
-        onOk={(inputValues) => {
-          console.log("Input values:", inputValues);
-          setAddCategoryModalVisible(false);
-        }}
-        okText="Create"
-        cancelText="Cancel"
+          <CustomButton
+            text="View Products"
+            iconSize="16px"
+            iconColor="white"
+            textColor="white"
+            containerStyle={{
+              backgroundColor: "#333333",
+              marginBottom: "10px",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+            iconPosition="left"
+            fontSize="16px"
+            padding="10px 15px"
+            onClick={changePageProduct}
+          />
+        </div>
+      </div>
+      <div className="category-list">
+        {!isLoading && categoryData.length > 0 ? (
+          <CategoryList
+            categoryData={categoryData}
+            onEditCategory={handleEditCategory}
+          />
+        ) : (
+          <div>Loading...</div>
+        )}
+      </div>
+      {selectedCategory && (
+        <UpdateCategoryModal
+          visible={isUpdateModalVisible}
+          onUpdate={handleUpdateCategory}
+          onCancel={() => setIsUpdateModalVisible(false)}
+          loading={isLoadingEdit}
+          category={selectedCategory}
+        />
+      )}
+      <CreateCategoryModal
+        visible={isAddModalVisible}
+        onCreate={handleAddCategory}
+        onCancel={() => setIsAddModalVisible(false)}
+        loading={isLoadingAdd}
       />
     </div>
   );

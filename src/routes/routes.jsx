@@ -32,6 +32,9 @@ const Dashboard = Loadable({
 const Category = Loadable({
   loader: () => import("../pages/category/Category"),
 });
+const CounterDetail = Loadable({
+  loader: () => import("../pages/counter/CounterDetail"),
+});
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -78,6 +81,10 @@ export const router = createBrowserRouter([
           {
             path: "category",
             element: Category,
+          },
+          {
+            path: "counter/:id",
+            element: CounterDetail,
           },
         ],
       },
