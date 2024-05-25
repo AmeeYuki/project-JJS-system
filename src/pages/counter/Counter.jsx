@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./Counter.css";
-import { Input, message, notification } from "antd";
+import { Input, notification } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import {
   useAddCounterMutation,
@@ -14,7 +14,7 @@ import UpdateCounterModal from "./CounterManage/UpdateCounterModal";
 import { CircularProgress } from "@mui/material";
 import { RiAddFill } from "@remixicon/react";
 import CustomButton from "../../components/CustomButton/CustomButton";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Counter() {
   const { data: counters, isLoading, refetch } = useGetCountersQuery();
@@ -118,9 +118,9 @@ export default function Counter() {
   const navigate = useNavigate();
 
   const handleViewCounterDetail = (counter) => {
-    navigate(
-      `/counter/${counter.id}?counterName=${counter.counterName}&location=${counter.location}`
-    );
+    navigate(`/counter-detail/${counter.id}`, {
+      state: { counterName: counter.counterName, location: counter.location },
+    });
   };
 
   return (

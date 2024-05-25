@@ -1,13 +1,21 @@
 import React from "react";
-import { Space, Table, Tag, Dropdown, Menu, Popconfirm } from "antd";
+import { Space, Table, Dropdown, Menu, Popconfirm } from "antd";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import { useNavigate } from "react-router-dom";
 
 export default function CounterList({
   counterData,
   onEditCounter,
   handleDeleteCounter,
-  onViewCounterDetail,
 }) {
+  const navigate = useNavigate();
+
+  const onViewCounterDetail = (record) => {
+    navigate(`/counter/${record.id}`, {
+      state: { counterName: record.counterName, location: record.location },
+    });
+  };
+
   const actionsMenu = (record) => (
     <Menu>
       <Menu.Item key="detail" onClick={() => onViewCounterDetail(record)}>
