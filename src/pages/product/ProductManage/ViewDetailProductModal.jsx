@@ -81,8 +81,11 @@ const ViewDetailProductModal = ({ visible, onClose, product }) => {
           <p style={{ marginBottom: "10px" }}>
             <strong>Weight:</strong> {product.weight}
           </p>
-          <p style={{ marginBottom: "0" }}>
+          <p style={{ marginBottom: "10px" }}>
             <strong>Price:</strong> {product.price}
+          </p>
+          <p style={{ marginBottom: "0" }}>
+            <strong>Counter:</strong> {product.counter}
           </p>
         </Col>
       </Row>

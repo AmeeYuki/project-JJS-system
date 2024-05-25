@@ -70,14 +70,6 @@ export default function ProductList({
       render: (price) => `${price} VND`,
     },
     {
-      title: "Image",
-      dataIndex: "image",
-      key: "image",
-      render: (image) => (
-        <img src={image} alt="product" style={{ width: 50, height: 50 }} />
-      ),
-    },
-    {
       title: "Status",
       key: "active",
       dataIndex: "active",
