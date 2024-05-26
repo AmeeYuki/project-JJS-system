@@ -41,7 +41,7 @@ const UpdateUserModal = ({ visible, onUpdate, onCancel, user, loading }) => {
       >
         <Form form={form} name="form_in_modal">
           <Form.Item
-            name="name"
+            name="fullname"
             label="User Name:"
             rules={[
               {
@@ -65,7 +65,7 @@ const UpdateUserModal = ({ visible, onUpdate, onCancel, user, loading }) => {
             <Input />
           </Form.Item>
           <Form.Item
-            name="phone"
+            name="phone_number"
             label="Phone number:"
             rules={[
               {
@@ -77,7 +77,7 @@ const UpdateUserModal = ({ visible, onUpdate, onCancel, user, loading }) => {
             <Input />
           </Form.Item>
           <Form.Item
-            label="DOB"
+            label="date_of_birth"
             name="dob"
             rules={[
               {
@@ -89,7 +89,7 @@ const UpdateUserModal = ({ visible, onUpdate, onCancel, user, loading }) => {
             <DatePicker style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item
-            name="role"
+            name="role_id"
             label="User Type:"
             rules={[
               {
@@ -98,14 +98,14 @@ const UpdateUserModal = ({ visible, onUpdate, onCancel, user, loading }) => {
               },
             ]}
           >
-            <Select>
-              <Option value="ADMIN">Admin</Option>
-              <Option value="MANAGER">Manager</Option>
-              <Option value="STAFF">Staff</Option>
+            <Select placeholder="Select user type: ">
+              <Option value={1}>Admin</Option>
+              <Option value={2}>Manager</Option>
+              <Option value={3}>Staff</Option>
             </Select>
           </Form.Item>
           <Form.Item
-            name="counter"
+            name="counter_id"
             label="Counter:"
             rules={[
               {
@@ -114,10 +114,10 @@ const UpdateUserModal = ({ visible, onUpdate, onCancel, user, loading }) => {
               },
             ]}
           >
-            <Select>
-              <Option value="counter 1">Counter 1</Option>
-              <Option value="counter 2">Counter 2</Option>
-              <Option value="counter 3">Counter 3</Option>
+            <Select placeholder="Select the counter...">
+              <Option value={1}>Counter 1</Option>
+              <Option value={2}>Counter 2</Option>
+              <Option value={3}>Counter 3</Option>
             </Select>
           </Form.Item>
           {/* <Form.Item
@@ -135,7 +135,7 @@ const UpdateUserModal = ({ visible, onUpdate, onCancel, user, loading }) => {
               <Radio value="Female">Female</Radio>
             </Radio.Group>
           </Form.Item> */}
-          <Form.Item
+          {/* <Form.Item
             name="active"
             label="Status:"
             rules={[
@@ -149,7 +149,7 @@ const UpdateUserModal = ({ visible, onUpdate, onCancel, user, loading }) => {
               <Radio value={true}>Active</Radio>
               <Radio value={false}>Inactive</Radio>
             </Radio.Group>
-          </Form.Item>
+          </Form.Item> */}
         </Form>
       </Modal>
     </div>

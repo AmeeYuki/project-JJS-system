@@ -99,10 +99,16 @@ export default function User() {
   const handleDeleteUser = async (userId) => {
     try {
       const result = await deleteUserMutation(userId);
-      refetch();
-      notification.success({
-        message: "Delete user successfully",
-      });
+      if (result.error.originalStatus == 200) {
+        refetch();
+        notification.success({
+          message: "Delete user successfully",
+        });
+      } else {
+        notification.error({
+          message: "Delete user unsuccessfully",
+        });
+      }
     } catch (error) {
       console.error(error);
     }
