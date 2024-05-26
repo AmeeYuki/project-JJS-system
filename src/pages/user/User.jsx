@@ -5,6 +5,7 @@ import { SearchOutlined } from "@ant-design/icons";
 import ButtonCreate from "../../components/ButtonFilter/ButtonCreate";
 import {
   useAddUserMutation,
+  useCreateUserMutation,
   useDeleteUserMutation,
   useEditUserMutation,
   useGetAllUserQuery,
@@ -21,15 +22,14 @@ export default function User() {
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchValue, setSearchValue] = useState("");
+  const [createUser, { isLoading: isLoadindCreate }] = useCreateUserMutation();
 
   const [editUserMutation, { isLoading: isLoadingEdit }] =
     useEditUserMutation();
-  const [addUserMutation, { isLoading: isLoadingAdd }] = useAddUserMutation();
   const [deleteUserMutation, { isLoading: isLoadingDelete }] =
     useDeleteUserMutation();
 
   const usersData = users?.users;
-  console.log(usersData);
   useEffect(() => {
     if (users) {
       const indexedUsers = usersData?.map((user, index) => ({
@@ -64,20 +64,21 @@ export default function User() {
     setSearchValue(value);
   };
 
-  const handleCreateUser = (values) => {
-    addUserMutation(values)
-      .unwrap()
-      .then((data) => {
-        setIsCreateModalVisible(false);
-        refetch();
-        notification.success({
-          message: "Create user successfully",
-        });
-      })
+  const handleCreateUser = async (values) => {
+    try {
+      await createUser(values).unwrap();
 
-      .catch((error) => {
-        console.error("Error creating user: ", error);
+      setIsCreateModalVisible(false);
+      notification.success({
+        message: "Create user successfully",
       });
+      refetch(); // Refetch the user data
+    } catch (error) {
+      console.error("Error creating user: ", error);
+      notification.error({
+        message: "Failed to create user",
+      });
+    }
   };
 
   const handleUpdateUser = (values) => {
@@ -131,7 +132,10 @@ export default function User() {
         </div>
         <div className="action-right">
           <div onClick={() => setIsCreateModalVisible(true)}>
-            <ButtonCreate contentBtn={"Create User"} loading={isLoadingAdd} />
+            <ButtonCreate
+              contentBtn={"Create User"}
+              loading={isLoadindCreate}
+            />
           </div>
         </div>
       </div>
@@ -158,7 +162,7 @@ export default function User() {
       <CreateUserModal
         visible={isCreateModalVisible}
         onCreate={handleCreateUser}
-        loading={isLoadingAdd}
+        loading={isLoadindCreate}
         onCancel={() => setIsCreateModalVisible(false)}
       />
       {selectedUser && (

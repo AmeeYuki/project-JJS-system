@@ -30,6 +30,12 @@
   background: #373737;
 }
 
+.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover {
+  color: #fff;
+  background: #373737;
+  /* opacity: 0.6; */
+}
+
 .ant-table-wrapper .ant-table-thead > tr > th,
 .ant-table-wrapper .ant-table-thead > tr > td {
   background-color: #373737;

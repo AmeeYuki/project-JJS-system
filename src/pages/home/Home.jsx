@@ -5,7 +5,6 @@ import { useSelector } from "react-redux";
 export default function Home() {
   const auth = useSelector(selectAuth);
   const token = useSelector(selectToken);
-  console.log(auth);
   return (
     <div>
       <div>Username: {auth?.name ? auth?.name : "null"}</div>

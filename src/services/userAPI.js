@@ -35,6 +35,25 @@ export const userAPI = createApi({
       }),
       invalidatesTags: [{ type: "UserList", id: "LIST" }],
     }),
+    createUser: builder.mutation({
+      query: (body) => {
+        const users = {
+          fullname: body.name,
+          email: body.email,
+          phone_number: body.phone,
+          date_of_birth: body.dob,
+          role_id: body.role,
+          counter_id: body.counter,
+        };
+        return {
+          method: "POST",
+          url: `users/register`,
+          body: users,
+        };
+      },
+      invalidatesTags: [{ type: "UserList", id: " LIST " }],
+    }),
+
     editUser: builder.mutation({
       query: ({ id, ...patch }) => ({
         url: `userManager/${id}`,
@@ -45,7 +64,7 @@ export const userAPI = createApi({
     }),
     deleteUser: builder.mutation({
       query: (id) => ({
-        url: `userManager/${id}`,
+        url: `users/delete_user/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: [{ type: "UserList", id: "LIST" }],
@@ -58,4 +77,5 @@ export const {
   useAddUserMutation,
   useEditUserMutation,
   useDeleteUserMutation,
+  useCreateUserMutation,
 } = userAPI;

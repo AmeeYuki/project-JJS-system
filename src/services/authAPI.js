@@ -12,6 +12,13 @@ export const authApi = createApi({
         body: { email, password },
       }),
     }),
+    updatePassword: builder.mutation({
+      query: ({ id, password, retypePassword }) => ({
+        url: `users/update_password/${id}`,
+        method: "PUT",
+        body: { password: password, retypePassword: retypePassword },
+      }),
+    }),
     // verifyOtp: builder.mutation({
     //   query: ({ email, otpCode }) => {
     //     return {
@@ -51,6 +58,7 @@ export const authApi = createApi({
 
 export const {
   useLoginUserMutation,
+  useUpdatePasswordMutation,
   //   useChangePasswordByEmailMutation,
   //   useVerifyMailMutation,
   //   useVerifyOtpMutation,

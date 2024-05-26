@@ -89,7 +89,7 @@ export default function UserList({ userData, onEditUser, handleDeleteUser }) {
       title: "Counter",
       dataIndex: "counter_id",
       key: "counter",
-      render: (counter_id) => (counter_id ? counter_id : "No counter"),
+      render: (counter_id) => (counter_id ? counter_id : "All Counter"),
     },
     {
       title: "Role",

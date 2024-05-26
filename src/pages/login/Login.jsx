@@ -1,20 +1,28 @@
-import React, { useState } from "react"; // Import React if not already imported
+import React, { useEffect, useState } from "react"; // Import React if not already imported
 
 // Import the image file
 import "./Login.css";
 import { Alert, Button, Form, Input, notification } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useLoginUserMutation } from "../../services/authAPI";
-import { setAuth, setToken } from "../../slices/auth.slice";
+import { selectToken, setAuth, setToken } from "../../slices/auth.slice";
 
 function Login() {
   const [form] = Form.useForm(); // Sử dụng hook Form của Ant Design
   const [error, setError] = useState(null); // Khai báo state error
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const token = useSelector(selectToken);
 
   const [loginUser, { isLoading }] = useLoginUserMutation();
+
+  //////////////////////////////////////// Dieu kien chuyen trang
+  // useEffect(() => {
+  // if (token) {
+  // navigate("/");
+  // }
+  // }, [token, navigate]);
 
   const handleSubmit = async (values) => {
     try {
@@ -27,8 +35,13 @@ function Login() {
         dispatch(setAuth(result.data));
         dispatch(setToken(result.data.token));
         // localStorage.setItem("token", result.data.token);
+        console.log(result.data.first_login);
+        if (result.data.first_login == true) {
+          navigate("/login-first-time");
+        } else {
+          navigate("/");
+        }
 
-        navigate("/");
         notification.success({
           message: "Login successfully",
           description: "Welcome to FAMS !",
