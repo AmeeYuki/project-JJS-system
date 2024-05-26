@@ -2,18 +2,22 @@ import React, { useState } from "react"; // Import React if not already imported
 
 // Import the image file
 import "./LoginFirstTime.css";
-import { Alert, Button, Form, Input } from "antd";
+import { Alert, Button, Form, Input, notification } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useUpdatePasswordMutation } from "../../services/authAPI";
+import { logout, selectAuth } from "../../slices/auth.slice";
 
 function Login() {
   const [form] = Form.useForm(); // Sử dụng hook Form của Ant Design
   const [error, setError] = useState(null); // Khai báo state error
-  const [oldPassword, setOldPassword] = useState("");
-
+  // const [oldPassword, setOldPassword] = useState("");
+  const auth = useSelector(selectAuth);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [updatePassword, { isLoadingUPdate }] = useUpdatePasswordMutation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   // const [loginUser, { isLoading }] = useLoginUserMutation();
 
@@ -46,11 +50,12 @@ function Login() {
   //   }
   // };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!password.trim()) {
       setError("Password is required");
       return;
     }
+
     if (!confirmPassword.trim()) {
       setError("Confirm Password is required");
       return;
@@ -61,7 +66,43 @@ function Login() {
       return;
     }
 
-    navigate("/");
+    try {
+      const response = await updatePassword({
+        id: auth.id,
+        password: password,
+        retypePassword: confirmPassword,
+      });
+      console.log(response);
+
+      if (response.error.originalStatus === 200) {
+        setError("");
+        form.resetFields();
+        notification.success({
+          message: "Update successfully",
+          description: "Please try login",
+        });
+        dispatch(logout());
+        navigate("/login");
+      } else {
+        // update không thành công
+
+        form.resetFields();
+
+        setError(response.error.data);
+        notification.error({
+          message: "Update unsuccessfully",
+          description: "Please try again",
+        });
+      }
+    } catch (error) {
+      setError(error.message || "Failed to update password");
+      notification.error({
+        message: "Update error",
+        description: "Failed to update password. Please try again!",
+      });
+    }
+
+    // navigate("/");
   };
 
   return (
@@ -81,7 +122,7 @@ function Login() {
             </>
           )}
           {/* Hiển thị thông báo lỗi */}
-          <p>Old Password</p>
+          {/* <p>Old Password</p>
           <Form.Item
             name="oldPassword"
             rules={[
@@ -97,7 +138,7 @@ function Login() {
               value={oldPassword}
               onChange={(e) => setPassword(e.target.value)}
             />
-          </Form.Item>
+          </Form.Item> */}
           <p>New Password</p>
           <Form.Item
             name="newPassword"
@@ -126,7 +167,7 @@ function Login() {
             ]}
           >
             <Input.Password
-              placeholder="Enter password"
+              placeholder="Enter confirm password"
               className="form-input"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
@@ -139,7 +180,7 @@ function Login() {
               // loading={isLoading}
               className="submit-btn"
             >
-              Sign in
+              Update Password
             </Button>
           </Form.Item>
         </Form>

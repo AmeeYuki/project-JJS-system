@@ -11,6 +11,9 @@ import {
   TagOutlined,
   PercentageOutlined,
 } from "@ant-design/icons";
+import LogoutIcon from "@mui/icons-material/Logout";
+
+import LogoutButton from "../components/LogoutButton/LogoutButton";
 
 const useSider = () => {
   const siderList = useMemo(() => {
@@ -18,7 +21,7 @@ const useSider = () => {
       {
         label: "Home",
         icon: <HomeOutlined />,
-        href: "/",
+        href: "",
       },
       {
         label: "Dashboard",
@@ -55,6 +58,12 @@ const useSider = () => {
         label: "Promotion",
         icon: <PercentageOutlined />,
         href: "promotion",
+      },
+      {
+        label: <LogoutButton />,
+        icon: <LogoutIcon />,
+
+        // href: "promotion",
       },
       // {
       //   label: "Setting",
