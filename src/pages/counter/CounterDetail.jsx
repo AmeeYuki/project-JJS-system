@@ -65,7 +65,7 @@ export default function CounterDetail() {
   useEffect(() => {
     if (users) {
       const filteredUsers = users.filter(
-        (user) => user.role.toLowerCase() === 3 && user.counter === counterName
+        (user) => user.role === 3 && user.counter === counterName
       );
       const indexedUsers = filteredUsers.map((user, index) => ({
         ...user,
