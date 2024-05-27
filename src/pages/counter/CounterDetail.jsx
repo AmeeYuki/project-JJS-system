@@ -11,7 +11,7 @@ import UpdateProductModal from "../product/ProductManage/UpdateProductModal";
 import ViewDetailProductModal from "../product/ProductManage/ViewDetailProductModal";
 import UserList from "../user/UserManage/UserList";
 import {
-  useGetUsersQuery,
+  useGetAllUserQuery,
   useEditUserMutation,
   useDeleteUserMutation,
 } from "../../services/userAPI";
@@ -26,7 +26,7 @@ export default function CounterDetail() {
   const { counterName, location: counterLocation } = location.state || {};
 
   const { data: products, refetch: refetchProducts } = useGetProductsQuery();
-  const { data: users, refetch: refetchUsers } = useGetUsersQuery();
+  const { data: users, refetch: refetchUsers } = useGetAllUserQuery();
 
   const [productData, setProductData] = useState([]);
   const [userData, setUserData] = useState([]);
@@ -65,8 +65,7 @@ export default function CounterDetail() {
   useEffect(() => {
     if (users) {
       const filteredUsers = users.filter(
-        (user) =>
-          user.role.toLowerCase() === "staff" && user.counter === counterName
+        (user) => user.role.toLowerCase() === 3 && user.counter === counterName
       );
       const indexedUsers = filteredUsers.map((user, index) => ({
         ...user,

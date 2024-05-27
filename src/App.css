@@ -24,9 +24,16 @@
   background: #000000;
   box-shadow: 0 2px 0 rgba(5, 145, 255, 0.1);
 }
+/* .ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover { */
+.ant-btn-primary:hover {
+  color: #fff;
+  background: #373737;
+}
+
 .ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover {
   color: #fff;
   background: #373737;
+  /* opacity: 0.6; */
 }
 
 .ant-table-wrapper .ant-table-thead > tr > th,

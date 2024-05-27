@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Modal, Form, Input, Select, Radio, DatePicker } from "antd";
+import { Modal, Form, Input, Select, DatePicker } from "antd";
 import moment from "moment";
 import "./CreateUserModal.css";
 
@@ -12,7 +12,12 @@ const CreateUserModal = ({ visible, onCreate, onCancel, loading }) => {
     if (!visible) {
       form.resetFields(); // Reset form fields when modal is closed
     }
-  }, [visible]);
+  }, [form, visible]);
+
+  const handleDateChange = (date, dateString) => {
+    console.log("Selected DOB:", date);
+  };
+
   return (
     <div className="create-user-page">
       <Modal
@@ -26,7 +31,9 @@ const CreateUserModal = ({ visible, onCreate, onCancel, loading }) => {
           form
             .validateFields()
             .then((values) => {
-              // form.resetFields();
+              if (values.dob) {
+                values.dob = Math.floor(values.dob.valueOf() / 1000); // Convert moment date to Unix timestamp in seconds
+              }
               onCreate(values);
             })
             .catch((info) => {
@@ -100,6 +107,7 @@ const CreateUserModal = ({ visible, onCreate, onCancel, loading }) => {
               format="DD/MM/YYYY"
               style={{ width: "100%" }}
               placeholder="Input DOB..."
+              onChange={handleDateChange}
             />
           </Form.Item>
           <Form.Item
@@ -113,9 +121,9 @@ const CreateUserModal = ({ visible, onCreate, onCancel, loading }) => {
             ]}
           >
             <Select placeholder="Select user type: ">
-              <Option value="Admin">Admin</Option>
-              <Option value="Manager">Manager</Option>
-              <Option value="Staff">Staff</Option>
+              <Option value={1}>Admin</Option>
+              <Option value={2}>Manager</Option>
+              <Option value={3}>Staff</Option>
             </Select>
           </Form.Item>
 
@@ -130,13 +138,13 @@ const CreateUserModal = ({ visible, onCreate, onCancel, loading }) => {
             ]}
           >
             <Select placeholder="Select the counter...">
-              <Option value="counter 1">Counter 1</Option>
-              <Option value="counter 2">Counter 2</Option>
-              <Option value="counter 3">Counter 3</Option>
+              <Option value={1}>Counter 1</Option>
+              <Option value={2}>Counter 2</Option>
+              <Option value={3}>Counter 3</Option>
             </Select>
           </Form.Item>
 
-          <Form.Item
+          {/* <Form.Item
             name="active"
             label="Status:"
             rules={[
@@ -150,7 +158,7 @@ const CreateUserModal = ({ visible, onCreate, onCancel, loading }) => {
               <Radio value={true}>Active</Radio>
               <Radio value={false}>Inactive</Radio>
             </Radio.Group>
-          </Form.Item>
+          </Form.Item> */}
         </Form>
       </Modal>
     </div>

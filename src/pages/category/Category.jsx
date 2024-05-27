@@ -13,6 +13,7 @@ import CreateCategoryModal from "./CategoryManage/CreateCategoryModal";
 import CustomButton from "../../components/CustomButton/CustomButton";
 import { useNavigate } from "react-router-dom";
 import { RiAddLine } from "@remixicon/react";
+import { CircularProgress } from "@mui/material";
 
 export default function Category() {
   const { data: categories, isLoading, refetch } = useGetCategoriesQuery();
@@ -165,7 +166,16 @@ export default function Category() {
             onEditCategory={handleEditCategory}
           />
         ) : (
-          <div>Loading...</div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+            }}
+          >
+            <CircularProgress />
+          </div>
         )}
       </div>
       {selectedCategory && (

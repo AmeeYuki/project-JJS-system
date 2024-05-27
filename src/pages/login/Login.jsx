@@ -1,50 +1,61 @@
-import React, { useState } from "react"; // Import React if not already imported
+import React, { useEffect, useState } from "react"; // Import React if not already imported
 
 // Import the image file
 import "./Login.css";
-import { Alert, Button, Form, Input } from "antd";
+import { Alert, Button, Form, Input, notification } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useLoginUserMutation } from "../../services/authAPI";
+import { selectToken, setAuth, setToken } from "../../slices/auth.slice";
 
 function Login() {
   const [form] = Form.useForm(); // Sử dụng hook Form của Ant Design
   const [error, setError] = useState(null); // Khai báo state error
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const token = useSelector(selectToken);
 
-  // const [loginUser, { isLoading }] = useLoginUserMutation();
+  const [loginUser, { isLoading }] = useLoginUserMutation();
 
-  // const handleSubmit = async (values) => {
-  //   try {
-  //     const result = await loginUser({
-  //       email: values.email,
-  //       password: values.password,
-  //     });
+  //////////////////////////////////////// Dieu kien chuyen trang
+  // useEffect(() => {
+  // if (token) {
+  // navigate("/");
+  // }
+  // }, [token, navigate]);
 
-  //     if (result.data && result.data.token) {
-  //       dispatch(setUser(result.data));
-  //       dispatch(setToken(result.data.token));
-  //       localStorage.setItem("token", result.data.token);
+  const handleSubmit = async (values) => {
+    try {
+      const result = await loginUser({
+        email: values.email,
+        password: values.password,
+      });
 
-  //       navigate("/");
-  //       notification.success({
-  //         message: "Login successfully",
-  //         description: "Welcome to FAMS !",
-  //       });
-  //     } else {
-  //       notification.error({
-  //         message: "Login error",
-  //         description: "Invalid email or password. Try again!",
-  //       });
-  //       form.resetFields(); // Xóa dữ liệu trong các ô input
-  //     }
-  //   } catch (error) {
-  //     setError("An error occurred while attempting to log in");
-  //   }
-  // };
+      if (result.data && result.data.token) {
+        dispatch(setAuth(result.data));
+        dispatch(setToken(result.data.token));
+        // localStorage.setItem("token", result.data.token);
+        console.log(result.data.first_login);
+        if (result.data.first_login == true) {
+          navigate("/login-first-time");
+        } else {
+          navigate("/");
+        }
 
-  const handleSubmit = () => {
-    navigate("/");
+        notification.success({
+          message: "Login successfully",
+          description: "Welcome to FAMS !",
+        });
+      } else {
+        notification.error({
+          message: "Login error",
+          description: "Invalid email or password. Try again!",
+        });
+        form.resetFields(); // Xóa dữ liệu trong các ô input
+      }
+    } catch (error) {
+      setError("An error occurred while attempting to log in");
+    }
   };
 
   return (

@@ -2,12 +2,14 @@ import { combineReducers } from "redux";
 import { configureStore } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // Sử dụng localStorage
-import { flowerApi } from "../services/flowerApi";
-import flowerReducer from "../slices/flower.slice";
+// import { flowerApi } from "../services/flowerApi";
+// import flowerReducer from "../slices/flower.slice";
 import userReducer from "../slices/user.slice";
 import productReducer from "../slices/product.slice";
 import counterReducer from "../slices/counter.slice";
 import { userAPI } from "../services/userAPI";
+import authReducer from "../slices/auth.slice";
+import { authApi } from "../services/authAPI";
 import { productAPI } from "../services/productAPI";
 import { counterAPI } from "../services/counterAPI";
 
@@ -20,17 +22,20 @@ const staticReducers = {
   theme: "theme",
 };
 
-const persistedReducer = persistReducer(persistConfig, flowerReducer);
+// const persistedReducer = persistReducer(persistConfig, flowerReducer);
+const persistedAuthReducer = persistReducer(persistConfig, authReducer); //user them API test
 const persistedUserReducer = persistReducer(persistConfig, userReducer);
 
 export const store = configureStore({
   reducer: {
-    [flowerApi.reducerPath]: flowerApi.reducer,
+    // [flowerApi.reducerPath]: flowerApi.reducer,
+    [authApi.reducerPath]: authApi.reducer,
     [userAPI.reducerPath]: userAPI.reducer,
     [productAPI.reducerPath]: productAPI.reducer,
     [counterAPI.reducerPath]: counterAPI.reducer,
 
-    flower: persistedReducer,
+    // flower: persistedReducer,
+    auth: persistedAuthReducer,
     user: persistedUserReducer,
     product: productReducer,
     counter: counterReducer,
@@ -41,7 +46,7 @@ export const store = configureStore({
     getDefaultMiddleware({
       serializableCheck: false,
     }).concat(
-      flowerApi.middleware,
+      // flowerApi.middleware,
       userAPI.middleware,
       productAPI.middleware,
       counterAPI.middleware

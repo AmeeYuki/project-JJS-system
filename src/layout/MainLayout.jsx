@@ -8,13 +8,15 @@ import HeaderPage from "../components/headerVsFooter/HeaderPage";
 import FooterPage from "../components/headerVsFooter/FooterPage";
 import LogoutButton from "../components/LogoutButton/LogoutButton";
 import "./MainLayout.css";
+import { useSelector } from "react-redux";
+import { selectAuth } from "../slices/auth.slice";
 
 const { Sider, Content } = Layout;
 
 const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   // const dispatcher = useAppDispatch();
-
+  const auth = useSelector(selectAuth);
   const location = useLocation();
 
   const siderList = useSider();
@@ -122,12 +124,12 @@ const MainLayout = () => {
 
                 {!collapsed && ( // chỉ hiển thị khi không collapsed
                   <div className="menu-footer">
-                    <Menu.ItemGroup style={{ textAlign: "center" }}>
-                      Hello, Zane Pham
-                    </Menu.ItemGroup>
-                    <Menu.ItemGroup style={{ textAlign: "center" }}>
-                      <LogoutButton />
-                    </Menu.ItemGroup>
+                    {/* <Menu.ItemGroup
+                      style={{ textAlign: "center", fontWeight: "500" }}
+                    >
+                      Hello, {auth?.name}
+                    </Menu.ItemGroup> */}
+
                     <Menu.ItemGroup style={{ textAlign: "center" }}>
                       <Link to={"/login"}>
                         <button>Login page (để tạm)</button>
