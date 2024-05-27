@@ -5,7 +5,11 @@ import "@fontsource/jost"; // Defaults to weight 400
 import "./App.css";
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <RouterProvider router={router} />
+    </>
+  );
 }
 
 export default App;

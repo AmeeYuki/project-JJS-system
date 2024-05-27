@@ -15,18 +15,18 @@ export default function LogoutButton() {
   };
   return (
     <div className="logout-btn" onClick={handleLogout}>
-      {/* <ConfigProvider
+      <ConfigProvider
         theme={{
           token: {
             colorPrimary: "#a6a6a6",
             colorTextLightSolid: "#000000",
           },
         }}
-      > */}
-      {/* <Button style={{}} type="primary" icon={<LogoutIcon fontSize="15px" />}> */}
-      Logout
-      {/* </Button> */}
-      {/* </ConfigProvider> */}
+      >
+        {/* <Button style={{}} type="primary" icon={<LogoutIcon fontSize="15px" />}> */}
+        Logout
+        {/* </Button> */}
+      </ConfigProvider>
     </div>
   );
 }
