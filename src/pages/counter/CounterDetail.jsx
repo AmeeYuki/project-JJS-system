@@ -62,8 +62,21 @@ export default function CounterDetail() {
     }
   }, [products, counterName]);
 
+  // useEffect(() => {
+  //   if (users) {
+  //     const filteredUsers = users.filter(
+  //       (user) => user.role === 3 && user.counter === counterName
+  //     );
+  //     const indexedUsers = filteredUsers.map((user, index) => ({
+  //       ...user,
+  //       index: index + 1,
+  //     }));
+  //     setUserData(indexedUsers);
+  //   }
+  // }, [users, counterName]);
+
   useEffect(() => {
-    if (users) {
+    if (Array.isArray(users)) {
       const filteredUsers = users.filter(
         (user) => user.role === 3 && user.counter === counterName
       );
@@ -72,6 +85,8 @@ export default function CounterDetail() {
         index: index + 1,
       }));
       setUserData(indexedUsers);
+    } else {
+      console.error("Expected users to be an array, but got:", users);
     }
   }, [users, counterName]);
 
