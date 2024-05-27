@@ -99,9 +99,9 @@ const UpdateUserModal = ({ visible, onUpdate, onCancel, user, loading }) => {
             ]}
           >
             <Select>
-              <Option value="ADMIN">Admin</Option>
-              <Option value="MANAGER">Manager</Option>
-              <Option value="STAFF">Staff</Option>
+              <Option value="Admin">Admin</Option>
+              <Option value="Manager">Manager</Option>
+              <Option value="Staff">Staff</Option>
             </Select>
           </Form.Item>
           <Form.Item

@@ -15,7 +15,7 @@ const { Option } = Select;
 
 const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
   const [form] = Form.useForm();
-  const [imageUrl, setImageUrl] = useState(null); 
+  const [imageUrl, setImageUrl] = useState(null);
 
   useEffect(() => {
     if (!visible) {
@@ -135,7 +135,7 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
                 <Form.Item name="weightUnit" noStyle>
                   <Select style={{ width: 80 }}>
                     <Option value="grams">g</Option>
-                    <Option value="kilograms">kg</Option>
+                    <Option value="carats">ct</Option>
                   </Select>
                 </Form.Item>
               }
@@ -157,6 +157,23 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
             ]}
           >
             <Input placeholder="Input the price..." addonAfter="VND" />
+          </Form.Item>
+
+          <Form.Item
+            name="counter"
+            label="Counter:"
+            rules={[
+              {
+                required: true,
+                message: "Please select the counter of the product!",
+              },
+            ]}
+          >
+            <Select>
+              <Option value="counter 1">counter 1</Option>
+              <Option value="counter 2">counter 2</Option>
+              <Option value="counter 3">counter 3</Option>
+            </Select>
           </Form.Item>
 
           <Form.Item

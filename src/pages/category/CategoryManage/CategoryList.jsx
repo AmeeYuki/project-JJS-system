@@ -58,7 +58,10 @@ export default function CategoryList({ categoryData, onEditCategory }) {
     <Table
       columns={columns}
       dataSource={categoryData}
-      rowKey={(record) => record.id} 
+      rowKey={(record) => record.id}
+      scroll={{
+        y: 330,
+      }}
     />
   );
 }

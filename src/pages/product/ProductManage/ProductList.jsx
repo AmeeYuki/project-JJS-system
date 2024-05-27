@@ -96,5 +96,14 @@ export default function ProductList({
     },
   ];
 
-  return <Table columns={columns} dataSource={productData} rowKey="id" />;
+  return (
+    <Table
+      columns={columns}
+      dataSource={productData}
+      rowKey="id"
+      scroll={{
+        y: 330,
+      }}
+    />
+  );
 }

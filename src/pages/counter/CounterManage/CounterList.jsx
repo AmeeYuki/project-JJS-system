@@ -77,5 +77,14 @@ export default function CounterList({
     },
   ];
 
-  return <Table columns={columns} dataSource={counterData} rowKey="id" />;
+  return (
+    <Table
+      columns={columns}
+      dataSource={counterData}
+      rowKey="id"
+      scroll={{
+        y: 330,
+      }}
+    />
+  );
 }
