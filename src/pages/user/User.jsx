@@ -45,7 +45,7 @@ export default function User() {
       const filteredUsers = usersData?.filter(
         (user) =>
           user.fullname.toLowerCase().includes(searchValue.toLowerCase()) ||
-          user.phone.includes(searchValue)
+          user.phone_number.includes(searchValue)
       );
       const indexedUsers = filteredUsers.map((user, index) => ({
         ...user,

@@ -5,6 +5,10 @@
 
   /* font-family: "Jost"; */
 }
+body {
+  overflow-x: auto;
+  overflow-y: auto;
+}
 
 .container-main {
   min-height: 100vh; /* will cover the 100% of viewport */
@@ -45,4 +49,28 @@
 .ant-table-wrapper table {
   border: 1px solid #d2d2d2;
   box-shadow: 2px 2px 0px 0px rgba(138, 138, 138, 0.1);
+}
+
+/* Custom scrollbar styles */
+.ant-table-body::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.ant-table-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.ant-table-body::-webkit-scrollbar-thumb {
+  background: #000000;
+  border-radius: 10px;
+}
+
+.ant-table-body::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+:where(.css-dev-only-do-not-override-1qhpsh8).ant-table-wrapper
+  .ant-table-cell-scrollbar:not([rowspan]) {
+  box-shadow: 0 1px 0 1px #ffffff00;
 }

@@ -69,6 +69,7 @@ export default function UserList({ userData, onEditUser, handleDeleteUser }) {
       title: "No.",
       dataIndex: "index",
       key: "index",
+      width: 60,
     },
     {
       title: "Name",
@@ -78,12 +79,14 @@ export default function UserList({ userData, onEditUser, handleDeleteUser }) {
     {
       title: "Email",
       dataIndex: "email",
+      width: 250,
       key: "email",
     },
     {
       title: "Phone",
       dataIndex: "phone_number",
       key: "phone",
+      width: 120,
     },
     {
       title: "Counter",
@@ -123,5 +126,14 @@ export default function UserList({ userData, onEditUser, handleDeleteUser }) {
     },
   ];
 
-  return <Table columns={columns} dataSource={userData} rowKey="id" />;
+  return (
+    <>
+      <Table
+        columns={columns}
+        dataSource={userData}
+        rowKey="id"
+        scroll={{ y: "330px" }}
+      />
+    </>
+  );
 }

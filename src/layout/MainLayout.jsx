@@ -6,7 +6,8 @@ import useSider from "@/hooks/useSider";
 import { Link, useLocation } from "react-router-dom";
 import HeaderPage from "../components/headerVsFooter/HeaderPage";
 import FooterPage from "../components/headerVsFooter/FooterPage";
-import LogoutButton from "../components/LogoutButton/LogoutButton";
+import LogoutIcon from "@mui/icons-material/Logout";
+import LogoutButton from "../components/LogoutButton/LogoutButton"; // Import LogoutButton
 import "./MainLayout.css";
 import { useSelector } from "react-redux";
 import { selectAuth } from "../slices/auth.slice";
@@ -15,21 +16,15 @@ const { Sider, Content } = Layout;
 
 const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
-  // const dispatcher = useAppDispatch();
   const auth = useSelector(selectAuth);
   const location = useLocation();
 
   const siderList = useSider();
+
   return (
-    <>
-      <HeaderPage />
-      <Layout
-        style={{
-          background: "#ffffff",
-          height: "100%",
-          minHeight: "100vh",
-        }}
-      >
+    <div className="layout-container">
+      <HeaderPage className="header" />
+      <Layout className="content">
         <Sider width="20%" trigger={null} collapsible collapsed={collapsed}>
           <div
             style={{
@@ -50,24 +45,17 @@ const MainLayout = () => {
                   },
                 },
                 token: {
-                  /* here is your global tokens */
                   motionDurationSlow: "0.1s",
-                  // fontSize: "20px",
-                  // collapsedIconSize: "20px",
                 },
               }}
             >
               <Menu
                 className="navigate"
                 style={{
-                  // borderRadius: borderRadiusLG,
                   height: "100%",
-                  // boxShadow: other.boxShadow,
-                  // borderRadius: "20px",
                   background: "#ffffff",
                   color: "#333333",
                   fontSize: "15px",
-
                   boxShadow: "box-shadow: 0px 3px 0px 3px rgba(0, 0, 0, 0.2);",
                 }}
                 theme="light"
@@ -90,7 +78,6 @@ const MainLayout = () => {
                     }}
                   />
                 </div>
-                {/* <div> */}
                 {siderList.map((item) => {
                   if (item.children && item.children.length > 0) {
                     return (
@@ -121,22 +108,9 @@ const MainLayout = () => {
                     );
                   }
                 })}
-
-                {!collapsed && ( // chỉ hiển thị khi không collapsed
-                  <div className="menu-footer">
-                    {/* <Menu.ItemGroup
-                      style={{ textAlign: "center", fontWeight: "500" }}
-                    >
-                      Hello, {auth?.name}
-                    </Menu.ItemGroup> */}
-
-                    <Menu.ItemGroup style={{ textAlign: "center" }}>
-                      <Link to={"/login"}>
-                        <button>Login page (để tạm)</button>
-                      </Link>
-                    </Menu.ItemGroup>
-                  </div>
-                )}
+                <Menu.Item key="logout" icon=<LogoutIcon />>
+                  <LogoutButton />
+                </Menu.Item>
               </Menu>
             </ConfigProvider>
           </div>
@@ -145,7 +119,7 @@ const MainLayout = () => {
           <Content
             style={{
               width: "100%",
-              // padding: "0 20px",
+              overflowY: "auto",
               background: "#ffffff",
             }}
           >
@@ -153,9 +127,8 @@ const MainLayout = () => {
           </Content>
         </Layout>
       </Layout>
-
-      <FooterPage />
-    </>
+      <FooterPage className="footer" />
+    </div>
   );
 };
 

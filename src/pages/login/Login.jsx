@@ -110,7 +110,7 @@ function Login() {
             <Button
               type="primary"
               htmlType="submit"
-              // loading={isLoading}
+              loading={isLoading}
               className="submit-btn"
             >
               Sign in
