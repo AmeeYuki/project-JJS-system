@@ -29,6 +29,12 @@ const Home = Loadable({ loader: () => import("../pages/home/Home") });
 const Dashboard = Loadable({
   loader: () => import("../pages/dashboard/Dashboard"),
 });
+const Category = Loadable({
+  loader: () => import("../pages/category/Category"),
+});
+const CounterDetail = Loadable({
+  loader: () => import("../pages/counter/CounterDetail"),
+});
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -71,6 +77,14 @@ export const router = createBrowserRouter([
           {
             path: "user",
             element: User,
+          },
+          {
+            path: "category",
+            element: Category,
+          },
+          {
+            path: "counter/:id",
+            element: CounterDetail,
           },
         ],
       },
