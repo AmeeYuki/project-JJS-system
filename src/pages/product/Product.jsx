@@ -1,7 +1,276 @@
-import React from 'react'
+import React, { useEffect, useState } from "react";
+import "./Product.css";
+import { Input, message, notification } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+import {
+  useAddProductMutation,
+  useDeleteProductMutation,
+  useEditProductMutation,
+  useGetProductsQuery,
+} from "../../services/productAPI";
+import ProductList from "./ProductManage/ProductList";
+import CreateProductModal from "./ProductManage/CreateProductModal";
+import UpdateProductModal from "./ProductManage/UpdateProductModal";
+import { CircularProgress } from "@mui/material";
+import { RiAddLine, RiFilter3Line } from "@remixicon/react";
+import CustomButton from "../../components/CustomButton/CustomButton";
+import { Navigate, useNavigate } from "react-router-dom";
+import FilterProductModal from "./ProductManage/FilterProductModal";
+import ViewDetailProductModal from "./ProductManage/ViewDetailProductModal";
 
 export default function Product() {
+  const { data: products, isLoading, refetch } = useGetProductsQuery();
+  const [productData, setProductData] = useState([]);
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+  const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [searchValue, setSearchValue] = useState("");
+  const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
+  const [selectedProductDetail, setSelectedProductDetail] = useState(null);
+
+  const [editProductMutation, { isLoading: isLoadingEdit }] =
+    useEditProductMutation();
+  const [addProductMutation, { isLoading: isLoadingAdd }] =
+    useAddProductMutation();
+  const [deleteProductMutation, { isLoading: isLoadingDelete }] =
+    useDeleteProductMutation();
+
+  useEffect(() => {
+    if (products) {
+      const indexedProducts = products.map((product, index) => ({
+        ...product,
+        index: index + 1,
+      }));
+      setProductData(indexedProducts);
+    }
+  }, [products]);
+
+  useEffect(() => {
+    if (products) {
+      const filteredProducts = products.filter(
+        (product) =>
+          (product.productName &&
+            product.productName
+              .toLowerCase()
+              .includes(searchValue.toLowerCase())) ||
+          (product.barcode && product.barcode.includes(searchValue))
+      );
+      const indexedProducts = filteredProducts.map((product, index) => ({
+        ...product,
+        index: index + 1,
+      }));
+      setProductData(indexedProducts);
+    }
+  }, [searchValue, products]);
+
+  const handleSearch = (value) => {
+    setSearchValue(value);
+  };
+
+  const onChangeSearch = (e) => {
+    const { value } = e.target;
+    setSearchValue(value);
+  };
+
+  const handleCreateProduct = (values) => {
+    addProductMutation(values)
+      .unwrap()
+      .then((data) => {
+        setIsCreateModalVisible(false);
+        refetch();
+        notification.success({
+          message: "Create product successfully",
+        });
+      })
+
+      .catch((error) => {
+        console.error("Error creating product: ", error);
+      });
+  };
+
+  const handleUpdateProduct = (values) => {
+    editProductMutation(values)
+      .unwrap()
+      .then((data) => {
+        setIsUpdateModalVisible(false);
+        refetch();
+        notification.success({
+          message: "Update product successfully",
+        });
+      })
+      .catch((error) => {
+        console.error("Error updating product: ", error);
+      });
+  };
+
+  const handleDeleteProduct = async (productId) => {
+    try {
+      const result = await deleteProductMutation(productId);
+      refetch();
+      notification.success({
+        message: "Delete product successfully",
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleEditProduct = (product) => {
+    setSelectedProduct(product);
+    setIsUpdateModalVisible(true);
+  };
+
+  const navigate = useNavigate();
+
+  const changePageCategory = () => {
+    navigate("/category");
+  };
+
+  const handleFilterModalCancel = () => {
+    setIsFilterModalVisible(false);
+  };
+
+  const handleApplyFilter = (selectedCategories) => {
+    if (selectedCategories.length === 0) {
+      setProductData(products);
+    } else {
+      const filteredProducts = products.filter((product) => {
+        return selectedCategories.includes(product.category);
+      });
+      setProductData(filteredProducts);
+    }
+    setIsFilterModalVisible(false);
+  };
+
+  const handleViewProductDetail = (product) => {
+    setSelectedProductDetail(product);
+  };
+
   return (
-    <div>Product</div>
-  )
+    <div className="product-manage-page">
+      <div className="header">
+        <h1 className="title">Product Management</h1>
+      </div>
+      <div className="action">
+        <div className="action-left">
+          <Input
+            style={{ borderRadius: 20, width: "350px" }}
+            size="large"
+            placeholder="Search by name or barcode"
+            prefix={<SearchOutlined />}
+            value={searchValue}
+            onChange={onChangeSearch}
+            onPressEnter={() => handleSearch(searchValue)}
+          />
+          <CustomButton
+            icon={RiFilter3Line}
+            text="Filter"
+            iconSize="16px"
+            iconColor="white"
+            textColor="white"
+            containerStyle={{
+              backgroundColor: "#333333",
+              marginBottom: "10px",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+            iconPosition="left"
+            fontSize="14px"
+            padding="10px 10px"
+            onClick={() => setIsFilterModalVisible(true)}
+          />
+        </div>
+        <div className="action-right">
+          <CustomButton
+            icon={RiAddLine}
+            text="Add Product"
+            iconSize="16px"
+            iconColor="white"
+            textColor="white"
+            containerStyle={{
+              backgroundColor: "#333333",
+              marginBottom: "10px",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+            iconPosition="left"
+            fontSize="16px"
+            padding="10px 20px"
+            onClick={() => setIsCreateModalVisible(true)}
+          />
+
+          <CustomButton
+            text="View Categories"
+            iconSize="16px"
+            iconColor="white" 
+            textColor="white"
+            containerStyle={{
+              backgroundColor: "#333333",
+              marginBottom: "10px",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+            iconPosition="left"
+            fontSize="16px"
+            padding="10px 15px"
+            onClick={changePageCategory}
+          />
+        </div>
+      </div>
+      <div className="product-list">
+        {isLoading ? (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+            }}
+          >
+            <CircularProgress />
+          </div>
+        ) : (
+          <ProductList
+            productData={productData}
+            onEditProduct={handleEditProduct}
+            handleDeleteProduct={handleDeleteProduct}
+            onViewProductDetail={handleViewProductDetail}
+          />
+        )}
+      </div>
+      <CreateProductModal
+        visible={isCreateModalVisible}
+        onCreate={handleCreateProduct}
+        loading={isLoadingAdd}
+        onCancel={() => setIsCreateModalVisible(false)}
+      />
+      {selectedProduct && (
+        <UpdateProductModal
+          visible={isUpdateModalVisible}
+          onUpdate={handleUpdateProduct}
+          onCancel={() => setIsUpdateModalVisible(false)}
+          loading={isLoadingEdit}
+          product={selectedProduct}
+        />
+      )}
+      {selectedProductDetail && (
+        <ViewDetailProductModal
+          visible={true}
+          product={selectedProductDetail}
+          onClose={() => setSelectedProductDetail(null)}
+        />
+      )}
+
+      <FilterProductModal
+        visible={isFilterModalVisible}
+        onCancel={handleFilterModalCancel}
+        onApply={(selectedCategories) =>
+          handleApplyFilter(selectedCategories, null)
+        }
+      />
+    </div>
+  );
 }
