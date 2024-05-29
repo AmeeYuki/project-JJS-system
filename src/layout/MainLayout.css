@@ -1,17 +1,18 @@
-.menu-footer {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  left: 0;
-  margin-bottom: 20px;
+.layout-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
-@media (max-height: 674px) {
-  .menu-footer {
-    display: none;
-  }
+
+.header {
+  flex-shrink: 0;
 }
-@media (max-width: 825px) {
-  .menu-footer {
-    display: none;
-  }
+
+.content {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.footer {
+  flex-shrink: 0;
 }

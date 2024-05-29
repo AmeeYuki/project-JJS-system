@@ -59,12 +59,7 @@ const useSider = () => {
         icon: <PercentageOutlined />,
         href: "promotion",
       },
-      {
-        label: <LogoutButton />,
-        icon: <LogoutIcon />,
 
-        // href: "promotion",
-      },
       // {
       //   label: "Setting",
       //   icon: <FieldTimeOutlined />,
