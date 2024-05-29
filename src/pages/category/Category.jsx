@@ -134,6 +134,9 @@ export default function Category() {
               borderRadius: "5px",
               cursor: "pointer",
             }}
+            hoverStyle={{
+              opacity: 0.6,
+            }}
             iconPosition="left"
             fontSize="16px"
             padding="10px 20px"
@@ -151,6 +154,9 @@ export default function Category() {
               border: "none",
               borderRadius: "5px",
               cursor: "pointer",
+            }}
+            hoverStyle={{
+              opacity: 0.6,
             }}
             iconPosition="left"
             fontSize="16px"

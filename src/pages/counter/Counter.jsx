@@ -154,6 +154,9 @@ export default function Counter() {
               borderRadius: "5px",
               cursor: "pointer",
             }}
+            hoverStyle={{
+              opacity: 0.6,
+            }}
             iconPosition="left"
             fontSize="16px"
             padding="10px 20px"

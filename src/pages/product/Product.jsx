@@ -175,6 +175,9 @@ export default function Product() {
               borderRadius: "5px",
               cursor: "pointer",
             }}
+            hoverStyle={{
+              opacity: 0.6,
+            }}
             iconPosition="left"
             fontSize="14px"
             padding="10px 10px"
@@ -195,6 +198,9 @@ export default function Product() {
               borderRadius: "5px",
               cursor: "pointer",
             }}
+            hoverStyle={{
+              opacity: 0.6,
+            }}
             iconPosition="left"
             fontSize="16px"
             padding="10px 20px"
@@ -204,7 +210,7 @@ export default function Product() {
           <CustomButton
             text="View Categories"
             iconSize="16px"
-            iconColor="white" 
+            iconColor="white"
             textColor="white"
             containerStyle={{
               backgroundColor: "#333333",
@@ -212,6 +218,9 @@ export default function Product() {
               border: "none",
               borderRadius: "5px",
               cursor: "pointer",
+            }}
+            hoverStyle={{
+              opacity: 0.6,
             }}
             iconPosition="left"
             fontSize="16px"
