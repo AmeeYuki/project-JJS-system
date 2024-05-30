@@ -14,6 +14,9 @@ import UserList from "./UserManage/UserList";
 import CreateUserModal from "./UserManage/CreateUserModal";
 import UpdateUserModal from "./UserManage/UpdateUserModal";
 import { CircularProgress } from "@mui/material";
+import CustomButton from "../../components/CustomButton/CustomButton";
+import { RiAddLine } from "@remixicon/react";
+import SearchInput from "../../components/SearchInput/SearchInput";
 
 export default function User() {
   const { data: users, isLoading, refetch } = useGetAllUserQuery();
@@ -126,21 +129,32 @@ export default function User() {
       </div>
       <div className="action">
         <div className="action-left">
-          <Input
-            style={{ borderRadius: 20, width: "350px" }}
-            size="large"
+          <SearchInput
             placeholder="Search by name or phone number"
-            prefix={<SearchOutlined />}
             value={searchValue}
             onChange={onChangeSearch}
             onPressEnter={() => handleSearch(searchValue)}
           />
         </div>
         <div className="action-right">
-          <div onClick={() => setIsCreateModalVisible(true)}>
-            <ButtonCreate
-              contentBtn={"Create User"}
+          <div>
+            <CustomButton
+              icon={RiAddLine}
+              text="Create User"
+              iconSize="20px"
+              iconColor="white"
+              textColor="white"
+              containerStyle={{
+                backgroundColor: "#000000",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+              }}
+              iconPosition="left"
               loading={isLoadindCreate}
+              fontSize="16px"
+              padding="10px 10px"
+              onClick={() => setIsCreateModalVisible(true)}
             />
           </div>
         </div>

@@ -38,6 +38,10 @@ function Login() {
         console.log(result.data.first_login);
         if (result.data.first_login == true) {
           navigate("/login-first-time");
+          notification.success({
+            message: "Login successfully",
+            description: "Welcome to FAMS !",
+          });
         } else {
           navigate("/");
         }
@@ -54,6 +58,7 @@ function Login() {
         form.resetFields(); // Xóa dữ liệu trong các ô input
       }
     } catch (error) {
+      console.log(error);
       setError("An error occurred while attempting to log in");
     }
   };
