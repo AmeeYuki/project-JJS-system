@@ -62,3 +62,7 @@
   justify-content: space-between;
   margin-top: 20px;
 }
+.custom-column-header {
+  background-color: black !important;
+  color: white !important;
+}
