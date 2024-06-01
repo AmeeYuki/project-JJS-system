@@ -8,24 +8,69 @@ import {
   Upload,
   Button,
   Switch,
+  message,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
+import { storage } from "../../../config/FireBaseImage/Config";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 const { Option } = Select;
 
 const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
   const [form] = Form.useForm();
   const [imageUrl, setImageUrl] = useState(null);
+  const [fileList, setFileList] = useState([]);
 
   useEffect(() => {
     if (!visible) {
       form.resetFields();
+      setFileList([]);
+      setImageUrl(null);
     }
   }, [visible]);
 
-  const handleImageChange = (info) => {
-    if (info.file.status === "done") {
-      setImageUrl(info.file.response.url);
+  const handleImageChange = ({ file, fileList }) => {
+    setFileList(fileList);
+    if (file.status === "removed") {
+      setImageUrl(null);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (fileList.length > 0) {
+      const file = fileList[0].originFileObj;
+      const storageRef = ref(storage, `images/${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      return new Promise((resolve, reject) => {
+        uploadTask.on(
+          "state_changed",
+          null,
+          (error) => {
+            message.error("Upload failed.");
+            reject(error);
+          },
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              setImageUrl(downloadURL);
+              resolve(downloadURL);
+            });
+          }
+        );
+      });
+    }
+    return null;
+  };
+
+  const handleOk = async () => {
+    try {
+      const values = await form.validateFields();
+      const imageUrl = await handleUpload();
+      if (imageUrl) {
+        onCreate({ ...values, image: imageUrl });
+      }
+    } catch (error) {
+      console.log("Validation Failed:", error);
     }
   };
 
@@ -49,16 +94,7 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
         cancelText="Cancel"
         onCancel={onCancel}
         okButtonProps={{ loading }}
-        onOk={() => {
-          form
-            .validateFields()
-            .then((values) => {
-              onCreate({ ...values, image: imageUrl });
-            })
-            .catch((info) => {
-              console.log("Validate Failed:", info);
-            });
-        }}
+        onOk={handleOk}
       >
         <Form
           form={form}
@@ -190,6 +226,7 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
               accept=".png,.jpg"
               listType="picture"
               beforeUpload={() => false}
+              fileList={fileList}
               onChange={handleImageChange}
             >
               <Button icon={<UploadOutlined />}>Import File</Button>

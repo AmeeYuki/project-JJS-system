@@ -35,6 +35,10 @@ export default function Product() {
   const [deleteProductMutation, { isLoading: isLoadingDelete }] =
     useDeleteProductMutation();
 
+  //-----------------------------------------------------------------------------------------
+
+  //-----------------------------------------------------------------------------------------
+
   useEffect(() => {
     if (products) {
       const indexedProducts = products.map((product, index) => ({
@@ -204,7 +208,7 @@ export default function Product() {
           <CustomButton
             text="View Categories"
             iconSize="16px"
-            iconColor="white" 
+            iconColor="white"
             textColor="white"
             containerStyle={{
               backgroundColor: "#333333",
