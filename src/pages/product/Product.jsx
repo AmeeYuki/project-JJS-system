@@ -86,6 +86,9 @@ export default function Product() {
       })
       .catch((error) => {
         console.error("Error creating product: ", error);
+        notification.error({
+          message: "Create product unsuccessfully",
+        });
       });
   };
 

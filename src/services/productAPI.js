@@ -38,14 +38,40 @@ export const productAPI = createApi({
               .concat({ type: "CategoryList", id: "LIST" })
           : [{ type: "CategoryList", id: "LIST" }],
     }),
+
+    // addProduct: builder.mutation({
+    //   query: (body) => ({
+    //     method: "POST",
+    //     url: `products/create`,
+    //     body,
+    //   }),
+    //   invalidatesTags: [{ type: "ProductList", id: "LIST" }],
+    // }),
+
     addProduct: builder.mutation({
-      query: (body) => ({
-        method: "POST",
-        url: `products/create`,
-        body,
-      }),
+      query: (body) => {
+        const product = {
+          product_name: body.productName,
+          barcode: body.barcode,
+          quantity: body.quantity,
+          price_processing: body.priceProcessing,
+          price_stone: body.priceStone,
+          weight: body.weight,
+          weight_unit: body.weightUnit,
+          description: body.description,
+          image_url: body.image,
+          type_id: body.typeId,
+          counter_id: body.counterId,
+        };
+        return {
+          method: "POST",
+          url: `products/create`,
+          body: product,
+        };
+      },
       invalidatesTags: [{ type: "ProductList", id: "LIST" }],
     }),
+
     editProduct: builder.mutation({
       query: ({ id, ...patch }) => ({
         url: `products/update/${id}`,

@@ -124,9 +124,9 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
             ]}
           >
             <Select placeholder="Select product type">
-              <Option value="1">Gold</Option>
-              <Option value="2">Silver</Option>
-              <Option value="3">Diamond</Option>
+              <Option value={1}>Gold</Option>
+              <Option value={2}>Silver</Option>
+              <Option value={3}>Diamond</Option>
             </Select>
           </Form.Item>
 
@@ -239,9 +239,9 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
             ]}
           >
             <Select placeholder="Select counter">
-              <Option value="1">Counter 1</Option>
-              <Option value="2">Counter 2</Option>
-              <Option value="3">Counter 3</Option>
+              <Option value={1}>Counter 1</Option>
+              <Option value={2}>Counter 2</Option>
+              <Option value={3}>Counter 3</Option>
             </Select>
           </Form.Item>
 
