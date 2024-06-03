@@ -18,11 +18,11 @@ function Login() {
   const [loginUser, { isLoading }] = useLoginUserMutation();
 
   //////////////////////////////////////// Dieu kien chuyen trang
-  // useEffect(() => {
-  // if (token) {
-  // navigate("/");
-  // }
-  // }, [token, navigate]);
+  useEffect(() => {
+    if (token) {
+      // navigate("/");
+    }
+  }, [token, navigate]);
 
   const handleSubmit = async (values) => {
     try {
@@ -36,14 +36,14 @@ function Login() {
         dispatch(setToken(result.data.token));
         // localStorage.setItem("token", result.data.token);
         console.log(result.data.first_login);
-        if (result.data.first_login == true) {
+        if (result.data.first_login === true) {
           navigate("/login-first-time");
           notification.success({
             message: "Login successfully",
             description: "Welcome to FAMS !",
           });
         } else {
-          navigate("/");
+          // navigate("/");
         }
 
         notification.success({

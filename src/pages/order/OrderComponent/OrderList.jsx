@@ -1,5 +1,5 @@
 import React from "react";
-import { Dropdown, Menu, Space, Table } from "antd";
+import { Dropdown, Menu, Space, Table, Tag } from "antd";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 
 export default function OrderList({ ordersData }) {
@@ -47,6 +47,27 @@ export default function OrderList({ ordersData }) {
       title: "Type",
       dataIndex: "type",
       key: "type",
+      render: (type) => (
+        <Tag
+          color={
+            type === "sell"
+              ? "yellow"
+              : type === "buy"
+              ? "green"
+              : type === "buy back"
+              ? "blue"
+              : "gray"
+          }
+        >
+          {type === "sell"
+            ? "SELL"
+            : type === "buy"
+            ? "BUY"
+            : type === "buy back"
+            ? "BUY BACK"
+            : "UNKNOWN"}
+        </Tag>
+      ),
     },
     // {
     //   title: "Status",

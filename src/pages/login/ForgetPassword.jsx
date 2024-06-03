@@ -20,11 +20,11 @@ function Login() {
   const [verifyOTP, setVerifyOTP] = useState(false); // Khai báo state error
 
   //////////////////////////////////////// Dieu kien chuyen trang
-  // useEffect(() => {
-  //   if (token) {
-  //     navigate("/");
-  //   }
-  // }, [token, navigate]);
+  useEffect(() => {
+    if (token) {
+      navigate("/");
+    }
+  }, [token, navigate]);
 
   const handleVerifyEmail = () => {
     // console.log(email);

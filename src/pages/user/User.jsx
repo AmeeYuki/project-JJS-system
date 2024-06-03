@@ -4,11 +4,13 @@ import { Input, message, notification } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import ButtonCreate from "../../components/ButtonFilter/ButtonCreate";
 import {
+  useActiveUserMutation,
   useAddUserMutation,
   useCreateUserMutation,
   useDeleteUserMutation,
   useEditUserMutation,
   useGetAllUserQuery,
+  useInactiveUserMutation,
 } from "../../services/userAPI";
 import UserList from "./UserManage/UserList";
 import CreateUserModal from "./UserManage/CreateUserModal";
@@ -31,8 +33,13 @@ export default function User() {
     useEditUserMutation();
   const [deleteUserMutation, { isLoading: isLoadingDelete }] =
     useDeleteUserMutation();
+  const [activeUserMutation, { isLoading: isLoadingActive }] =
+    useActiveUserMutation();
+  const [inactiveUserMutation, { isLoading: isLoadingInactive }] =
+    useInactiveUserMutation();
 
   const usersData = users?.users;
+
   useEffect(() => {
     if (users) {
       const indexedUsers = usersData?.map((user, index) => ({
@@ -70,7 +77,6 @@ export default function User() {
   const handleCreateUser = async (values) => {
     try {
       await createUser(values).unwrap();
-
       setIsCreateModalVisible(false);
       notification.success({
         message: "Create user successfully",
@@ -84,36 +90,70 @@ export default function User() {
     }
   };
 
-  const handleUpdateUser = (values) => {
-    editUserMutation(values)
-      .unwrap()
-      .then((data) => {
-        setIsUpdateModalVisible(false);
-        refetch();
-        notification.success({
-          message: "Update user successfully",
-        });
-      })
-      .catch((error) => {
-        console.error("Error updating user: ", error);
+  const handleUpdateUser = async (values) => {
+    try {
+      if (values.dob) {
+        values.dob = Math.floor(values.dob.valueOf() / 1000); // Convert dayjs date to Unix timestamp in seconds
+      }
+      const result = await editUserMutation({
+        ...values,
+        id: selectedUser.id,
+        date_of_birth: values.dob,
+      }).unwrap();
+      setIsUpdateModalVisible(false);
+      notification.success({
+        message: "Update user successfully",
       });
+      refetch(); // Refetch the user data
+    } catch (error) {
+      console.error("Error updating user: ", error);
+      notification.error({
+        message: "Failed to update user",
+      });
+    }
   };
 
   const handleDeleteUser = async (userId) => {
     try {
-      const result = await deleteUserMutation(userId);
-      if (result.error.originalStatus == 200) {
-        refetch();
-        notification.success({
-          message: "Delete user successfully",
-        });
-      } else {
-        notification.error({
-          message: "Delete user unsuccessfully",
-        });
-      }
+      const result = await deleteUserMutation(userId).unwrap();
+      refetch();
+      notification.success({
+        message: "Delete user successfully",
+      });
     } catch (error) {
       console.error(error);
+      notification.error({
+        message: "Delete user unsuccessfully",
+      });
+    }
+  };
+
+  const handleActiveUser = async (userId) => {
+    const result = await activeUserMutation(userId);
+
+    if (result.error.originalStatus == 200) {
+      refetch();
+      notification.success({
+        message: "User activated successfully",
+      });
+    } else {
+      notification.error({
+        message: "User activated unsuccessfully",
+      });
+    }
+  };
+
+  const handleInactiveUser = async (userId) => {
+    const result = await inactiveUserMutation(userId);
+    if (result.error.originalStatus == 200) {
+      refetch();
+      notification.success({
+        message: "User inactivated successfully",
+      });
+    } else {
+      notification.error({
+        message: "User inactivated unsuccessfully",
+      });
     }
   };
 
@@ -173,9 +213,11 @@ export default function User() {
           </div>
         ) : (
           <UserList
-            userData={userData}
+            userData={userData} // Truyền userData đã lọc qua tìm kiếm vào UserList
             onEditUser={handleEditUser}
             handleDeleteUser={handleDeleteUser}
+            handleActiveUser={handleActiveUser}
+            handleInactiveUser={handleInactiveUser}
           />
         )}
       </div>

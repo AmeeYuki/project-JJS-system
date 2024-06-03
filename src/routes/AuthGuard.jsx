@@ -9,9 +9,9 @@ const AuthGuard = ({ allowedRoles, children }) => {
   const navigate = useNavigate();
 
   // If no token exists, redirect to login page
-  // if (!token) {
-  //   return <Navigate to="/login" replace />;
-  // }
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
 
   // If token exists and user is not trying to access restricted routes, allow access
   return <Outlet />;

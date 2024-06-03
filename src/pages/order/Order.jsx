@@ -19,11 +19,11 @@ export default function Order() {
   function convertData(orders) {
     return orders.orders.map((el) => {
       return {
-        orderId: el.id,
-        customerName: el.customer.full_name,
-        createBy: el.user.fullName,
-        date: el.date,
-        type: el.discount,
+        orderId: el?.id,
+        customerName: el?.customer_id,
+        createBy: el?.created_by,
+        date: el?.date,
+        type: el?.type,
         // status,
       };
     });
