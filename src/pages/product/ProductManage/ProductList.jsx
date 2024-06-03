@@ -84,16 +84,6 @@ export default function ProductList({
       key: "counterName",
     },
     {
-      title: "Status",
-      key: "active",
-      dataIndex: "active",
-      render: (active) => (
-        <Tag color={active ? "green" : "volcano"}>
-          {active ? "ACTIVE" : "INACTIVE"}
-        </Tag>
-      ),
-    },
-    {
       key: "action",
       render: (_, record) => (
         <Space size="middle">

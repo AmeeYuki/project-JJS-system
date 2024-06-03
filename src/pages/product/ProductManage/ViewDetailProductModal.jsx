@@ -106,12 +106,6 @@ const ViewDetailProductModal = ({ visible, onClose, product }) => {
             <strong>Sell Price Per Gram:</strong>{" "}
             {formatCurrency(product.sellPricePerGram)}
           </p>
-          <p style={{ marginBottom: "0" }}>
-            <strong>Status:</strong>{" "}
-            <Tag color={product.active ? "green" : "volcano"}>
-              {product.active ? "ACTIVE" : "INACTIVE"}
-            </Tag>
-          </p>
         </Col>
       </Row>
     </Modal>

@@ -219,10 +219,6 @@ const UpdateProductModal = ({
               <Button icon={<UploadOutlined />}>Import File</Button>
             </Upload>
           </Form.Item>
-
-          <Form.Item name="active" label="Active:" valuePropName="checked">
-            <Switch defaultChecked={product?.active} />
-          </Form.Item>
         </Form>
       </Modal>
     </div>
