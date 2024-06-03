@@ -6,28 +6,25 @@ import useSider from "@/hooks/useSider";
 import { Link, useLocation } from "react-router-dom";
 import HeaderPage from "../components/headerVsFooter/HeaderPage";
 import FooterPage from "../components/headerVsFooter/FooterPage";
-import LogoutButton from "../components/LogoutButton/LogoutButton";
+import LogoutIcon from "@mui/icons-material/Logout";
+import LogoutButton from "../components/LogoutButton/LogoutButton"; // Import LogoutButton
 import "./MainLayout.css";
+import { useSelector } from "react-redux";
+import { selectAuth } from "../slices/auth.slice";
 
 const { Sider, Content } = Layout;
 
 const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
-  // const dispatcher = useAppDispatch();
-
+  const auth = useSelector(selectAuth);
   const location = useLocation();
 
   const siderList = useSider();
+
   return (
-    <>
-      <HeaderPage />
-      <Layout
-        style={{
-          background: "#ffffff",
-          height: "100%",
-          minHeight: "100vh",
-        }}
-      >
+    <div className="layout-container">
+      <HeaderPage className="header" />
+      <Layout className="content">
         <Sider width="20%" trigger={null} collapsible collapsed={collapsed}>
           <div
             style={{
@@ -40,31 +37,25 @@ const MainLayout = () => {
               theme={{
                 components: {
                   Menu: {
-                    iconSize: "24px",
-                    itemHeight: "60px",
+                    iconSize: "20px",
+                    itemHeight: "55px",
                     itemSelectedColor: "#ffffff",
                     itemSelectedBg: "#333333",
                     collapsedIconSize: "20px",
                   },
                 },
                 token: {
-                  /* here is your global tokens */
                   motionDurationSlow: "0.1s",
-                  // fontSize: "20px",
-                  // collapsedIconSize: "20px",
                 },
               }}
             >
               <Menu
                 className="navigate"
                 style={{
-                  // borderRadius: borderRadiusLG,
                   height: "100%",
-                  // boxShadow: other.boxShadow,
-                  // borderRadius: "20px",
                   background: "#ffffff",
                   color: "#333333",
-                  fontSize: "20px",
+                  fontSize: "15px",
                   boxShadow: "box-shadow: 0px 3px 0px 3px rgba(0, 0, 0, 0.2);",
                 }}
                 theme="light"
@@ -87,7 +78,6 @@ const MainLayout = () => {
                     }}
                   />
                 </div>
-                {/* <div> */}
                 {siderList.map((item) => {
                   if (item.children && item.children.length > 0) {
                     return (
@@ -98,7 +88,12 @@ const MainLayout = () => {
                       >
                         {item.children.map((child) => (
                           <Menu.Item key={child.href}>
-                            <Link to={child.href}>{child.label}</Link>
+                            <Link
+                              style={{ fontFamily: "Inter" }}
+                              to={child.href}
+                            >
+                              {child.label}
+                            </Link>
                           </Menu.Item>
                         ))}
                       </Menu.SubMenu>
@@ -106,27 +101,16 @@ const MainLayout = () => {
                   } else {
                     return (
                       <Menu.Item key={item.href} icon={item.icon}>
-                        <Link to={item.href}>{item.label}</Link>
+                        <Link style={{ fontFamily: "Inter" }} to={item.href}>
+                          {item.label}
+                        </Link>
                       </Menu.Item>
                     );
                   }
                 })}
-
-                {!collapsed && ( // chỉ hiển thị khi không collapsed
-                  <div className="menu-footer">
-                    <Menu.ItemGroup style={{ textAlign: "center" }}>
-                      Hello, Zane Pham
-                    </Menu.ItemGroup>
-                    <Menu.ItemGroup style={{ textAlign: "center" }}>
-                      <LogoutButton />
-                    </Menu.ItemGroup>
-                    <Menu.ItemGroup style={{ textAlign: "center" }}>
-                      <Link to={"/login"}>
-                        <button>Login page (để tạm)</button>
-                      </Link>
-                    </Menu.ItemGroup>
-                  </div>
-                )}
+                <Menu.Item key="logout" icon=<LogoutIcon />>
+                  <LogoutButton />
+                </Menu.Item>
               </Menu>
             </ConfigProvider>
           </div>
@@ -135,7 +119,7 @@ const MainLayout = () => {
           <Content
             style={{
               width: "100%",
-              padding: "0 20px",
+              overflowY: "auto",
               background: "#ffffff",
             }}
           >
@@ -143,9 +127,8 @@ const MainLayout = () => {
           </Content>
         </Layout>
       </Layout>
-
-      <FooterPage />
-    </>
+      <FooterPage className="footer" />
+    </div>
   );
 };
 

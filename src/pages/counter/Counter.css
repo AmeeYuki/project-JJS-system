@@ -1,0 +1,31 @@
+.counter-manage-page {
+  padding: 10px 20px;
+}
+
+.counter-manage-page .header {
+  margin-bottom: 20px;
+}
+
+.counter-manage-page .title {
+  font-family: "Playfair Display";
+  font-size: 40px;
+  font-weight: 500;
+}
+
+.counter-manage-page .action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.counter-manage-page .action-left {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.counter-manage-page .action-right {
+  display: flex;
+  gap: 10px;
+}

@@ -1,8 +1,9 @@
-import React, { useState } from "react"; // Import React
+import React, { useEffect, useState } from "react"; // Import React
 import "./Login.css";
 import { Alert, Button, Form, Input } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { selectToken } from "../../slices/auth.slice";
 
 function Login() {
   const [form] = Form.useForm(); // Sử dụng hook Form của Ant Design
@@ -10,12 +11,21 @@ function Login() {
   const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const token = useSelector(selectToken);
 
   const [error, setError] = useState(null); // Khai báo state error
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [verifyEmail, setVerifyEmail] = useState(false); // Khai báo state error
   const [verifyOTP, setVerifyOTP] = useState(false); // Khai báo state error
+
+  //////////////////////////////////////// Dieu kien chuyen trang
+  // useEffect(() => {
+  //   if (token) {
+  //     navigate("/");
+  //   }
+  // }, [token, navigate]);
+
   const handleVerifyEmail = () => {
     // console.log(email);
     setVerifyEmail(true);
