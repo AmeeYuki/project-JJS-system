@@ -18,12 +18,12 @@ export const customerAPI = createApi({
   }),
   endpoints: (builder) => ({
     getAllCustomer: builder.query({
-      query: () => `users/get_all_users?page=0&limit=10000 `,
+      query: () => `customers/search?keyword= `,
       // `providesTags` determines which 'tag' is attached to the
       // cached data returned by the query.
       providesTags: (result) =>
         result
-          ? result.customer.map(({ id }) => ({ type: "CustomerList", id }))
+          ? result.map(({ id }) => ({ type: "CustomerList", id }))
           : [{ type: "CustomerList", id: " LIST " }],
     }),
   }),

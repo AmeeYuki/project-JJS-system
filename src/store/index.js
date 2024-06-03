@@ -7,11 +7,13 @@ import storage from "redux-persist/lib/storage"; // Sử dụng localStorage
 import userReducer from "../slices/user.slice";
 import productReducer from "../slices/product.slice";
 import counterReducer from "../slices/counter.slice";
+import customerReducer from "../slices/customer.slice";
 import { userAPI } from "../services/userAPI";
 import authReducer from "../slices/auth.slice";
 import { authApi } from "../services/authAPI";
 import { productAPI } from "../services/productAPI";
 import { counterAPI } from "../services/counterAPI";
+import { customerAPI } from "../services/customerAPI";
 
 const persistConfig = {
   key: "root",
@@ -33,12 +35,14 @@ export const store = configureStore({
     [userAPI.reducerPath]: userAPI.reducer,
     [productAPI.reducerPath]: productAPI.reducer,
     [counterAPI.reducerPath]: counterAPI.reducer,
+    [customerAPI.reducerPath]: customerAPI.reducer,
 
     // flower: persistedReducer,
     auth: persistedAuthReducer,
     user: persistedUserReducer,
     product: productReducer,
     counter: counterReducer,
+    customer: customerReducer,
   },
   // middleware: (getDefaultMiddleware) =>
   //   getDefaultMiddleware().concat(flowerApi.middleware),
@@ -49,7 +53,8 @@ export const store = configureStore({
       // flowerApi.middleware,
       userAPI.middleware,
       productAPI.middleware,
-      counterAPI.middleware
+      counterAPI.middleware,
+      customerAPI.middleware
     ), //user them API test
 });
 
