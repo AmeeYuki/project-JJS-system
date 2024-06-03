@@ -1,5 +1,6 @@
 import React from "react";
-import { Modal, Button, Row, Col } from "antd";
+import { Modal, Button, Row, Col, Tag } from "antd";
+import { formatCurrency } from "../ProductUtil.jsx";
 
 const ViewDetailProductModal = ({ visible, onClose, product }) => {
   return (
@@ -73,19 +74,43 @@ const ViewDetailProductModal = ({ visible, onClose, product }) => {
 
         <Col span={14} style={{ paddingLeft: "20px" }}>
           <p style={{ marginBottom: "10px" }}>
-            <strong>Material:</strong> {product.productName}
+            <strong>Type:</strong> {product.type}
           </p>
           <p style={{ marginBottom: "10px" }}>
             <strong>Barcode:</strong> {product.barcode}
           </p>
           <p style={{ marginBottom: "10px" }}>
-            <strong>Weight:</strong> {product.weight}
+            <strong>Weight:</strong> {product.weight} {product.weightUnit}
           </p>
           <p style={{ marginBottom: "10px" }}>
-            <strong>Price:</strong> {product.price}
+            <strong>Price Processing:</strong>{" "}
+            {formatCurrency(product.priceProcessing)}
+          </p>
+          <p style={{ marginBottom: "10px" }}>
+            <strong>Price Stone:</strong> {formatCurrency(product.priceStone)}
+          </p>
+          <p style={{ marginBottom: "10px" }}>
+            <strong>Description:</strong> {product.description}
+          </p>
+          <p style={{ marginBottom: "10px" }}>
+            <strong>Counter Name:</strong> {product.counterName}
+          </p>
+          <p style={{ marginBottom: "10px" }}>
+            <strong>Counter Location:</strong> {product.counterLocation}
+          </p>
+          <p style={{ marginBottom: "10px" }}>
+            <strong>Buy Price Per Gram:</strong>{" "}
+            {formatCurrency(product.buyPricePerGram)}
+          </p>
+          <p style={{ marginBottom: "10px" }}>
+            <strong>Sell Price Per Gram:</strong>{" "}
+            {formatCurrency(product.sellPricePerGram)}
           </p>
           <p style={{ marginBottom: "0" }}>
-            <strong>Counter:</strong> {product.counter}
+            <strong>Status:</strong>{" "}
+            <Tag color={product.active ? "green" : "volcano"}>
+              {product.active ? "ACTIVE" : "INACTIVE"}
+            </Tag>
           </p>
         </Col>
       </Row>

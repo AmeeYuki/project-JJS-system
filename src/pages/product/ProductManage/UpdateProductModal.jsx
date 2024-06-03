@@ -10,7 +10,6 @@ import {
   Switch,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-// import "./UpdateProductModal.css";
 
 const { Option } = Select;
 
@@ -79,8 +78,8 @@ const UpdateProductModal = ({
           </Form.Item>
 
           <Form.Item
-            name="category"
-            label="Category:"
+            name="type"
+            label="Type:"
             rules={[
               {
                 required: true,
@@ -113,6 +112,20 @@ const UpdateProductModal = ({
           </Form.Item>
 
           <Form.Item
+            name="quantity"
+            label="Quantity:"
+            rules={[
+              {
+                required: true,
+                message: "Please input the quantity of the product!",
+              },
+              { type: "number", message: "Please input a valid number!" },
+            ]}
+          >
+            <InputNumber style={{ width: "100%" }} />
+          </Form.Item>
+
+          <Form.Item
             name="weight"
             label="Weight:"
             rules={[
@@ -120,10 +133,7 @@ const UpdateProductModal = ({
                 required: true,
                 message: "Please input the weight of the product!",
               },
-              {
-                type: "number",
-                message: "Please input a valid number!",
-              },
+              { type: "number", message: "Please input a valid number!" },
             ]}
           >
             <InputNumber
@@ -140,24 +150,42 @@ const UpdateProductModal = ({
           </Form.Item>
 
           <Form.Item
-            name="price"
-            label="Price:"
+            name="priceProcessing"
+            label="Price (Processing):"
             rules={[
               {
                 required: true,
                 message: "Please input the price of the product!",
               },
-              {
-                pattern: /^[0-9]+$/,
-                message: "Please input a valid price!",
-              },
+              { pattern: /^[0-9]+$/, message: "Please input a valid price!" },
             ]}
           >
-            <Input placeholder="Input the price..." addonAfter="VND" />
+            <Input placeholder="Input the price..." addonAfter=".000 VND" />
           </Form.Item>
 
           <Form.Item
-            name="counter"
+            name="priceStone"
+            label="Price (Stone):"
+            rules={[
+              {
+                required: true,
+                message: "Please input the stone price of the product!",
+              },
+              { pattern: /^[0-9]+$/, message: "Please input a valid price!" },
+            ]}
+          >
+            <Input
+              placeholder="Input the stone price..."
+              addonAfter=".000 VND"
+            />
+          </Form.Item>
+
+          <Form.Item name="description" label="Description:">
+            <Input.TextArea placeholder="Input the description..." />
+          </Form.Item>
+
+          <Form.Item
+            name="counterName"
             label="Counter:"
             rules={[
               {
@@ -173,7 +201,16 @@ const UpdateProductModal = ({
             </Select>
           </Form.Item>
 
-          <Form.Item name="image" label="Image (png, jpg)">
+          <Form.Item
+            name="image"
+            label="Image (png, jpg)"
+            rules={[
+              {
+                required: true,
+                message: "Please upload an image of the product!",
+              },
+            ]}
+          >
             <Upload
               accept=".png,.jpg"
               listType="picture"

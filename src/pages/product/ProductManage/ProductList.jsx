@@ -1,6 +1,7 @@
 import React from "react";
 import { Space, Table, Tag, Dropdown, Menu, Popconfirm } from "antd";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import { convertProductData, formatCurrency } from "../ProductUtil.jsx";
 
 export default function ProductList({
   productData,
@@ -8,6 +9,8 @@ export default function ProductList({
   handleDeleteProduct,
   onViewProductDetail,
 }) {
+  const convertedData = convertProductData(productData);
+
   const actionsMenu = (record) => (
     <Menu>
       <Menu.Item key="detail" onClick={() => onViewProductDetail(record)}>
@@ -48,9 +51,9 @@ export default function ProductList({
       key: "productName",
     },
     {
-      title: "Category",
-      dataIndex: "category",
-      key: "category",
+      title: "Type",
+      dataIndex: "type",
+      key: "type",
     },
     {
       title: "Barcode",
@@ -64,10 +67,21 @@ export default function ProductList({
       render: (weight, record) => `${weight} ${record.weightUnit}`,
     },
     {
-      title: "Price",
-      dataIndex: "price",
-      key: "price",
-      render: (price) => `${price} VND`,
+      title: "Price Processing",
+      dataIndex: "priceProcessing",
+      key: "priceProcessing",
+      render: (priceProcessing) => formatCurrency(priceProcessing),
+    },
+    {
+      title: "Price Stone",
+      dataIndex: "priceStone",
+      key: "priceStone",
+      render: (priceStone) => formatCurrency(priceStone),
+    },
+    {
+      title: "Counter Name",
+      dataIndex: "counterName",
+      key: "counterName",
     },
     {
       title: "Status",
@@ -99,7 +113,7 @@ export default function ProductList({
   return (
     <Table
       columns={columns}
-      dataSource={productData}
+      dataSource={convertedData}
       rowKey="id"
       scroll={{
         y: 330,

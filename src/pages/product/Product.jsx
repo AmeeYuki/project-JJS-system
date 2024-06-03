@@ -19,7 +19,7 @@ import FilterProductModal from "./ProductManage/FilterProductModal";
 import ViewDetailProductModal from "./ProductManage/ViewDetailProductModal";
 
 export default function Product() {
-  const { data: products, isLoading, refetch } = useGetProductsQuery();
+  const { data: productsData, isLoading, refetch } = useGetProductsQuery();
   const [productData, setProductData] = useState([]);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
@@ -36,21 +36,23 @@ export default function Product() {
     useDeleteProductMutation();
 
   useEffect(() => {
-    if (products) {
+    if (productsData) {
+      const { products } = productsData;
       const indexedProducts = products.map((product, index) => ({
         ...product,
         index: index + 1,
       }));
       setProductData(indexedProducts);
     }
-  }, [products]);
+  }, [productsData]);
 
   useEffect(() => {
-    if (products) {
+    if (productsData) {
+      const { products } = productsData;
       const filteredProducts = products.filter(
         (product) =>
-          (product.productName &&
-            product.productName
+          (product.product_name &&
+            product.product_name
               .toLowerCase()
               .includes(searchValue.toLowerCase())) ||
           (product.barcode && product.barcode.includes(searchValue))
@@ -61,7 +63,7 @@ export default function Product() {
       }));
       setProductData(indexedProducts);
     }
-  }, [searchValue, products]);
+  }, [searchValue, productsData]);
 
   const handleSearch = (value) => {
     setSearchValue(value);
@@ -75,14 +77,13 @@ export default function Product() {
   const handleCreateProduct = (values) => {
     addProductMutation(values)
       .unwrap()
-      .then((data) => {
+      .then(() => {
         setIsCreateModalVisible(false);
         refetch();
         notification.success({
           message: "Create product successfully",
         });
       })
-
       .catch((error) => {
         console.error("Error creating product: ", error);
       });
@@ -91,7 +92,7 @@ export default function Product() {
   const handleUpdateProduct = (values) => {
     editProductMutation(values)
       .unwrap()
-      .then((data) => {
+      .then(() => {
         setIsUpdateModalVisible(false);
         refetch();
         notification.success({
@@ -105,7 +106,7 @@ export default function Product() {
 
   const handleDeleteProduct = async (productId) => {
     try {
-      const result = await deleteProductMutation(productId);
+      await deleteProductMutation(productId);
       refetch();
       notification.success({
         message: "Delete product successfully",
@@ -132,9 +133,9 @@ export default function Product() {
 
   const handleApplyFilter = (selectedCategories) => {
     if (selectedCategories.length === 0) {
-      setProductData(products);
+      setProductData(productsData.products);
     } else {
-      const filteredProducts = products.filter((product) => {
+      const filteredProducts = productsData.products.filter((product) => {
         return selectedCategories.includes(product.category);
       });
       setProductData(filteredProducts);
@@ -208,7 +209,7 @@ export default function Product() {
           />
 
           <CustomButton
-            text="View Categories"
+            text="View Types"
             iconSize="16px"
             iconColor="white"
             textColor="white"
@@ -276,9 +277,7 @@ export default function Product() {
       <FilterProductModal
         visible={isFilterModalVisible}
         onCancel={handleFilterModalCancel}
-        onApply={(selectedCategories) =>
-          handleApplyFilter(selectedCategories, null)
-        }
+        onApply={handleApplyFilter}
       />
     </div>
   );
