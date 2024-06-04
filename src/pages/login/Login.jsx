@@ -17,13 +17,6 @@ function Login() {
 
   const [loginUser, { isLoading }] = useLoginUserMutation();
 
-  //////////////////////////////////////// Dieu kien chuyen trang
-  // useEffect(() => {
-  // if (token) {
-  // navigate("/");
-  // }
-  // }, [token, navigate]);
-
   const handleSubmit = async (values) => {
     try {
       const result = await loginUser({
@@ -33,19 +26,20 @@ function Login() {
 
       if (result.data && result.data.token) {
         dispatch(setAuth(result.data));
-        dispatch(setToken(result.data.token));
+
         // localStorage.setItem("token", result.data.token);
-        console.log(result.data.first_login);
-        if (result.data.first_login == true) {
+        if (result.data.first_login === true) {
           navigate("/login-first-time");
+          notification.success({
+            message: "Login successfully",
+            description: "Welcome to FAMS !",
+          });
+          dispatch(setToken(result.data.token));
         } else {
+          dispatch(setToken(result.data.token));
+
           navigate("/");
         }
-
-        notification.success({
-          message: "Login successfully",
-          description: "Welcome to FAMS !",
-        });
       } else {
         notification.error({
           message: "Login error",
@@ -54,6 +48,7 @@ function Login() {
         form.resetFields(); // Xóa dữ liệu trong các ô input
       }
     } catch (error) {
+      console.log(error);
       setError("An error occurred while attempting to log in");
     }
   };

@@ -55,11 +55,21 @@ export const userAPI = createApi({
     }),
 
     editUser: builder.mutation({
-      query: ({ id, ...patch }) => ({
-        url: `userManager/${id}`,
-        method: "PUT",
-        body: patch,
-      }),
+      query: ({ id, ...body }) => {
+        const users = {
+          fullname: body.fullname,
+          email: body.email,
+          phone_number: body.phone_number,
+          date_of_birth: body.dob,
+          role_id: body.role_id,
+          counter_id: body.counter_id,
+        };
+        return {
+          url: `users/update/${id}`,
+          method: "PUT",
+          body: users,
+        };
+      },
       invalidatesTags: (result, error, { id }) => [{ type: "UserList", id }],
     }),
     deleteUser: builder.mutation({
@@ -68,6 +78,25 @@ export const userAPI = createApi({
         method: "DELETE",
       }),
       invalidatesTags: [{ type: "UserList", id: "LIST" }],
+    }),
+    inactiveUser: builder.mutation({
+      query: (userId) => ({
+        url: `users/block/${userId}/0`,
+        method: "PUT",
+      }),
+      invalidatesTags: (result, error, userId) => [
+        { type: "UserList", id: userId },
+      ],
+    }),
+
+    activeUser: builder.mutation({
+      query: (userId) => ({
+        url: `users/block/${userId}/1`,
+        method: "PUT",
+      }),
+      invalidatesTags: (result, error, userId) => [
+        { type: "UserList", id: userId },
+      ],
     }),
   }),
 });
@@ -78,4 +107,6 @@ export const {
   useEditUserMutation,
   useDeleteUserMutation,
   useCreateUserMutation,
+  useActiveUserMutation,
+  useInactiveUserMutation,
 } = userAPI;

@@ -13,39 +13,43 @@ export const authApi = createApi({
       }),
     }),
     updatePassword: builder.mutation({
-      query: ({ id, password, retypePassword }) => ({
+      query: ({ id, oldPassword, password, retypePassword }) => ({
         url: `users/update_password/${id}`,
         method: "PUT",
-        body: { password: password, retypePassword: retypePassword },
+        body: {
+          oldPassword: oldPassword,
+          password: password,
+          retypePassword: retypePassword,
+        },
       }),
     }),
-    // verifyOtp: builder.mutation({
-    //   query: ({ email, otpCode }) => {
-    //     return {
-    //       method: "POST",
-    //       url: `forgotPassword/verifyOtp/${email}`,
-    //       body: { otp: otpCode },
-    //     };
-    //   },
-    // }),
-    // verifyMail: builder.mutation({
-    //   query: ({ email }) => {
-    //     return {
-    //       method: "POST",
-    //       url: `forgotPassword/verifyMail/${email}`,
-    //       // body: { password: newPassword, retypePassword: newPassword },
-    //     };
-    //   },
-    // }),
-    // changePasswordByEmail: builder.mutation({
-    //   query: ({ email, newPassword }) => {
-    //     return {
-    //       method: "POST",
-    //       url: `forgotPassword/changePassword/${email}`,
-    //       body: { password: newPassword, retypePassword: newPassword },
-    //     };
-    //   },
-    // }),
+    verifyOtp: builder.mutation({
+      query: ({ email, otp }) => {
+        return {
+          method: "POST",
+          url: `forgot_password/verify_otp/${email}`,
+          body: { otp: otp },
+        };
+      },
+    }),
+    verifyMail: builder.mutation({
+      query: ({ email }) => {
+        return {
+          method: "POST",
+          url: `forgot_password/verify_mail/${email}`,
+          // body: { password: newPassword, retypePassword: newPassword },
+        };
+      },
+    }),
+    changePasswordByEmail: builder.mutation({
+      query: ({ email, newPassword }) => {
+        return {
+          method: "POST",
+          url: `forgot_password/change_password/${email}`,
+          body: { password: newPassword, retypePassword: newPassword },
+        };
+      },
+    }),
     // refreshToken: builder.mutation({
     //   query: ({ refreshToken }) => ({
     //     url: `users/refresh-token`,
@@ -59,6 +63,8 @@ export const authApi = createApi({
 export const {
   useLoginUserMutation,
   useUpdatePasswordMutation,
+  useVerifyMailMutation,
+  useVerifyOtpMutation,
   //   useChangePasswordByEmailMutation,
   //   useVerifyMailMutation,
   //   useVerifyOtpMutation,
