@@ -7,24 +7,24 @@ export default function CustomerList({
   onEditUser,
   handleDeleteUser,
 }) {
-  // const handleMenuClick = (action, record) => {
-  //   switch (action) {
-  //     case "edit":
-  //       onEditUser(record);
-  //       break;
-  //     case "delete":
-  //       // Handle delete action
-  //       break;
-  //     // case "inactive":
-  //     //   // Handle inactive action
-  //     //   break;
-  //     case "viewDetail":
-  //       // Handle view detail action
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  // };
+  const handleMenuClick = (action, record) => {
+    switch (action) {
+      case "edit":
+        onEditUser(record);
+        break;
+      case "delete":
+        // Handle delete action
+        break;
+      // case "inactive":
+      //   // Handle inactive action
+      //   break;
+      case "viewDetail":
+        // Handle view detail action
+        break;
+      default:
+        break;
+    }
+  };
 
   const actionsMenu = (record) => (
     <Menu>
@@ -93,16 +93,26 @@ export default function CustomerList({
       width: 120,
     },
     {
-      title: "Counter",
-      dataIndex: "counter_id",
-      key: "counter",
-      render: (counter_id) => (counter_id ? counter_id : "All Counter"),
+      title: "Address",
+      dataIndex: "address",
+      key: "address",
     },
     {
-      title: "Role",
-      dataIndex: "role_id",
-      key: "role",
+      title: "Point",
+      dataIndex: "point",
+      key: "point",
     },
+    // {
+    //   title: "Counter",
+    //   dataIndex: "counter_id",
+    //   key: "counter",
+    //   render: (counter_id) => (counter_id ? counter_id : "All Counter"),
+    // },
+    // {
+    //   title: "Role",
+    //   dataIndex: "role_id",
+    //   key: "role",
+    // },
     {
       title: "Status",
       key: "active",

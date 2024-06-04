@@ -26,11 +26,11 @@ const columns = (
   handleCreatePromotion
 ) => [
   { field: "id", headerName: "No", width: 70 },
-  { field: "name", headerName: "Customer Name", width: 200 },
+  { field: "fullName", headerName: "Customer Name", width: 200 },
   { field: "email", headerName: "Email", width: 200 },
   { field: "phone", headerName: "Phone number", width: 150 },
   { field: "address", headerName: "Address", width: 200 },
-  { field: "point", headerName: "Point", width: 90 },
+  { field: "accumulated_point", headerName: "accumulated_point", width: 90 },
   {
     field: "actions",
     headerName: "Actions",
@@ -135,7 +135,7 @@ export default function Customer() {
 
   useEffect(() => {
     axios
-      .get("https://65edbd9708706c584d9a764a.mockapi.io/LoginForm")
+      .get("http://localhost:8080/api/v1/customers/get_customers")
       .then((response) => {
         console.log("Data fetched successfully: ", response.data);
         setRows(response.data);
@@ -174,10 +174,7 @@ export default function Customer() {
 
   const handleAddCustomer = () => {
     axios
-      .post(
-        "https://65edbd9708706c584d9a764a.mockapi.io/LoginForm",
-        newCustomer
-      )
+      .post("http://localhost:8080/api/v1/customers/create", newCustomer)
       .then((response) => {
         console.log("Customer added successfully: ", response.data);
         setRows([...rows, response.data]);
@@ -204,7 +201,7 @@ export default function Customer() {
   const handleSaveUpdate = () => {
     axios
       .put(
-        `https://65edbd9708706c584d9a764a.mockapi.io/LoginForm/${selectedCustomer.id}`,
+        `http://localhost:8080/api/v1/customers/update/${selectedCustomer.id}`,
         selectedCustomer
       )
       .then((response) => {
@@ -223,9 +220,7 @@ export default function Customer() {
 
   const handleDeleteCustomer = (customerId) => {
     axios
-      .delete(
-        `https://65edbd9708706c584d9a764a.mockapi.io/LoginForm/${customerId}`
-      )
+      .delete(`http://localhost:8080/api/v1/customers/delete/${customerId}`)
       .then(() => {
         console.log("Customer deleted successfully");
         const updatedRows = rows.filter((row) => row.id !== customerId);
