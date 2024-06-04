@@ -1,14 +1,18 @@
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { selectToken } from "../slices/auth.slice";
+import { selectAuth, selectToken } from "../slices/auth.slice";
 
 const AuthGuard = ({ allowedRoles, children }) => {
   const token = useSelector(selectToken);
+  const auth = useSelector(selectAuth);
   const location = useLocation();
   const navigate = useNavigate();
-
+  console.log(auth?.first_login);
   // If no token exists, redirect to login page
+  if (auth?.first_login !== null && auth?.first_login === true) {
+    return <Navigate to="/login-first-time" />;
+  }
   if (!token) {
     return <Navigate to="/login" replace />;
   }
