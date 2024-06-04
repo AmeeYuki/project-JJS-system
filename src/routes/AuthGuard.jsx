@@ -8,7 +8,6 @@ const AuthGuard = ({ allowedRoles, children }) => {
   const auth = useSelector(selectAuth);
   const location = useLocation();
   const navigate = useNavigate();
-  console.log(auth?.first_login);
   // If no token exists, redirect to login page
   if (auth?.first_login !== null && auth?.first_login === true) {
     return <Navigate to="/login-first-time" />;

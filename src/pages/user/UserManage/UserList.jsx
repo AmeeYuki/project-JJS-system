@@ -72,18 +72,18 @@ export default function UserList({
     },
     {
       title: "Phone",
-      dataIndex: "phone_number",
+      dataIndex: "phoneNumber",
       key: "phone",
     },
     {
       title: "Counter",
-      dataIndex: "counter_id",
+      dataIndex: "counterName",
       key: "counter",
-      render: (counter_id) => (counter_id ? counter_id : "All Counter"),
+      render: (counter_id) => (counter_id ? counter_id : ""),
     },
     {
       title: "Role",
-      dataIndex: "role_id",
+      dataIndex: "roleName",
       key: "role",
     },
     {
@@ -112,7 +112,6 @@ export default function UserList({
       ),
     },
   ];
-
   return (
     <>
       <Table

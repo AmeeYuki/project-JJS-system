@@ -28,7 +28,6 @@ function Login() {
         dispatch(setAuth(result.data));
 
         // localStorage.setItem("token", result.data.token);
-        console.log(result.data.first_login);
         if (result.data.first_login === true) {
           navigate("/login-first-time");
           notification.success({

@@ -28,7 +28,6 @@ export default function User() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchValue, setSearchValue] = useState("");
   const [createUser, { isLoading: isLoadindCreate }] = useCreateUserMutation();
-
   const [editUserMutation, { isLoading: isLoadingEdit }] =
     useEditUserMutation();
   const [deleteUserMutation, { isLoading: isLoadingDelete }] =
@@ -38,41 +37,38 @@ export default function User() {
   const [inactiveUserMutation, { isLoading: isLoadingInactive }] =
     useInactiveUserMutation();
 
-  const usersData = users?.users;
+  function convertData(users) {
+    const converted = users.users.map((el) => ({
+      id: el?.id,
+      fullname: el?.fullname,
+      active: el?.active,
+      counterName: el?.counter?.counterName,
+      counterId: el?.counter?.id,
+      dob: el?.date_of_birth,
+      email: el?.email,
+      phoneNumber: el?.phone_number,
+      roleId: el?.role.id,
+      roleName: el?.role.name,
+    }));
+    console.log("Converted data:", converted);
+    return converted;
+  }
 
   useEffect(() => {
     if (users) {
-      const indexedUsers = usersData?.map((user, index) => ({
+      // Step 1: Convert the data
+      const convertedData = convertData(users);
+
+      // Step 2: Index the converted data
+      const indexedUsers = convertedData.map((user, index) => ({
         ...user,
         index: index + 1,
       }));
+
+      // Set the user data
       setUserData(indexedUsers);
     }
   }, [users]);
-
-  useEffect(() => {
-    if (users) {
-      const filteredUsers = usersData?.filter(
-        (user) =>
-          user.fullname.toLowerCase().includes(searchValue.toLowerCase()) ||
-          user.phone_number.includes(searchValue)
-      );
-      const indexedUsers = filteredUsers.map((user, index) => ({
-        ...user,
-        index: index + 1,
-      }));
-      setUserData(indexedUsers);
-    }
-  }, [searchValue, users]);
-
-  const handleSearch = (value) => {
-    setSearchValue(value);
-  };
-
-  const onChangeSearch = (e) => {
-    const { value } = e.target;
-    setSearchValue(value);
-  };
 
   const handleCreateUser = async (values) => {
     try {
@@ -172,8 +168,8 @@ export default function User() {
           <SearchInput
             placeholder="Search by name or phone number"
             value={searchValue}
-            onChange={onChangeSearch}
-            onPressEnter={() => handleSearch(searchValue)}
+            // onChange={onChangeSearch}
+            // onPressEnter={() => handleSearch(searchValue)}
           />
         </div>
         <div className="action-right">
