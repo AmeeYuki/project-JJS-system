@@ -57,7 +57,7 @@ const UpdateProductModal = ({
               ? fileList[0].url
               : product.image,
           type_id: values.typeName,
-          counter_id: values.counterId,
+          counter_id: values.counterName,
           id: product.id,
         };
         onUpdate(updatedProduct);
@@ -206,7 +206,7 @@ const UpdateProductModal = ({
 
           {/* loi o day */}
           <Form.Item
-            name="counterId"
+            name="counterName"
             label="Counter"
             rules={[
               {

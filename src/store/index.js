@@ -39,6 +39,8 @@ export const store = configureStore({
     [userAPI.reducerPath]: userAPI.reducer,
     [productAPI.reducerPath]: productAPI.reducer,
     [counterAPI.reducerPath]: counterAPI.reducer,
+    [typeAPI.reducerPath]: typeAPI.reducer,
+    [orderAPI.reducerPath]: orderAPI.reducer,
 
     // flower: persistedReducer,
     auth: persistedAuthReducer,

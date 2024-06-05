@@ -13,6 +13,7 @@ import { UploadOutlined } from "@ant-design/icons";
 import { storage } from "../../../config/FireBaseImage/firebaseConfig";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { useGetTypesQuery } from "../../../services/typeAPI";
+import { useGetCountersQuery } from "../../../services/counterAPI"; // Thêm import này
 
 const { Option } = Select;
 
@@ -21,6 +22,8 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
   const [imageUrl, setImageUrl] = useState(null);
   const [fileList, setFileList] = useState([]);
   const { data: typesData, isLoading: typesLoading } = useGetTypesQuery();
+  const { data: countersData, isLoading: countersLoading } =
+    useGetCountersQuery(); 
 
   useEffect(() => {
     if (!visible) {
@@ -142,7 +145,6 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
           >
             <Input placeholder="Input the product name" />
           </Form.Item>
-
           <Form.Item
             name="typeId"
             label="Type"
@@ -165,15 +167,13 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
                   </Option>
                 ))}
             </Select>
-          </Form.Item>
-
+          </Form.Item>{" "}
           <Form.Item name="barcode" label="Barcode">
             <Input
               disabled
               placeholder="Barcode will be generated automatically"
             />
           </Form.Item>
-
           <Form.Item
             name="quantity"
             label="Quantity"
@@ -191,7 +191,6 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
               style={{ width: "100%" }}
             />
           </Form.Item>
-
           <Form.Item
             name="priceStone"
             label="Price (Stone):"
@@ -209,7 +208,6 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
               addonAfter=".000 VND"
             />
           </Form.Item>
-
           <Form.Item
             name="priceProcessing"
             label="Price (Processing):"
@@ -224,7 +222,6 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
           >
             <Input placeholder="Input the price..." addonAfter=".000 VND" />
           </Form.Item>
-
           <Form.Item
             name="weight"
             label="Weight"
@@ -259,11 +256,9 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
               }
             />
           </Form.Item>
-
           <Form.Item name="description" label="Description">
             <Input.TextArea placeholder="Input the description" />
           </Form.Item>
-
           <Form.Item
             name="counterId"
             label="Counter"
@@ -274,17 +269,23 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
               },
             ]}
           >
-            <Select placeholder="Select counter">
-              <Option value={1}>Counter 1</Option>
-              <Option value={2}>Counter 2</Option>
-              <Option value={3}>Counter 3</Option>
+            <Select
+              placeholder="Select counter"
+              loading={countersLoading}
+              disabled={countersLoading}
+            >
+              {countersData &&
+                countersData.map((counter) => (
+                  <Option key={counter.id} value={counter.id}>
+                    {counter.counterName}
+                  </Option>
+                ))}
             </Select>
           </Form.Item>
-
           <Form.Item
             name="image"
             label="
-            Image (png, jpg)"
+        Image (png, jpg)"
             rules={[
               {
                 required: true,
