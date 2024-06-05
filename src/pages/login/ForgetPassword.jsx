@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { selectToken } from "../../slices/auth.slice";
 import {
+  useChangePasswordByEmailMutation,
   useVerifyMailMutation,
   useVerifyOtpMutation,
 } from "../../services/authAPI";
@@ -24,6 +25,9 @@ function Login() {
   const [verifyMail, { isLoading: isVerifyingMail }] = useVerifyMailMutation();
   const [verifyOTPByMail, { isLoading: isVerifyOTPByMail }] =
     useVerifyOtpMutation();
+  const [changePasswordByEmail, { isLoading: isChangePasswordByEmail }] =
+    useChangePasswordByEmailMutation();
+
   const [isLoading, setIsLoading] = useState(false);
 
   // const handleVerifyEmail = () => {
@@ -107,9 +111,34 @@ function Login() {
       setError("Confirm Password does not match");
       return;
     }
-    setVerifyEmail(false);
-    setVerifyOTP(false);
-    navigate("/login");
+    try {
+      setIsLoading(true); // Đặt trạng thái loading thành true khi bắt đầu gửi email
+
+      const response = await changePasswordByEmail({
+        email,
+        password,
+        confirmPassword,
+      });
+      if (response.error.originalStatus === 200) {
+        setError(null);
+        notification.success({
+          message: "Change password successful",
+          description: "Please login!",
+        });
+        setVerifyEmail(false);
+        setVerifyOTP(false);
+        navigate("/login");
+      } else {
+        // Xác minh email không thành công
+        setError("Failed to change, try again");
+        // setVerifyEmail(false);
+      }
+    } catch (error) {
+      // Lỗi khi gửi yêu cầu API
+      setError("Failed to change: " + error.message);
+    } finally {
+      setIsLoading(false); // Đặt trạng thái loading thành false sau khi hoàn thành
+    }
   };
 
   return (
@@ -247,7 +276,12 @@ function Login() {
               </>
             )}
             <Form.Item>
-              <Button type="primary" htmlType="submit" className="submit-btn">
+              <Button
+                type="primary"
+                htmlType="submit"
+                className="submit-btn"
+                loading={isLoading}
+              >
                 Change your password
               </Button>
             </Form.Item>
