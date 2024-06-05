@@ -11,9 +11,9 @@ import UpdateProductModal from "../product/ProductManage/UpdateProductModal";
 import ViewDetailProductModal from "../product/ProductManage/ViewDetailProductModal";
 import UserList from "../user/UserManage/UserList";
 import {
-  useGetAllUserQuery,
   useEditUserMutation,
   useDeleteUserMutation,
+  useGetUsersByRoleAndCounterQuery,
 } from "../../services/userAPI";
 import UpdateUserModal from "../user/UserManage/UpdateUserModal";
 import "./CounterDetail.css";
@@ -27,7 +27,9 @@ export default function CounterDetail() {
 
   const { data: products, refetch: refetchProducts } =
     useGetProductsByCounterIdQuery(id);
-  const { data: users, refetch: refetchUsers } = useGetAllUserQuery();
+
+  const { data: users, refetch: refetchUsers } =
+    useGetUsersByRoleAndCounterQuery(id);
 
   const [productData, setProductData] = useState([]);
   const [userData, setUserData] = useState([]);
@@ -62,10 +64,7 @@ export default function CounterDetail() {
 
   useEffect(() => {
     if (Array.isArray(users)) {
-      const filteredUsers = users.filter(
-        (user) => user.role === 3 && user.counter === counterName
-      );
-      const indexedUsers = filteredUsers.map((user, index) => ({
+      const indexedUsers = users.map((user, index) => ({
         ...user,
         index: index + 1,
       }));
@@ -73,7 +72,7 @@ export default function CounterDetail() {
     } else {
       console.error("Expected users to be an array, but got:", users);
     }
-  }, [users, counterName]);
+  }, [users]);
 
   const handleUpdateProduct = (values) => {
     editProductMutation(values)
@@ -183,7 +182,9 @@ export default function CounterDetail() {
           </TabPane>
           <TabPane tab={<span className="tab-title">Staff</span>} key="2">
             <UserList
-              userData={userData}
+              userData={userData.filter(
+                (user) => user.role.id === 3 && user.counter.id === parseInt(id)
+              )}
               onEditUser={handleEditUser}
               handleDeleteUser={handleDeleteUser}
             />

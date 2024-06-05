@@ -2,7 +2,6 @@ import React from "react";
 import { Space, Table, Dropdown, Menu, Popconfirm } from "antd";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { convertProductData, formatCurrency } from "../ProductUtil.jsx";
-import Barcode from "react-barcode";
 
 export default function ProductListCounter({
   productData,
@@ -55,25 +54,6 @@ export default function ProductListCounter({
       title: "Category",
       dataIndex: "typeName",
       key: "typeName",
-    },
-    {
-      title: "Barcode",
-      dataIndex: "barcode",
-      key: "barcode",
-      render: (barcode) => (
-        <div
-          style={{
-            width: "100%",
-            maxWidth: "200px",
-            height: "auto",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Barcode value={barcode} />
-        </div>
-      ),
     },
     {
       title: "Weight",
