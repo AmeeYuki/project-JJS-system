@@ -3,7 +3,7 @@ import { ConfigProvider, Tabs, notification } from "antd";
 import { useLocation, useParams } from "react-router-dom";
 import ProductListCounter from "../product/ProductManage/ProductListCounter";
 import {
-  useGetProductsQuery,
+  useGetProductsByCounterIdQuery,
   useEditProductMutation,
   useDeleteProductMutation,
 } from "../../services/productAPI";
@@ -11,9 +11,9 @@ import UpdateProductModal from "../product/ProductManage/UpdateProductModal";
 import ViewDetailProductModal from "../product/ProductManage/ViewDetailProductModal";
 import UserList from "../user/UserManage/UserList";
 import {
-  useGetAllUserQuery,
   useEditUserMutation,
   useDeleteUserMutation,
+  useGetUsersByRoleAndCounterQuery,
 } from "../../services/userAPI";
 import UpdateUserModal from "../user/UserManage/UpdateUserModal";
 import "./CounterDetail.css";
@@ -25,8 +25,11 @@ export default function CounterDetail() {
   const location = useLocation();
   const { counterName, location: counterLocation } = location.state || {};
 
-  const { data: products, refetch: refetchProducts } = useGetProductsQuery();
-  const { data: users, refetch: refetchUsers } = useGetAllUserQuery();
+  const { data: products, refetch: refetchProducts } =
+    useGetProductsByCounterIdQuery(id);
+
+  const { data: users, refetch: refetchUsers } =
+    useGetUsersByRoleAndCounterQuery(id);
 
   const [productData, setProductData] = useState([]);
   const [userData, setUserData] = useState([]);
@@ -50,37 +53,18 @@ export default function CounterDetail() {
     useDeleteUserMutation();
 
   useEffect(() => {
-    if (products) {
-      const filteredProducts = products.filter(
-        (product) => product.counter === counterName
-      );
-      const indexedProducts = filteredProducts.map((product, index) => ({
+    if (Array.isArray(products)) {
+      const indexedProducts = products.map((product, index) => ({
         ...product,
         index: index + 1,
       }));
       setProductData(indexedProducts);
     }
-  }, [products, counterName]);
-
-  // useEffect(() => {
-  //   if (users) {
-  //     const filteredUsers = users.filter(
-  //       (user) => user.role === 3 && user.counter === counterName
-  //     );
-  //     const indexedUsers = filteredUsers.map((user, index) => ({
-  //       ...user,
-  //       index: index + 1,
-  //     }));
-  //     setUserData(indexedUsers);
-  //   }
-  // }, [users, counterName]);
+  }, [products]);
 
   useEffect(() => {
     if (Array.isArray(users)) {
-      const filteredUsers = users.filter(
-        (user) => user.role === 3 && user.counter === counterName
-      );
-      const indexedUsers = filteredUsers.map((user, index) => ({
+      const indexedUsers = users.map((user, index) => ({
         ...user,
         index: index + 1,
       }));
@@ -88,7 +72,7 @@ export default function CounterDetail() {
     } else {
       console.error("Expected users to be an array, but got:", users);
     }
-  }, [users, counterName]);
+  }, [users]);
 
   const handleUpdateProduct = (values) => {
     editProductMutation(values)
@@ -103,9 +87,16 @@ export default function CounterDetail() {
 
   const handleDeleteProduct = async (productId) => {
     try {
-      await deleteProductMutation(productId).unwrap();
-      refetchProducts();
-      notification.success({ message: "Delete product successfully" });
+      await deleteProductMutation(productId);
+      localStorage.setItem(`deleted_product_${productId}`, "true");
+      setProductData((prevProducts) =>
+        prevProducts.map((product) =>
+          product.id === productId ? { ...product, deleted: true } : product
+        )
+      );
+      notification.success({
+        message: "Delete product successfully",
+      });
     } catch (error) {
       console.error(error);
     }
@@ -163,7 +154,11 @@ export default function CounterDetail() {
         <Tabs defaultActiveKey="1">
           <TabPane tab={<span className="tab-title">Product</span>} key="1">
             <ProductListCounter
-              productData={productData}
+              productData={productData.filter(
+                (product) =>
+                  !product.deleted &&
+                  !localStorage.getItem(`deleted_product_${product.id}`)
+              )}
               onEditProduct={handleEditProduct}
               handleDeleteProduct={handleDeleteProduct}
               onViewProductDetail={handleViewProductDetail}
@@ -187,7 +182,9 @@ export default function CounterDetail() {
           </TabPane>
           <TabPane tab={<span className="tab-title">Staff</span>} key="2">
             <UserList
-              userData={userData}
+              userData={userData.filter(
+                (user) => user.role.id === 3 && user.counter.id === parseInt(id)
+              )}
               onEditUser={handleEditUser}
               handleDeleteUser={handleDeleteUser}
             />

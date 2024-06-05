@@ -98,6 +98,17 @@ export const userAPI = createApi({
         { type: "UserList", id: userId },
       ],
     }),
+    getUsersByRoleAndCounter: builder.query({
+      query: (counterId) =>
+        `users/get_user_by_role_and_counter?roleId=3&counterId=${counterId}`,
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: "UserList", id })),
+              { type: "UserList", id: "LIST" },
+            ]
+          : [{ type: "UserList", id: "LIST" }],
+    }),
   }),
 });
 
@@ -109,4 +120,5 @@ export const {
   useCreateUserMutation,
   useActiveUserMutation,
   useInactiveUserMutation,
+  useGetUsersByRoleAndCounterQuery,
 } = userAPI;

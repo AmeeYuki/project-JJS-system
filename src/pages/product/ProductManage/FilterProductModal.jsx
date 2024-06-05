@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import { Modal, Checkbox, Button } from "antd";
 
 const FilterProductModal = ({ visible, onCancel, onApply }) => {
-  const [checkedCategories, setCheckedCategories] = useState([]);
+  const [checkedTypes, setCheckedTypes] = useState([]);
 
-  const handleCategoryChange = (checkedValues) => {
-    setCheckedCategories(checkedValues);
+  const handleTypeChange = (checkedValues) => {
+    setCheckedTypes(checkedValues);
   };
 
   const handleApply = () => {
-    onApply(checkedCategories);
+    onApply(checkedTypes);
   };
 
   return (
@@ -49,8 +49,8 @@ const FilterProductModal = ({ visible, onCancel, onApply }) => {
       ]}
     >
       <div style={{ marginBottom: 16 }}>
-        <h3 style={{ marginBottom: 8 }}>Categories:</h3>
-        <Checkbox.Group onChange={handleCategoryChange}>
+        <h3 style={{ marginBottom: 8 }}>Types:</h3>
+        <Checkbox.Group onChange={handleTypeChange}>
           <Checkbox value="Gold">Gold</Checkbox>
           <Checkbox value="Silver">Silver</Checkbox>
           <Checkbox value="Diamond">Diamond</Checkbox>

@@ -1,50 +1,59 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { COUNTER_URL } from "../config";
+import { API_URL_BE } from "../config";
+import { selectToken } from "../slices/auth.slice";
 
 export const counterAPI = createApi({
   reducerPath: "counterManagement",
   tagTypes: ["CounterList"],
-  baseQuery: fetchBaseQuery({ baseUrl: COUNTER_URL }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: API_URL_BE,
+    prepareHeaders: (headers, { getState }) => {
+      const token = selectToken(getState());
+      if (token) {
+        headers.append("Authorization", `Bearer ${token}`);
+      }
+      headers.append("Content-Type", "application/json");
+      return headers;
+    },
+  }),
   endpoints: (builder) => ({
     getCounters: builder.query({
-      query: () => `counters`,
-      providesTags: (result, _error, _arg) =>
-        result
-          ? [
-              ...result.map(({ id }) => ({ type: "CounterList", id })),
-              { type: "CounterList", id: "LIST" },
-            ]
-          : [{ type: "CounterList", id: "LIST" }],
+      query: () => `counters/get_all_counters`,
+      providesTags: ["Counter"],
     }),
     addCounter: builder.mutation({
       query: (body) => ({
         method: "POST",
-        url: `counters`,
+        url: `counters/create`,
         body,
       }),
-      invalidatesTags: [{ type: "CounterList", id: "LIST" }],
+      invalidatesTags: ["Counter"],
     }),
     editCounter: builder.mutation({
-      query: ({ id, ...patch }) => ({
-        url: `counters/${id}`,
+      query: ({ id, ...body }) => ({
         method: "PUT",
-        body: patch,
+        url: `counters/update/${id}`,
+        body,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: "CounterList", id }],
+      invalidatesTags: ["Counter"],
     }),
     deleteCounter: builder.mutation({
-      query: (id) => ({
-        url: `counters/${id}`,
+      query: (counterId) => ({
         method: "DELETE",
+        url: `counters/delete/${counterId}`,
       }),
-      invalidatesTags: [{ type: "CounterList", id: "LIST" }],
+      invalidatesTags: ["Counter"],
+    }),
+    getCounterByName: builder.query({
+      query: (name) => `counters/get_counter_by_name?name=${name}`,
     }),
   }),
 });
 
 export const {
+  useGetCountersQuery,
   useAddCounterMutation,
   useEditCounterMutation,
-  useGetCountersQuery,
   useDeleteCounterMutation,
+  useGetCounterByNameQuery,
 } = counterAPI;

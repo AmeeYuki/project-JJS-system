@@ -42,7 +42,17 @@ const UpdateCounterModal = ({
           form
             .validateFields()
             .then((values) => {
-              onUpdate({ ...values, id: counter.id });
+              const updatedData = { id: counter.id };
+
+              if (values.counterName) {
+                updatedData.counter_name = values.counterName;
+              }
+
+              if (values.location) {
+                updatedData.location = values.location;
+              }
+
+              onUpdate(updatedData);
             })
             .catch((info) => {
               console.log("Validate Failed:", info);

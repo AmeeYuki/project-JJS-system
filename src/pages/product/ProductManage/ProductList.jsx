@@ -1,6 +1,7 @@
 import React from "react";
-import { Space, Table, Tag, Dropdown, Menu, Popconfirm } from "antd";
+import { Space, Table, Dropdown, Menu, Popconfirm } from "antd";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import { convertProductData, formatCurrency } from "../ProductUtil.jsx";
 
 export default function ProductList({
   productData,
@@ -8,16 +9,14 @@ export default function ProductList({
   handleDeleteProduct,
   onViewProductDetail,
 }) {
+  const convertedData = convertProductData(productData);
+
   const actionsMenu = (record) => (
     <Menu>
       <Menu.Item key="detail" onClick={() => onViewProductDetail(record)}>
         <span>View Detail</span>
       </Menu.Item>
-      <Menu.Item
-        key="edit"
-        className="submenu-producttable"
-        onClick={() => onEditProduct(record)}
-      >
+      <Menu.Item key="edit" onClick={() => onEditProduct(record)}>
         <span>Edit Product</span>
       </Menu.Item>
       <Menu.Item key="delete">
@@ -28,7 +27,6 @@ export default function ProductList({
           cancelText="No"
         >
           <p className="submenu-producttable-dropdown-delete">
-            <span style={{ color: "#2C5282" }}></span>
             <span>Delete Product</span>
           </p>
         </Popconfirm>
@@ -48,14 +46,9 @@ export default function ProductList({
       key: "productName",
     },
     {
-      title: "Category",
-      dataIndex: "category",
-      key: "category",
-    },
-    {
-      title: "Barcode",
-      dataIndex: "barcode",
-      key: "barcode",
+      title: "Type",
+      dataIndex: "typeName",
+      key: "typeName",
     },
     {
       title: "Weight",
@@ -64,20 +57,21 @@ export default function ProductList({
       render: (weight, record) => `${weight} ${record.weightUnit}`,
     },
     {
-      title: "Price",
-      dataIndex: "price",
-      key: "price",
-      render: (price) => `${price} VND`,
+      title: "Price Processing",
+      dataIndex: "priceProcessing",
+      key: "priceProcessing",
+      render: (priceProcessing) => formatCurrency(priceProcessing),
     },
     {
-      title: "Status",
-      key: "active",
-      dataIndex: "active",
-      render: (active) => (
-        <Tag color={active ? "green" : "volcano"}>
-          {active ? "ACTIVE" : "INACTIVE"}
-        </Tag>
-      ),
+      title: "Price Stone",
+      dataIndex: "priceStone",
+      key: "priceStone",
+      render: (priceStone) => formatCurrency(priceStone),
+    },
+    {
+      title: "Counter Name",
+      dataIndex: "counterName",
+      key: "counterName",
     },
     {
       key: "action",
@@ -99,11 +93,9 @@ export default function ProductList({
   return (
     <Table
       columns={columns}
-      dataSource={productData}
+      dataSource={convertedData}
       rowKey="id"
-      scroll={{
-        y: 330,
-      }}
+      scroll={{ y: 330 }}
     />
   );
 }
