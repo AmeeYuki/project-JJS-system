@@ -164,7 +164,7 @@ export default function Product() {
           <Input
             style={{ borderRadius: 20, width: "350px" }}
             size="large"
-            placeholder="Search by name or barcode"
+            placeholder="Search by name"
             prefix={<SearchOutlined />}
             value={searchValue}
             onChange={onChangeSearch}

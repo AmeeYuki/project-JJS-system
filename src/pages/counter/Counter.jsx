@@ -95,18 +95,6 @@ export default function Counter() {
       });
   };
 
-  const handleDeleteCounter = async (counterId) => {
-    try {
-      const result = await deleteCounterMutation(counterId);
-      refetch();
-      notification.success({
-        message: "Delete counter successfully",
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const handleEditCounter = (counter) => {
     setSelectedCounter(counter);
     setIsUpdateModalVisible(true);
@@ -177,7 +165,6 @@ export default function Counter() {
           <CounterList
             counterData={counterData}
             onEditCounter={handleEditCounter}
-            handleDeleteCounter={handleDeleteCounter}
             onViewCounterDetail={handleViewCounterDetail}
           />
         )}

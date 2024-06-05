@@ -96,7 +96,7 @@ const UpdateCategoryModal = ({
         >
           <InputNumber
             placeholder="Input the price..."
-            addonAfter="VND"
+            addonAfter=".000 VND"
             style={{ width: "100%" }}
             onChange={handlePriceChange}
           />
@@ -114,7 +114,7 @@ const UpdateCategoryModal = ({
         >
           <InputNumber
             placeholder="Input the price..."
-            addonAfter="VND"
+            addonAfter=".000 VND"
             style={{ width: "100%" }}
             onChange={handlePriceChange}
           />
