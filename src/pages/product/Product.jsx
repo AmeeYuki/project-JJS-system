@@ -110,7 +110,12 @@ export default function Product() {
   const handleDeleteProduct = async (productId) => {
     try {
       await deleteProductMutation(productId);
-      refetch();
+      localStorage.setItem(`deleted_product_${productId}`, "true");
+      setProductData((prevProducts) =>
+        prevProducts.map((product) =>
+          product.id === productId ? { ...product, deleted: true } : product
+        )
+      );
       notification.success({
         message: "Delete product successfully",
       });
@@ -118,7 +123,6 @@ export default function Product() {
       console.error(error);
     }
   };
-
   const handleEditProduct = (product) => {
     setSelectedProduct(product);
     setIsUpdateModalVisible(true);
@@ -247,7 +251,11 @@ export default function Product() {
           </div>
         ) : (
           <ProductList
-            productData={productData}
+            productData={productData.filter(
+              (product) =>
+                !product.deleted &&
+                !localStorage.getItem(`deleted_product_${product.id}`)
+            )}
             onEditProduct={handleEditProduct}
             handleDeleteProduct={handleDeleteProduct}
             onViewProductDetail={handleViewProductDetail}

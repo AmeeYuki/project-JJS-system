@@ -88,9 +88,16 @@ export default function CounterDetail() {
 
   const handleDeleteProduct = async (productId) => {
     try {
-      await deleteProductMutation(productId).unwrap();
-      refetchProducts();
-      notification.success({ message: "Delete product successfully" });
+      await deleteProductMutation(productId);
+      localStorage.setItem(`deleted_product_${productId}`, "true");
+      setProductData((prevProducts) =>
+        prevProducts.map((product) =>
+          product.id === productId ? { ...product, deleted: true } : product
+        )
+      );
+      notification.success({
+        message: "Delete product successfully",
+      });
     } catch (error) {
       console.error(error);
     }
@@ -148,7 +155,11 @@ export default function CounterDetail() {
         <Tabs defaultActiveKey="1">
           <TabPane tab={<span className="tab-title">Product</span>} key="1">
             <ProductListCounter
-              productData={productData}
+              productData={productData.filter(
+                (product) =>
+                  !product.deleted &&
+                  !localStorage.getItem(`deleted_product_${product.id}`)
+              )}
               onEditProduct={handleEditProduct}
               handleDeleteProduct={handleDeleteProduct}
               onViewProductDetail={handleViewProductDetail}

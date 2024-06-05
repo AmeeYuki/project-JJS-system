@@ -16,6 +16,8 @@ import { userAPI } from "../services/userAPI";
 import { authApi } from "../services/authAPI";
 import { productAPI } from "../services/productAPI";
 import { counterAPI } from "../services/counterAPI";
+import { typeAPI } from "../services/typeAPI";
+import { orderAPI } from "../services/orderAPI";
 
 const persistConfig = {
   key: "root",
