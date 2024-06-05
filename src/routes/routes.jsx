@@ -3,6 +3,7 @@ import { createBrowserRouter } from "react-router-dom";
 import Loadable from "./Loadable";
 import MainLayout from "../layout/MainLayout";
 import AuthGuard from "./AuthGuard";
+import GuestGuard from "./GuestGuard";
 
 const Login = Loadable({ loader: () => import("../pages/login/Login") });
 const ForgetPassword = Loadable({
@@ -67,6 +68,14 @@ export const router = createBrowserRouter([
             element: Order,
           },
           {
+            path: "order",
+            element: Order,
+          },
+          {
+            path: "order",
+            element: Order,
+          },
+          {
             path: "product",
             element: Product,
           },
@@ -88,16 +97,40 @@ export const router = createBrowserRouter([
           },
         ],
       },
+      // {
+      //   path: "login-first-time",
+      //   element: LoginFirstTime,
+      // },
     ],
   },
   {
-    path: "login",
-    element: Login,
+    path: "/",
+    element: <GuestGuard />,
+
+    children: [
+      {
+        index: true,
+        // path: "",
+        element: Home,
+      },
+      {
+        path: "login",
+        element: Login,
+      },
+      {
+        path: "forget-password",
+        element: ForgetPassword,
+      },
+    ],
   },
-  {
-    path: "forget-password",
-    element: ForgetPassword,
-  },
+  // {
+  //   path: "login",
+  //   element: Login,
+  // },
+  // {
+  //   path: "forget-password",
+  //   element: ForgetPassword,
+  // },
   {
     path: "login-first-time",
     element: LoginFirstTime,

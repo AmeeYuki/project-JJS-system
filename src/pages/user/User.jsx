@@ -4,16 +4,21 @@ import { Input, message, notification } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import ButtonCreate from "../../components/ButtonFilter/ButtonCreate";
 import {
+  useActiveUserMutation,
   useAddUserMutation,
   useCreateUserMutation,
   useDeleteUserMutation,
   useEditUserMutation,
   useGetAllUserQuery,
+  useInactiveUserMutation,
 } from "../../services/userAPI";
 import UserList from "./UserManage/UserList";
 import CreateUserModal from "./UserManage/CreateUserModal";
 import UpdateUserModal from "./UserManage/UpdateUserModal";
 import { CircularProgress } from "@mui/material";
+import CustomButton from "../../components/CustomButton/CustomButton";
+import { RiAddLine } from "@remixicon/react";
+import SearchInput from "../../components/SearchInput/SearchInput";
 
 export default function User() {
   const { data: users, isLoading, refetch } = useGetAllUserQuery();
@@ -23,51 +28,51 @@ export default function User() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchValue, setSearchValue] = useState("");
   const [createUser, { isLoading: isLoadindCreate }] = useCreateUserMutation();
-
   const [editUserMutation, { isLoading: isLoadingEdit }] =
     useEditUserMutation();
   const [deleteUserMutation, { isLoading: isLoadingDelete }] =
     useDeleteUserMutation();
+  const [activeUserMutation, { isLoading: isLoadingActive }] =
+    useActiveUserMutation();
+  const [inactiveUserMutation, { isLoading: isLoadingInactive }] =
+    useInactiveUserMutation();
 
-  const usersData = users?.users;
+  function convertData(users) {
+    const converted = users.users.map((el) => ({
+      id: el?.id,
+      fullname: el?.fullname,
+      active: el?.active,
+      counterName: el?.counter?.counterName,
+      counterId: el?.counter?.id,
+      dob: el?.date_of_birth,
+      email: el?.email,
+      phoneNumber: el?.phone_number,
+      roleId: el?.role.id,
+      roleName: el?.role.name,
+    }));
+    console.log("Converted data:", converted);
+    return converted;
+  }
+
   useEffect(() => {
     if (users) {
-      const indexedUsers = usersData?.map((user, index) => ({
+      // Step 1: Convert the data
+      const convertedData = convertData(users);
+
+      // Step 2: Index the converted data
+      const indexedUsers = convertedData.map((user, index) => ({
         ...user,
         index: index + 1,
       }));
+
+      // Set the user data
       setUserData(indexedUsers);
     }
   }, [users]);
 
-  useEffect(() => {
-    if (users) {
-      const filteredUsers = usersData?.filter(
-        (user) =>
-          user.fullname.toLowerCase().includes(searchValue.toLowerCase()) ||
-          user.phone_number.includes(searchValue)
-      );
-      const indexedUsers = filteredUsers.map((user, index) => ({
-        ...user,
-        index: index + 1,
-      }));
-      setUserData(indexedUsers);
-    }
-  }, [searchValue, users]);
-
-  const handleSearch = (value) => {
-    setSearchValue(value);
-  };
-
-  const onChangeSearch = (e) => {
-    const { value } = e.target;
-    setSearchValue(value);
-  };
-
   const handleCreateUser = async (values) => {
     try {
       await createUser(values).unwrap();
-
       setIsCreateModalVisible(false);
       notification.success({
         message: "Create user successfully",
@@ -81,36 +86,70 @@ export default function User() {
     }
   };
 
-  const handleUpdateUser = (values) => {
-    editUserMutation(values)
-      .unwrap()
-      .then((data) => {
-        setIsUpdateModalVisible(false);
-        refetch();
-        notification.success({
-          message: "Update user successfully",
-        });
-      })
-      .catch((error) => {
-        console.error("Error updating user: ", error);
+  const handleUpdateUser = async (values) => {
+    try {
+      if (values.dob) {
+        values.dob = Math.floor(values.dob.valueOf() / 1000); // Convert dayjs date to Unix timestamp in seconds
+      }
+      const result = await editUserMutation({
+        ...values,
+        id: selectedUser.id,
+        date_of_birth: values.dob,
+      }).unwrap();
+      setIsUpdateModalVisible(false);
+      notification.success({
+        message: "Update user successfully",
       });
+      refetch(); // Refetch the user data
+    } catch (error) {
+      console.error("Error updating user: ", error);
+      notification.error({
+        message: "Failed to update user",
+      });
+    }
   };
 
   const handleDeleteUser = async (userId) => {
     try {
-      const result = await deleteUserMutation(userId);
-      if (result.error.originalStatus == 200) {
-        refetch();
-        notification.success({
-          message: "Delete user successfully",
-        });
-      } else {
-        notification.error({
-          message: "Delete user unsuccessfully",
-        });
-      }
+      const result = await deleteUserMutation(userId).unwrap();
+      refetch();
+      notification.success({
+        message: "Delete user successfully",
+      });
     } catch (error) {
       console.error(error);
+      notification.error({
+        message: "Delete user unsuccessfully",
+      });
+    }
+  };
+
+  const handleActiveUser = async (userId) => {
+    const result = await activeUserMutation(userId);
+
+    if (result.error.originalStatus == 200) {
+      refetch();
+      notification.success({
+        message: "User activated successfully",
+      });
+    } else {
+      notification.error({
+        message: "User activated unsuccessfully",
+      });
+    }
+  };
+
+  const handleInactiveUser = async (userId) => {
+    const result = await inactiveUserMutation(userId);
+    if (result.error.originalStatus == 200) {
+      refetch();
+      notification.success({
+        message: "User inactivated successfully",
+      });
+    } else {
+      notification.error({
+        message: "User inactivated unsuccessfully",
+      });
     }
   };
 
@@ -126,21 +165,32 @@ export default function User() {
       </div>
       <div className="action">
         <div className="action-left">
-          <Input
-            style={{ borderRadius: 20, width: "350px" }}
-            size="large"
+          <SearchInput
             placeholder="Search by name or phone number"
-            prefix={<SearchOutlined />}
             value={searchValue}
-            onChange={onChangeSearch}
-            onPressEnter={() => handleSearch(searchValue)}
+            // onChange={onChangeSearch}
+            // onPressEnter={() => handleSearch(searchValue)}
           />
         </div>
         <div className="action-right">
-          <div onClick={() => setIsCreateModalVisible(true)}>
-            <ButtonCreate
-              contentBtn={"Create User"}
+          <div>
+            <CustomButton
+              icon={RiAddLine}
+              text="Create User"
+              iconSize="20px"
+              iconColor="white"
+              textColor="white"
+              containerStyle={{
+                backgroundColor: "#000000",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+              }}
+              iconPosition="left"
               loading={isLoadindCreate}
+              fontSize="16px"
+              padding="10px 10px"
+              onClick={() => setIsCreateModalVisible(true)}
             />
           </div>
         </div>
@@ -159,9 +209,11 @@ export default function User() {
           </div>
         ) : (
           <UserList
-            userData={userData}
+            userData={userData} // Truyền userData đã lọc qua tìm kiếm vào UserList
             onEditUser={handleEditUser}
             handleDeleteUser={handleDeleteUser}
+            handleActiveUser={handleActiveUser}
+            handleInactiveUser={handleInactiveUser}
           />
         )}
       </div>

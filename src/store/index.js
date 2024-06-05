@@ -4,16 +4,18 @@ import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // Sử dụng localStorage
 // import { flowerApi } from "../services/flowerApi";
 // import flowerReducer from "../slices/flower.slice";
+//Reducer slice
 import userReducer from "../slices/user.slice";
 import productReducer from "../slices/product.slice";
 import counterReducer from "../slices/counter.slice";
 import typeReducer from "../slices/type.slice";
-import { userAPI } from "../services/userAPI";
+import orderReducer from "../slices/order.slice";
 import authReducer from "../slices/auth.slice";
+//API
+import { userAPI } from "../services/userAPI";
 import { authApi } from "../services/authAPI";
 import { productAPI } from "../services/productAPI";
 import { counterAPI } from "../services/counterAPI";
-import { typeAPI } from "../services/typeAPI";
 
 const persistConfig = {
   key: "root",
@@ -35,13 +37,13 @@ export const store = configureStore({
     [userAPI.reducerPath]: userAPI.reducer,
     [productAPI.reducerPath]: productAPI.reducer,
     [counterAPI.reducerPath]: counterAPI.reducer,
-    [typeAPI.reducerPath]: typeAPI.reducer,
 
     // flower: persistedReducer,
     auth: persistedAuthReducer,
     user: persistedUserReducer,
     product: productReducer,
     counter: counterReducer,
+    order: orderReducer,
     type: typeReducer,
   },
   // middleware: (getDefaultMiddleware) =>
@@ -52,6 +54,8 @@ export const store = configureStore({
     }).concat(
       // flowerApi.middleware,
       userAPI.middleware,
+      authApi.middleware,
+      orderAPI.middleware,
       productAPI.middleware,
       counterAPI.middleware,
       typeAPI.middleware
