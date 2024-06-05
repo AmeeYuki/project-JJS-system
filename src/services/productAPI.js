@@ -4,7 +4,7 @@ import { selectToken } from "../slices/auth.slice";
 
 export const productAPI = createApi({
   reducerPath: "productManagement",
-  tagTypes: ["ProductList", "CategoryList"],
+  tagTypes: ["ProductList"],
   baseQuery: fetchBaseQuery({
     baseUrl: API_URL_BE,
     prepareHeaders: (headers, { getState }) => {
@@ -29,16 +29,6 @@ export const productAPI = createApi({
         }
       },
     }),
-    getCategories: builder.query({
-      query: () => `categories`,
-      providesTags: (result) =>
-        result
-          ? result
-              .map(({ id }) => ({ type: "CategoryList", id }))
-              .concat({ type: "CategoryList", id: "LIST" })
-          : [{ type: "CategoryList", id: "LIST" }],
-    }),
-
     // addProduct: builder.mutation({
     //   query: (body) => ({
     //     method: "POST",
@@ -73,13 +63,30 @@ export const productAPI = createApi({
     }),
 
     editProduct: builder.mutation({
-      query: ({ id, ...patch }) => ({
-        url: `products/update/${id}`,
-        method: "PUT",
-        body: patch,
-      }),
+      query: ({ id, ...patch }) => {
+        const product = {
+          product_name: patch.productName,
+          barcode: patch.barcode,
+          quantity: patch.quantity,
+          price_processing: patch.priceProcessing,
+          price_stone: patch.priceStone,
+          weight: patch.weight,
+          weight_unit: patch.weightUnit,
+          description: patch.description,
+          image_url: patch.image_url,
+          type_id: patch.typeName,
+          counter_id: patch.counterName,
+        };
+
+        return {
+          url: `products/update/${id}`,
+          method: "PUT",
+          body: product,
+        };
+      },
       invalidatesTags: (result, error, { id }) => [{ type: "ProductList", id }],
     }),
+
     deleteProduct: builder.mutation({
       query: (id) => ({
         url: `products/soft_delete_product/${id}`,
@@ -87,37 +94,27 @@ export const productAPI = createApi({
       }),
       invalidatesTags: [{ type: "ProductList", id: "LIST" }],
     }),
-    addCategory: builder.mutation({
-      query: (body) => ({
-        method: "POST",
-        url: `categories`,
-        body,
-      }),
-      invalidatesTags: [{ type: "CategoryList", id: "LIST" }],
-    }),
-    editCategory: builder.mutation({
-      query: ({ id, ...patch }) => ({
-        url: `categories/${id}`,
-        method: "PUT",
-        body: patch,
-      }),
-      invalidatesTags: (result, error, { id }) => [
-        { type: "CategoryList", id },
-      ],
-    }),
     getProductById: builder.query({
       query: (productId) => `products/get_product_by_id/${productId}`,
+    }),
+    getProductsByCounterId: builder.query({
+      query: (counterId) => `products/get_products_by_counter/${counterId}`,
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: "ProductList", id })),
+              { type: "ProductList", id: "LIST" },
+            ]
+          : [{ type: "ProductList", id: "LIST" }],
     }),
   }),
 });
 
 export const {
   useGetProductsQuery,
-  useGetCategoriesQuery,
   useAddProductMutation,
   useEditProductMutation,
   useDeleteProductMutation,
-  useAddCategoryMutation,
-  useEditCategoryMutation,
   useGetProductByIdQuery,
+  useGetProductsByCounterIdQuery,
 } = productAPI;

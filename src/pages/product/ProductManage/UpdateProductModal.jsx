@@ -1,15 +1,8 @@
-import React, { useEffect } from "react";
-import {
-  Modal,
-  Form,
-  Input,
-  Select,
-  InputNumber,
-  Upload,
-  Button,
-  Switch,
-} from "antd";
+import React, { useEffect, useState } from "react";
+import { Modal, Form, Input, Select, InputNumber, Upload, Button } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
+import { useGetTypesQuery } from "../../../services/typeAPI";
+import { useGetCountersQuery } from "../../../services/counterAPI";
 
 const { Option } = Select;
 
@@ -21,6 +14,10 @@ const UpdateProductModal = ({
   loading,
 }) => {
   const [form] = Form.useForm();
+  const [fileList, setFileList] = useState([]);
+  const { data: typesData, isLoading: typesLoading } = useGetTypesQuery();
+  const { data: countersData, isLoading: countersLoading } =
+    useGetCountersQuery();
 
   useEffect(() => {
     if (product) {
@@ -29,8 +26,46 @@ const UpdateProductModal = ({
         weight: product.weight ? Number(product.weight) : undefined,
         price: product.price ? Number(product.price) : undefined,
       });
+      // Initialize fileList with the existing image URL if available
+      if (product.image) {
+        setFileList([
+          { uid: "-1", name: "image.png", status: "done", url: product.image },
+        ]);
+      }
     }
   }, [product, form]);
+
+  const handleImageChange = ({ fileList }) => {
+    setFileList(fileList);
+  };
+
+  const handleOk = () => {
+    form
+      .validateFields()
+      .then((values) => {
+        const updatedProduct = {
+          product_name: values.productName,
+          barcode: values.barcode,
+          quantity: values.quantity,
+          price_processing: values.priceProcessing,
+          price_stone: values.priceStone,
+          weight: values.weight,
+          weight_unit: values.weightUnit,
+          description: values.description,
+          image_url:
+            fileList.length > 0 && fileList[0].status === "done"
+              ? fileList[0].url
+              : product.image,
+          type_id: values.typeName,
+          counter_id: values.counterId,
+          id: product.id,
+        };
+        onUpdate(updatedProduct);
+      })
+      .catch((errorInfo) => {
+        console.log("Validate Failed:", errorInfo);
+      });
+  };
 
   return (
     <div className="update-product-page">
@@ -52,16 +87,7 @@ const UpdateProductModal = ({
         cancelText="Cancel"
         okButtonProps={{ loading }}
         onCancel={onCancel}
-        onOk={() => {
-          form
-            .validateFields()
-            .then((values) => {
-              onUpdate({ ...values, id: product.id });
-            })
-            .catch((info) => {
-              console.log("Validate Failed:", info);
-            });
-        }}
+        onOk={handleOk}
       >
         <Form form={form} name="form_in_modal">
           <Form.Item
@@ -78,7 +104,7 @@ const UpdateProductModal = ({
           </Form.Item>
 
           <Form.Item
-            name="type"
+            name="typeName"
             label="Type:"
             rules={[
               {
@@ -87,28 +113,22 @@ const UpdateProductModal = ({
               },
             ]}
           >
-            <Select>
-              <Option value="Gold">Gold</Option>
-              <Option value="Silver">Silver</Option>
-              <Option value="Diamond">Diamond</Option>
+            <Select
+              placeholder="Select product type"
+              loading={typesLoading}
+              disabled={typesLoading}
+            >
+              {typesData &&
+                typesData.map((type) => (
+                  <Option key={type.id} value={type.id}>
+                    {type.type}
+                  </Option>
+                ))}
             </Select>
           </Form.Item>
 
-          <Form.Item
-            name="barcode"
-            label="Barcode:"
-            rules={[
-              {
-                required: true,
-                message: "Please input the barcode of the product!",
-              },
-              {
-                pattern: /^[0-9]+$/,
-                message: "Please input a valid barcode number!",
-              },
-            ]}
-          >
-            <Input />
+          <Form.Item name="barcode" label="Barcode:">
+            <Input disabled />
           </Form.Item>
 
           <Form.Item
@@ -184,9 +204,10 @@ const UpdateProductModal = ({
             <Input.TextArea placeholder="Input the description..." />
           </Form.Item>
 
+          {/* loi o day */}
           <Form.Item
-            name="counterName"
-            label="Counter:"
+            name="counterId"
+            label="Counter"
             rules={[
               {
                 required: true,
@@ -194,10 +215,17 @@ const UpdateProductModal = ({
               },
             ]}
           >
-            <Select>
-              <Option value="counter 1">counter 1</Option>
-              <Option value="counter 2">counter 2</Option>
-              <Option value="counter 3">counter 3</Option>
+            <Select
+              placeholder="Select counter"
+              loading={countersLoading}
+              disabled={countersLoading}
+            >
+              {countersData &&
+                countersData.map((counter) => (
+                  <Option key={counter.id} value={counter.id}>
+                    {counter.counterName}
+                  </Option>
+                ))}
             </Select>
           </Form.Item>
 
@@ -215,6 +243,9 @@ const UpdateProductModal = ({
               accept=".png,.jpg"
               listType="picture"
               beforeUpload={() => false}
+              fileList={fileList}
+              onChange={handleImageChange}
+              maxCount={1}
             >
               <Button icon={<UploadOutlined />}>Import File</Button>
             </Upload>

@@ -3,7 +3,7 @@ import { ConfigProvider, Tabs, notification } from "antd";
 import { useLocation, useParams } from "react-router-dom";
 import ProductListCounter from "../product/ProductManage/ProductListCounter";
 import {
-  useGetProductsQuery,
+  useGetProductsByCounterIdQuery,
   useEditProductMutation,
   useDeleteProductMutation,
 } from "../../services/productAPI";
@@ -25,7 +25,8 @@ export default function CounterDetail() {
   const location = useLocation();
   const { counterName, location: counterLocation } = location.state || {};
 
-  const { data: products, refetch: refetchProducts } = useGetProductsQuery();
+  const { data: products, refetch: refetchProducts } =
+    useGetProductsByCounterIdQuery(id);
   const { data: users, refetch: refetchUsers } = useGetAllUserQuery();
 
   const [productData, setProductData] = useState([]);
@@ -50,30 +51,14 @@ export default function CounterDetail() {
     useDeleteUserMutation();
 
   useEffect(() => {
-    if (products) {
-      const filteredProducts = products.filter(
-        (product) => product.counter === counterName
-      );
-      const indexedProducts = filteredProducts.map((product, index) => ({
+    if (Array.isArray(products)) {
+      const indexedProducts = products.map((product, index) => ({
         ...product,
         index: index + 1,
       }));
       setProductData(indexedProducts);
     }
-  }, [products, counterName]);
-
-  // useEffect(() => {
-  //   if (users) {
-  //     const filteredUsers = users.filter(
-  //       (user) => user.role === 3 && user.counter === counterName
-  //     );
-  //     const indexedUsers = filteredUsers.map((user, index) => ({
-  //       ...user,
-  //       index: index + 1,
-  //     }));
-  //     setUserData(indexedUsers);
-  //   }
-  // }, [users, counterName]);
+  }, [products]);
 
   useEffect(() => {
     if (Array.isArray(users)) {

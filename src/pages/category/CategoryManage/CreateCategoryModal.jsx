@@ -28,12 +28,12 @@ const CreateCategoryModal = ({ visible, onCreate, onCancel, loading }) => {
     >
       <Form form={form} layout="vertical" name="form_in_modal">
         <Form.Item
-          name="categoryName"
-          label="Category Name"
+          name="type"
+          label="Type Name"
           rules={[
             {
               required: true,
-              message: "Please input the name of the category!",
+              message: "Please input the name of the type!",
             },
           ]}
         >

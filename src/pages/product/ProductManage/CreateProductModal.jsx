@@ -5,7 +5,6 @@ import {
   Input,
   Select,
   InputNumber,
-  Switch,
   Upload,
   Button,
   message,
@@ -13,6 +12,7 @@ import {
 import { UploadOutlined } from "@ant-design/icons";
 import { storage } from "../../../config/FireBaseImage/firebaseConfig";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { useGetTypesQuery } from "../../../services/typeAPI";
 
 const { Option } = Select;
 
@@ -20,6 +20,7 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
   const [form] = Form.useForm();
   const [imageUrl, setImageUrl] = useState(null);
   const [fileList, setFileList] = useState([]);
+  const { data: typesData, isLoading: typesLoading } = useGetTypesQuery();
 
   useEffect(() => {
     if (!visible) {
@@ -34,6 +35,10 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
     if (file.status === "removed") {
       setImageUrl(null);
     }
+  };
+  const generateBarcode = (type) => {
+    const randomNum = Math.floor(100000 + Math.random() * 900000);
+    return type + randomNum;
   };
 
   const handleUpload = async () => {
@@ -70,12 +75,26 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
     return null;
   };
 
+  const validateNonNegativeNumber = (_, value) => {
+    if (value < 0) {
+      return Promise.reject(new Error("Please input a non-negative number!"));
+    }
+    return Promise.resolve();
+  };
+
   const handleOk = async () => {
     try {
       const values = await form.validateFields();
       const imageUrl = await handleUpload();
       if (imageUrl) {
-        const productData = { ...values, image: imageUrl };
+        const barcode = generateBarcode(
+          values.typeId === 1 ? "G" : values.typeId === 2 ? "S" : "D"
+        );
+        const productData = {
+          ...values,
+          image: imageUrl,
+          barcode: barcode,
+        };
         onCreate(productData);
         form.resetFields();
         setFileList([]);
@@ -92,7 +111,18 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
     <div className="create-product-page">
       <Modal
         visible={visible}
-        title="Create a new product"
+        title={
+          <div
+            style={{
+              textAlign: "center",
+              fontSize: "24px",
+              fontWeight: "bold",
+              color: "#333333",
+            }}
+          >
+            Create a new product
+          </div>
+        }
         okText="Create"
         cancelText="Cancel"
         onCancel={onCancel}
@@ -123,28 +153,25 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
               },
             ]}
           >
-            <Select placeholder="Select product type">
-              <Option value={1}>Gold</Option>
-              <Option value={2}>Silver</Option>
-              <Option value={3}>Diamond</Option>
+            <Select
+              placeholder="Select product type"
+              loading={typesLoading}
+              disabled={typesLoading}
+            >
+              {typesData &&
+                typesData.map((type) => (
+                  <Option key={type.id} value={type.id}>
+                    {type.type}
+                  </Option>
+                ))}
             </Select>
           </Form.Item>
 
-          <Form.Item
-            name="barcode"
-            label="Barcode"
-            rules={[
-              {
-                required: true,
-                message: "Please input the barcode of the product!",
-              },
-              {
-                pattern: /^[0-9]+$/,
-                message: "Please input a valid barcode number!",
-              },
-            ]}
-          >
-            <Input placeholder="Input the barcode" />
+          <Form.Item name="barcode" label="Barcode">
+            <Input
+              disabled
+              placeholder="Barcode will be generated automatically"
+            />
           </Form.Item>
 
           <Form.Item
@@ -156,6 +183,7 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
                 message: "Please input the quantity of the product!",
               },
               { type: "number", message: "Please input a valid number!" },
+              { validator: validateNonNegativeNumber },
             ]}
           >
             <InputNumber
@@ -165,37 +193,36 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
           </Form.Item>
 
           <Form.Item
-            name="priceProcessing"
-            label="Price (Processing)"
+            name="priceStone"
+            label="Price (Stone):"
             rules={[
               {
                 required: true,
-                message: "Please input the price of processing!",
+                message: "Please input the stone price of the product!",
               },
-              { type: "number", message: "Please input a valid number!" },
+              { pattern: /^[0-9]+$/, message: "Please input a valid price!" },
+              { validator: validateNonNegativeNumber },
             ]}
           >
-            <InputNumber
-              placeholder="Input the price of processing"
-              style={{ width: "100%" }}
+            <Input
+              placeholder="Input the stone price..."
+              addonAfter=".000 VND"
             />
           </Form.Item>
 
           <Form.Item
-            name="priceStone"
-            label="Price (Stone)"
+            name="priceProcessing"
+            label="Price (Processing):"
             rules={[
               {
                 required: true,
-                message: "Please input the price of stone!",
+                message: "Please input the price of the product!",
               },
-              { type: "number", message: "Please input a valid number!" },
+              { pattern: /^[0-9]+$/, message: "Please input a valid price!" },
+              { validator: validateNonNegativeNumber },
             ]}
           >
-            <InputNumber
-              placeholder="Input the price of stone"
-              style={{ width: "100%" }}
-            />
+            <Input placeholder="Input the price..." addonAfter=".000 VND" />
           </Form.Item>
 
           <Form.Item
@@ -207,14 +234,23 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
                 message: "Please input the weight of the product!",
               },
               { type: "number", message: "Please input a valid number!" },
+              { validator: validateNonNegativeNumber },
             ]}
           >
             <InputNumber
-              name="weightUnit"
               placeholder="Input the weight"
               style={{ width: "100%" }}
               addonAfter={
-                <Form.Item name="weightUnit" noStyle>
+                <Form.Item
+                  name="weightUnit"
+                  noStyle
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please select the weight unit!",
+                    },
+                  ]}
+                >
                   <Select style={{ width: 80 }}>
                     <Option value="grams">g</Option>
                     <Option value="carats">ct</Option>
@@ -247,7 +283,8 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
 
           <Form.Item
             name="image"
-            label="Image (png, jpg)"
+            label="
+            Image (png, jpg)"
             rules={[
               {
                 required: true,
@@ -261,6 +298,7 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
               beforeUpload={() => false}
               onChange={handleImageChange}
               fileList={fileList}
+              maxCount={1}
             >
               <Button icon={<UploadOutlined />}>Import File</Button>
             </Upload>

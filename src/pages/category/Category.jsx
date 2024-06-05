@@ -3,10 +3,10 @@ import "./Category.css";
 import { Input, notification } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import {
-  useAddCategoryMutation,
-  useEditCategoryMutation,
-  useGetCategoriesQuery,
-} from "../../services/productAPI";
+  useGetTypesQuery,
+  useAddTypeMutation,
+  useEditTypeMutation,
+} from "../../services/typeAPI";
 import CategoryList from "./CategoryManage/CategoryList";
 import UpdateCategoryModal from "./CategoryManage/UpdateCategoryModal";
 import CreateCategoryModal from "./CategoryManage/CreateCategoryModal";
@@ -16,17 +16,16 @@ import { RiAddLine } from "@remixicon/react";
 import { CircularProgress } from "@mui/material";
 
 export default function Category() {
-  const { data: categories, isLoading, refetch } = useGetCategoriesQuery();
+  const { data: categories, isLoading, refetch } = useGetTypesQuery();
   const [categoryData, setCategoryData] = useState([]);
   const [searchValue, setSearchValue] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
 
-  const [addCategoryMutation, { isLoading: isLoadingAdd }] =
-    useAddCategoryMutation();
-  const [editCategoryMutation, { isLoading: isLoadingEdit }] =
-    useEditCategoryMutation();
+  const [addTypeMutation, { isLoading: isLoadingAdd }] = useAddTypeMutation();
+  const [editTypeMutation, { isLoading: isLoadingEdit }] =
+    useEditTypeMutation();
 
   useEffect(() => {
     if (categories) {
@@ -43,9 +42,7 @@ export default function Category() {
       let filteredCategories = categories;
       if (searchValue) {
         filteredCategories = categories.filter((category) =>
-          category.categoryName
-            ?.toLowerCase()
-            .includes(searchValue.toLowerCase())
+          category.type?.toLowerCase().includes(searchValue.toLowerCase())
         );
       }
       const indexedCategories = filteredCategories.map((category, index) => ({
@@ -66,7 +63,7 @@ export default function Category() {
   };
 
   const handleUpdateCategory = (values) => {
-    editCategoryMutation(values)
+    editTypeMutation(values)
       .unwrap()
       .then((data) => {
         setIsUpdateModalVisible(false);
@@ -81,7 +78,7 @@ export default function Category() {
   };
 
   const handleAddCategory = (values) => {
-    addCategoryMutation(values)
+    addTypeMutation(values)
       .unwrap()
       .then((data) => {
         setIsAddModalVisible(false);
@@ -106,7 +103,7 @@ export default function Category() {
   return (
     <div className="category-manage-page">
       <div className="header">
-        <h1 className="title">Category Management</h1>
+        <h1 className="title">Type Management</h1>
       </div>
       <div className="action">
         <div className="action-left">
@@ -123,7 +120,7 @@ export default function Category() {
         <div className="action-right">
           <CustomButton
             icon={RiAddLine}
-            text="Add Category"
+            text="Add Type"
             iconSize="16px"
             iconColor="white"
             textColor="white"

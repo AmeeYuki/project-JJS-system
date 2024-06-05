@@ -49,7 +49,7 @@ const CreateCounterModal = ({ visible, onCreate, onCancel, loading }) => {
           }}
         >
           <Form.Item
-            name="counterName"
+            name="counter_name"
             label="Counter Name:"
             rules={[
               {

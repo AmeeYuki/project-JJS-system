@@ -134,12 +134,12 @@ export default function Product() {
     setIsFilterModalVisible(false);
   };
 
-  const handleApplyFilter = (selectedCategories) => {
-    if (selectedCategories.length === 0) {
+  const handleApplyFilter = (selectedTypes) => {
+    if (selectedTypes.length === 0) {
       setProductData(productsData.products);
     } else {
       const filteredProducts = productsData.products.filter((product) => {
-        return selectedCategories.includes(product.category);
+        return selectedTypes.includes(product.type.type);
       });
       setProductData(filteredProducts);
     }

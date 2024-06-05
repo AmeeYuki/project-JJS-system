@@ -1,5 +1,6 @@
 import React from "react";
 import { Modal, Button, Row, Col, Tag } from "antd";
+import Barcode from "react-barcode";
 import { formatCurrency } from "../ProductUtil.jsx";
 
 const ViewDetailProductModal = ({ visible, onClose, product }) => {
@@ -74,11 +75,27 @@ const ViewDetailProductModal = ({ visible, onClose, product }) => {
 
         <Col span={14} style={{ paddingLeft: "20px" }}>
           <p style={{ marginBottom: "10px" }}>
-            <strong>Type:</strong> {product.type}
+            <strong>Type:</strong> {product.typeName}
           </p>
-          <p style={{ marginBottom: "10px" }}>
-            <strong>Barcode:</strong> {product.barcode}
+          <p
+            style={{
+              marginBottom: "10px",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <strong style={{ marginRight: "10px" }}>Barcode:</strong>
+            <Barcode
+              value={product.barcode}
+              height={30}
+              width={1}
+              margin={5}
+              background="#ffffff"
+              lineColor="#000000"
+              fontSize={12}
+            />
           </p>
+
           <p style={{ marginBottom: "10px" }}>
             <strong>Weight:</strong> {product.weight} {product.weightUnit}
           </p>

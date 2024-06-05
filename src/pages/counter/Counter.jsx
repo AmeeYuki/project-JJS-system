@@ -45,11 +45,8 @@ export default function Counter() {
     if (counters) {
       const filteredCounters = counters.filter(
         (counter) =>
-          (counter.counterName &&
-            counter.counterName
-              .toLowerCase()
-              .includes(searchValue.toLowerCase())) ||
-          (counter.barcode && counter.barcode.includes(searchValue))
+          counter.counterName &&
+          counter.counterName.toLowerCase().includes(searchValue.toLowerCase())
       );
       const indexedCounters = filteredCounters.map((counter, index) => ({
         ...counter,
@@ -133,7 +130,7 @@ export default function Counter() {
           <Input
             style={{ borderRadius: 20, width: "350px" }}
             size="large"
-            placeholder="Search by name or barcode"
+            placeholder="Search by counter name"
             prefix={<SearchOutlined />}
             value={searchValue}
             onChange={onChangeSearch}

@@ -18,9 +18,9 @@ export default function CategoryList({ categoryData, onEditCategory }) {
       key: "index",
     },
     {
-      title: "Category Name",
-      dataIndex: "categoryName",
-      key: "categoryName",
+      title: "Type Name",
+      dataIndex: "type",
+      key: "type",
     },
     {
       title: "Buy Price per Gram",

@@ -1,6 +1,7 @@
 import React from "react";
-import { Space, Table, Tag, Dropdown, Menu, Popconfirm } from "antd";
+import { Space, Table, Dropdown, Menu, Popconfirm } from "antd";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import Barcode from "react-barcode";
 import { convertProductData, formatCurrency } from "../ProductUtil.jsx";
 
 export default function ProductList({
@@ -16,11 +17,7 @@ export default function ProductList({
       <Menu.Item key="detail" onClick={() => onViewProductDetail(record)}>
         <span>View Detail</span>
       </Menu.Item>
-      <Menu.Item
-        key="edit"
-        className="submenu-producttable"
-        onClick={() => onEditProduct(record)}
-      >
+      <Menu.Item key="edit" onClick={() => onEditProduct(record)}>
         <span>Edit Product</span>
       </Menu.Item>
       <Menu.Item key="delete">
@@ -31,7 +28,6 @@ export default function ProductList({
           cancelText="No"
         >
           <p className="submenu-producttable-dropdown-delete">
-            <span style={{ color: "#2C5282" }}></span>
             <span>Delete Product</span>
           </p>
         </Popconfirm>
@@ -52,13 +48,27 @@ export default function ProductList({
     },
     {
       title: "Type",
-      dataIndex: "type",
-      key: "type",
+      dataIndex: "typeName",
+      key: "typeName",
     },
     {
       title: "Barcode",
       dataIndex: "barcode",
       key: "barcode",
+      render: (barcode) => (
+        <div
+          style={{
+            width: "100%",
+            maxWidth: "200px",
+            height: "auto",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Barcode value={barcode} />
+        </div>
+      ),
     },
     {
       title: "Weight",
@@ -105,9 +115,7 @@ export default function ProductList({
       columns={columns}
       dataSource={convertedData}
       rowKey="id"
-      scroll={{
-        y: 330,
-      }}
+      scroll={{ y: 330 }}
     />
   );
 }
