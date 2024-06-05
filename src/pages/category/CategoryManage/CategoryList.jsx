@@ -1,6 +1,7 @@
 import React from "react";
 import { Space, Table, Dropdown, Menu } from "antd";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import { format } from "date-fns";
 
 export default function CategoryList({ categoryData, onEditCategory }) {
   const actionsMenu = (record) => (
@@ -36,6 +37,7 @@ export default function CategoryList({ categoryData, onEditCategory }) {
       title: "Date",
       dataIndex: "date",
       key: "date",
+      render: (date) => format(new Date(date), "dd-MM-yyyy"),
     },
     {
       key: "action",
