@@ -19,7 +19,7 @@ import FilterProductModal from "./ProductManage/FilterProductModal";
 import ViewDetailProductModal from "./ProductManage/ViewDetailProductModal";
 
 export default function Product() {
-  const { data: products, isLoading, refetch } = useGetProductsQuery();
+  const { data: productsData, isLoading, refetch } = useGetProductsQuery();
   const [productData, setProductData] = useState([]);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
@@ -36,21 +36,23 @@ export default function Product() {
     useDeleteProductMutation();
 
   useEffect(() => {
-    if (products) {
+    if (productsData) {
+      const { products } = productsData;
       const indexedProducts = products.map((product, index) => ({
         ...product,
         index: index + 1,
       }));
       setProductData(indexedProducts);
     }
-  }, [products]);
+  }, [productsData]);
 
   useEffect(() => {
-    if (products) {
+    if (productsData) {
+      const { products } = productsData;
       const filteredProducts = products.filter(
         (product) =>
-          (product.productName &&
-            product.productName
+          (product.product_name &&
+            product.product_name
               .toLowerCase()
               .includes(searchValue.toLowerCase())) ||
           (product.barcode && product.barcode.includes(searchValue))
@@ -61,7 +63,7 @@ export default function Product() {
       }));
       setProductData(indexedProducts);
     }
-  }, [searchValue, products]);
+  }, [searchValue, productsData]);
 
   const handleSearch = (value) => {
     setSearchValue(value);
@@ -75,23 +77,25 @@ export default function Product() {
   const handleCreateProduct = (values) => {
     addProductMutation(values)
       .unwrap()
-      .then((data) => {
+      .then(() => {
         setIsCreateModalVisible(false);
         refetch();
         notification.success({
           message: "Create product successfully",
         });
       })
-
       .catch((error) => {
         console.error("Error creating product: ", error);
+        notification.error({
+          message: "Create product unsuccessfully",
+        });
       });
   };
 
   const handleUpdateProduct = (values) => {
     editProductMutation(values)
       .unwrap()
-      .then((data) => {
+      .then(() => {
         setIsUpdateModalVisible(false);
         refetch();
         notification.success({
@@ -105,8 +109,13 @@ export default function Product() {
 
   const handleDeleteProduct = async (productId) => {
     try {
-      const result = await deleteProductMutation(productId);
-      refetch();
+      await deleteProductMutation(productId);
+      localStorage.setItem(`deleted_product_${productId}`, "true");
+      setProductData((prevProducts) =>
+        prevProducts.map((product) =>
+          product.id === productId ? { ...product, deleted: true } : product
+        )
+      );
       notification.success({
         message: "Delete product successfully",
       });
@@ -114,7 +123,6 @@ export default function Product() {
       console.error(error);
     }
   };
-
   const handleEditProduct = (product) => {
     setSelectedProduct(product);
     setIsUpdateModalVisible(true);
@@ -130,12 +138,12 @@ export default function Product() {
     setIsFilterModalVisible(false);
   };
 
-  const handleApplyFilter = (selectedCategories) => {
-    if (selectedCategories.length === 0) {
-      setProductData(products);
+  const handleApplyFilter = (selectedTypes) => {
+    if (selectedTypes.length === 0) {
+      setProductData(productsData.products);
     } else {
-      const filteredProducts = products.filter((product) => {
-        return selectedCategories.includes(product.category);
+      const filteredProducts = productsData.products.filter((product) => {
+        return selectedTypes.includes(product.type.type);
       });
       setProductData(filteredProducts);
     }
@@ -156,7 +164,7 @@ export default function Product() {
           <Input
             style={{ borderRadius: 20, width: "350px" }}
             size="large"
-            placeholder="Search by name or barcode"
+            placeholder="Search by name"
             prefix={<SearchOutlined />}
             value={searchValue}
             onChange={onChangeSearch}
@@ -174,6 +182,9 @@ export default function Product() {
               border: "none",
               borderRadius: "5px",
               cursor: "pointer",
+            }}
+            hoverStyle={{
+              opacity: 0.6,
             }}
             iconPosition="left"
             fontSize="14px"
@@ -195,6 +206,9 @@ export default function Product() {
               borderRadius: "5px",
               cursor: "pointer",
             }}
+            hoverStyle={{
+              opacity: 0.6,
+            }}
             iconPosition="left"
             fontSize="16px"
             padding="10px 20px"
@@ -202,9 +216,9 @@ export default function Product() {
           />
 
           <CustomButton
-            text="View Categories"
+            text="View Types"
             iconSize="16px"
-            iconColor="white" 
+            iconColor="white"
             textColor="white"
             containerStyle={{
               backgroundColor: "#333333",
@@ -212,6 +226,9 @@ export default function Product() {
               border: "none",
               borderRadius: "5px",
               cursor: "pointer",
+            }}
+            hoverStyle={{
+              opacity: 0.6,
             }}
             iconPosition="left"
             fontSize="16px"
@@ -234,7 +251,11 @@ export default function Product() {
           </div>
         ) : (
           <ProductList
-            productData={productData}
+            productData={productData.filter(
+              (product) =>
+                !product.deleted &&
+                !localStorage.getItem(`deleted_product_${product.id}`)
+            )}
             onEditProduct={handleEditProduct}
             handleDeleteProduct={handleDeleteProduct}
             onViewProductDetail={handleViewProductDetail}
@@ -267,9 +288,7 @@ export default function Product() {
       <FilterProductModal
         visible={isFilterModalVisible}
         onCancel={handleFilterModalCancel}
-        onApply={(selectedCategories) =>
-          handleApplyFilter(selectedCategories, null)
-        }
+        onApply={handleApplyFilter}
       />
     </div>
   );

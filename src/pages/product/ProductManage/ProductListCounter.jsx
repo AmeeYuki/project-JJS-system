@@ -1,13 +1,16 @@
 import React from "react";
-import { Space, Table, Tag, Dropdown, Menu, Popconfirm } from "antd";
+import { Space, Table, Dropdown, Menu, Popconfirm } from "antd";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import { convertProductData, formatCurrency } from "../ProductUtil.jsx";
 
-export default function ProductList({
+export default function ProductListCounter({
   productData,
   onEditProduct,
   handleDeleteProduct,
   onViewProductDetail,
 }) {
+  const convertedProductData = convertProductData(productData);
+
   const actionsMenu = (record) => (
     <Menu>
       <Menu.Item key="detail" onClick={() => onViewProductDetail(record)}>
@@ -49,13 +52,8 @@ export default function ProductList({
     },
     {
       title: "Category",
-      dataIndex: "category",
-      key: "category",
-    },
-    {
-      title: "Barcode",
-      dataIndex: "barcode",
-      key: "barcode",
+      dataIndex: "typeName",
+      key: "typeName",
     },
     {
       title: "Weight",
@@ -64,15 +62,21 @@ export default function ProductList({
       render: (weight, record) => `${weight} ${record.weightUnit}`,
     },
     {
-      title: "Price",
-      dataIndex: "price",
-      key: "price",
-      render: (price) => `${price} VND`,
+      title: "Price Processing",
+      dataIndex: "priceProcessing",
+      key: "priceProcessing",
+      render: (priceProcessing) => formatCurrency(priceProcessing),
     },
     {
-      title: "Counter",
-      dataIndex: "counter",
-      key: "counter",
+      title: "Price Stone",
+      dataIndex: "priceStone",
+      key: "priceStone",
+      render: (priceStone) => formatCurrency(priceStone),
+    },
+    {
+      title: "Counter Name",
+      dataIndex: "counterName",
+      key: "counterName",
     },
     {
       key: "action",
@@ -91,5 +95,14 @@ export default function ProductList({
     },
   ];
 
-  return <Table columns={columns} dataSource={productData} rowKey="id" />;
+  return (
+    <Table
+      columns={columns}
+      dataSource={convertedProductData}
+      rowKey="id"
+      scroll={{
+        y: 330,
+      }}
+    />
+  );
 }

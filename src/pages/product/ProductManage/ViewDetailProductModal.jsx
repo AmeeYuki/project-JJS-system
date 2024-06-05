@@ -1,5 +1,7 @@
 import React from "react";
-import { Modal, Button, Row, Col } from "antd";
+import { Modal, Button, Row, Col, Tag } from "antd";
+import Barcode from "react-barcode";
+import { formatCurrency } from "../ProductUtil.jsx";
 
 const ViewDetailProductModal = ({ visible, onClose, product }) => {
   return (
@@ -73,19 +75,53 @@ const ViewDetailProductModal = ({ visible, onClose, product }) => {
 
         <Col span={14} style={{ paddingLeft: "20px" }}>
           <p style={{ marginBottom: "10px" }}>
-            <strong>Material:</strong> {product.productName}
+            <strong>Type:</strong> {product.typeName}
+          </p>
+          <p
+            style={{
+              marginBottom: "10px",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <strong style={{ marginRight: "10px" }}>Barcode:</strong>
+            <Barcode
+              value={product.barcode}
+              height={30}
+              width={1}
+              margin={5}
+              background="#ffffff"
+              lineColor="#000000"
+              fontSize={12}
+            />
+          </p>
+
+          <p style={{ marginBottom: "10px" }}>
+            <strong>Weight:</strong> {product.weight} {product.weightUnit}
           </p>
           <p style={{ marginBottom: "10px" }}>
-            <strong>Barcode:</strong> {product.barcode}
+            <strong>Price Processing:</strong>{" "}
+            {formatCurrency(product.priceProcessing)}
           </p>
           <p style={{ marginBottom: "10px" }}>
-            <strong>Weight:</strong> {product.weight}
+            <strong>Price Stone:</strong> {formatCurrency(product.priceStone)}
           </p>
           <p style={{ marginBottom: "10px" }}>
-            <strong>Price:</strong> {product.price}
+            <strong>Description:</strong> {product.description}
           </p>
-          <p style={{ marginBottom: "0" }}>
-            <strong>Counter:</strong> {product.counter}
+          <p style={{ marginBottom: "10px" }}>
+            <strong>Counter Name:</strong> {product.counterName}
+          </p>
+          <p style={{ marginBottom: "10px" }}>
+            <strong>Counter Location:</strong> {product.counterLocation}
+          </p>
+          <p style={{ marginBottom: "10px" }}>
+            <strong>Buy Price Per Gram:</strong>{" "}
+            {formatCurrency(product.buyPricePerGram)}
+          </p>
+          <p style={{ marginBottom: "10px" }}>
+            <strong>Sell Price Per Gram:</strong>{" "}
+            {formatCurrency(product.sellPricePerGram)}
           </p>
         </Col>
       </Row>

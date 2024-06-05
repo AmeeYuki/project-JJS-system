@@ -8,6 +8,7 @@ import storage from "redux-persist/lib/storage"; // Sử dụng localStorage
 import userReducer from "../slices/user.slice";
 import productReducer from "../slices/product.slice";
 import counterReducer from "../slices/counter.slice";
+import typeReducer from "../slices/type.slice";
 import orderReducer from "../slices/order.slice";
 import authReducer from "../slices/auth.slice";
 //API
@@ -15,6 +16,7 @@ import { userAPI } from "../services/userAPI";
 import { authApi } from "../services/authAPI";
 import { productAPI } from "../services/productAPI";
 import { counterAPI } from "../services/counterAPI";
+import { typeAPI } from "../services/typeAPI";
 import { orderAPI } from "../services/orderAPI";
 
 const persistConfig = {
@@ -37,6 +39,7 @@ export const store = configureStore({
     [userAPI.reducerPath]: userAPI.reducer,
     [productAPI.reducerPath]: productAPI.reducer,
     [counterAPI.reducerPath]: counterAPI.reducer,
+    [typeAPI.reducerPath]: typeAPI.reducer,
     [orderAPI.reducerPath]: orderAPI.reducer,
 
     // flower: persistedReducer,
@@ -45,6 +48,7 @@ export const store = configureStore({
     product: productReducer,
     counter: counterReducer,
     order: orderReducer,
+    type: typeReducer,
   },
   // middleware: (getDefaultMiddleware) =>
   //   getDefaultMiddleware().concat(flowerApi.middleware),
@@ -57,7 +61,8 @@ export const store = configureStore({
       authApi.middleware,
       orderAPI.middleware,
       productAPI.middleware,
-      counterAPI.middleware
+      counterAPI.middleware,
+      typeAPI.middleware
     ), //user them API test
 });
 

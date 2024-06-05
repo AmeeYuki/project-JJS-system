@@ -28,7 +28,7 @@ const UpdateCategoryModal = ({
   return (
     <Modal
       visible={visible}
-      title="Update Category"
+      title="Update Type"
       okText="Update"
       cancelText="Cancel"
       onCancel={onCancel}
@@ -37,14 +37,33 @@ const UpdateCategoryModal = ({
         form
           .validateFields()
           .then((values) => {
-            if (values.date) {
-              values.date = values.date.format("YYYY-MM-DD");
-            }
-            if (priceChanged) {
-              onUpdate({ ...values, id: category.id });
+            const updatedValues = { id: category.id };
+
+            if (values.type !== category.type) {
+              updatedValues.type = values.type;
             } else {
-              onUpdate({ date: values.date, id: category.id });
+              updatedValues.type = category.type;
             }
+            if (values.buy_price_per_gram !== category.buy_price_per_gram) {
+              updatedValues.buy_price_per_gram = values.buy_price_per_gram;
+            } else {
+              updatedValues.buy_price_per_gram = category.buy_price_per_gram;
+            }
+            if (values.sell_price_per_gram !== category.sell_price_per_gram) {
+              updatedValues.sell_price_per_gram = values.sell_price_per_gram;
+            } else {
+              updatedValues.sell_price_per_gram = category.sell_price_per_gram;
+            }
+            if (
+              values.date &&
+              values.date.format("YYYY-MM-DD") !== category.date
+            ) {
+              updatedValues.date = values.date.format("YYYY-MM-DD");
+            } else {
+              updatedValues.date = category.date;
+            }
+
+            onUpdate(updatedValues);
           })
           .catch((info) => {
             console.log("Validate Failed:", info);
@@ -53,8 +72,8 @@ const UpdateCategoryModal = ({
     >
       <Form form={form} layout="vertical" name="form_in_modal">
         <Form.Item
-          name="categoryName"
-          label="Category Name"
+          name="type"
+          label="Type Name"
           rules={[
             {
               required: true,
@@ -77,7 +96,7 @@ const UpdateCategoryModal = ({
         >
           <InputNumber
             placeholder="Input the price..."
-            addonAfter="VND"
+            addonAfter=".000 VND"
             style={{ width: "100%" }}
             onChange={handlePriceChange}
           />
@@ -95,7 +114,7 @@ const UpdateCategoryModal = ({
         >
           <InputNumber
             placeholder="Input the price..."
-            addonAfter="VND"
+            addonAfter=".000 VND"
             style={{ width: "100%" }}
             onChange={handlePriceChange}
           />
