@@ -7,6 +7,7 @@ import CustomerDetail from "./CustomerDetail";
 import CustomerUpdateForm from "./CustomerUpdateForm";
 import PromotionForm from "./PromotionForm";
 import "./Customer.css";
+import { useGetAllCustomerQuery } from "../../services/customerAPI";
 
 export default function Customer() {
   const [rows, setRows] = useState([]);
@@ -25,18 +26,33 @@ export default function Customer() {
     accumulated_point: 0,
   });
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-
+  const { data: customers, isLoading, refetch } = useGetAllCustomerQuery();
+  console.log(customers);
   useEffect(() => {
-    axios
-      .get("http://localhost:8080/api/v1/customers/get_customers")
-      .then((response) => {
-        setRows(response.data);
-        setFilteredRows(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching data: ", error);
-      });
-  }, []);
+    if (customers) {
+      // Step 1: Convert the data
+
+      const indexedUsers = customers.map((user, index) => ({
+        ...user,
+        index: index + 1,
+      }));
+
+      // Set the user data
+      setFilteredRows(indexedUsers);
+    }
+  }, [customers]);
+
+  // useEffect(() => {
+  //   axios
+  //     .get("http://localhost:8080/api/v1/customers/get_customers")
+  //     .then((response) => {
+  //       setRows(response.data);
+  //       setFilteredRows(response.data);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error fetching data: ", error);
+  //     });
+  // }, []);
 
   useEffect(() => {
     const lowercasedFilter = searchTerm.toLowerCase();

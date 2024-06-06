@@ -66,7 +66,8 @@ export const store = configureStore({
       orderAPI.middleware,
       productAPI.middleware,
       counterAPI.middleware,
-      typeAPI.middleware
+      typeAPI.middleware,
+      customerAPI.middleware
     ), //user them API test
 });
 
