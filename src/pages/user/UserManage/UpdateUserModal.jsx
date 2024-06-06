@@ -2,57 +2,64 @@ import React, { useEffect } from "react";
 import { Modal, Form, Input, Select, DatePicker } from "antd";
 import dayjs from "dayjs";
 import "./CreateUserModal.css";
+import { useGetCountersQuery } from "../../../services/counterAPI";
 
 const { Option } = Select;
 
 const UpdateUserModal = ({ visible, onUpdate, onCancel, user, loading }) => {
   const [form] = Form.useForm();
+  const { data: countersData, isLoading: countersLoading } =
+    useGetCountersQuery();
 
   useEffect(() => {
-    if (user) {
+    if (user && visible) {
       form.setFieldsValue({
-        ...user,
-        dob: user.date_of_birth ? dayjs(user.date_of_birth * 1000) : null,
-        role_id: user.role_id, // Set default value for role_id if user.role_id is falsy
-        counter_id: 1, // Set default value for counter_id if user.counter_id is falsy
+        id: user.id,
+        fullname: user.fullname,
+        email: user.email,
+        phone_number: user.phoneNumber,
+        dob: user.dob ? dayjs.unix(user.dob) : null,
+        role_id: user.roleId,
+        counter_id: user.counterId,
       });
     }
-  }, [user, form]);
+  }, [user, visible, form]);
 
   const handleUpdate = (values) => {
-    // Convert role_id and counter_id to integers
     const updatedValues = {
       ...values,
-      role_id: parseInt(values.role_id),
-      counter_id: parseInt(values.counter_id),
-      id: user.id,
+      // role_id: parseInt(values.role_id, 10),
+      // counter_id: parseInt(values.counter_id, 10),
+      dob: values.dob ? values.dob.unix() : null,
     };
     onUpdate(updatedValues);
   };
+
   return (
     <div className="update-user-page">
       <Modal
-        visible={visible}
+        open={visible}
         title="Update User"
         okText="Update"
         cancelText="Cancel"
         onCancel={onCancel}
         okButtonProps={{ loading }}
-        onOk={() => {
-          form
-            .validateFields()
-            .then((values) => {
-              if (values.dob) {
-                values.dob = Math.floor(values.dob.valueOf() / 1000); // Convert dayjs date to Unix timestamp in seconds
-              }
-              handleUpdate(values);
-            })
-            .catch((info) => {
-              console.log("Validate Failed:", info);
-            });
-        }}
+        onOk={() => form.submit()}
       >
-        <Form form={form} name="form_in_modal">
+        <Form form={form} name="form_in_modal" onFinish={handleUpdate}>
+          <Form.Item
+            style={{ display: "none" }}
+            name="id"
+            label="ID"
+            rules={[
+              {
+                required: true,
+                message: "Please input the name of the user!",
+              },
+            ]}
+          >
+            <Input placeholder="Input the full name..." />
+          </Form.Item>
           <Form.Item
             name="fullname"
             label="User Name:"
@@ -139,10 +146,17 @@ const UpdateUserModal = ({ visible, onUpdate, onCancel, user, loading }) => {
               },
             ]}
           >
-            <Select placeholder="Select the counter">
-              <Option value={1}>Counter 1</Option>
-              <Option value={2}>Counter 2</Option>
-              <Option value={3}>Counter 3</Option>
+            <Select
+              placeholder="Select counter..."
+              loading={countersLoading}
+              disabled={countersLoading}
+            >
+              {countersData &&
+                countersData.map((counter) => (
+                  <Option key={counter.id} value={counter.id}>
+                    {counter.counterName}
+                  </Option>
+                ))}
             </Select>
           </Form.Item>
         </Form>

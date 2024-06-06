@@ -43,7 +43,7 @@ export const userAPI = createApi({
           phone_number: body.phone,
           date_of_birth: body.dob,
           role_id: body.role,
-          counter_id: body.counter,
+          counter_id: body.counter_id,
         };
         return {
           method: "POST",
@@ -114,7 +114,6 @@ export const userAPI = createApi({
 
 export const {
   useGetAllUserQuery,
-  useAddUserMutation,
   useEditUserMutation,
   useDeleteUserMutation,
   useCreateUserMutation,

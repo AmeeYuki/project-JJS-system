@@ -1,14 +1,44 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Space, Table, Tag, Dropdown, Menu, Popconfirm } from "antd";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 
 export default function UserList({
-  userData,
+  rawUserData,
   onEditUser,
   handleDeleteUser,
   handleActiveUser, // Thêm prop để xử lý active user
   handleInactiveUser, // Thêm prop để xử lý inactive user
 }) {
+  const [userData, setUserData] = useState([]);
+
+  useEffect(() => {
+    if (rawUserData) {
+      const convertedData = convertData(rawUserData);
+
+      const indexedUsers = convertedData.map((user, index) => ({
+        ...user,
+        index: index + 1,
+      }));
+
+      setUserData(indexedUsers);
+    }
+  }, [rawUserData]);
+
+  function convertData(users) {
+    return users.users.map((el) => ({
+      id: el?.id,
+      fullname: el?.fullname,
+      active: el?.active,
+      counterName: el?.counter?.counterName,
+      counterId: el?.counter?.id,
+      dob: el?.date_of_birth,
+      email: el?.email,
+      phoneNumber: el?.phone_number,
+      roleId: el?.role.id,
+      roleName: el?.role.name,
+    }));
+  }
+
   const actionsMenu = (record) => (
     <Menu>
       <Menu.Item
@@ -118,7 +148,8 @@ export default function UserList({
         columns={columns}
         dataSource={userData}
         rowKey="id"
-        scroll={{ y: "330px" }}
+        // scroll={{ y: "330px" }}
+        pagination={{ pageSize: 5 }}
       />
     </>
   );

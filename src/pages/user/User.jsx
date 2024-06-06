@@ -5,7 +5,6 @@ import { SearchOutlined } from "@ant-design/icons";
 import ButtonCreate from "../../components/ButtonFilter/ButtonCreate";
 import {
   useActiveUserMutation,
-  useAddUserMutation,
   useCreateUserMutation,
   useDeleteUserMutation,
   useEditUserMutation,
@@ -37,39 +36,6 @@ export default function User() {
   const [inactiveUserMutation, { isLoading: isLoadingInactive }] =
     useInactiveUserMutation();
 
-  function convertData(users) {
-    const converted = users.users.map((el) => ({
-      id: el?.id,
-      fullname: el?.fullname,
-      active: el?.active,
-      counterName: el?.counter?.counterName,
-      counterId: el?.counter?.id,
-      dob: el?.date_of_birth,
-      email: el?.email,
-      phoneNumber: el?.phone_number,
-      roleId: el?.role.id,
-      roleName: el?.role.name,
-    }));
-    console.log("Converted data:", converted);
-    return converted;
-  }
-
-  useEffect(() => {
-    if (users) {
-      // Step 1: Convert the data
-      const convertedData = convertData(users);
-
-      // Step 2: Index the converted data
-      const indexedUsers = convertedData.map((user, index) => ({
-        ...user,
-        index: index + 1,
-      }));
-
-      // Set the user data
-      setUserData(indexedUsers);
-    }
-  }, [users]);
-
   const handleCreateUser = async (values) => {
     try {
       await createUser(values).unwrap();
@@ -87,37 +53,54 @@ export default function User() {
   };
 
   const handleUpdateUser = async (values) => {
+    console.log(values);
     try {
-      if (values.dob) {
-        values.dob = Math.floor(values.dob.valueOf() / 1000); // Convert dayjs date to Unix timestamp in seconds
-      }
-      const result = await editUserMutation({
-        ...values,
-        id: selectedUser.id,
-        date_of_birth: values.dob,
-      }).unwrap();
-      setIsUpdateModalVisible(false);
+      await editUserMutation(values).unwrap();
+      setIsCreateModalVisible(false);
       notification.success({
         message: "Update user successfully",
       });
+      setIsUpdateModalVisible(false);
       refetch(); // Refetch the user data
     } catch (error) {
-      console.error("Error updating user: ", error);
+      console.error("Error creating user: ", error);
       notification.error({
-        message: "Failed to update user",
+        message: "Update user unsuccessfully",
       });
     }
+    // try {
+    //   if (values.dob) {
+    //     values.dob = Math.floor(values.dob.valueOf() / 1000); // Convert dayjs date to Unix timestamp in seconds
+    //     console.log(values.dob);
+    //   }
+    //   const result = await editUserMutation({
+    //     ...values,
+    //     id: selectedUser.id,
+    //     date_of_birth: values.dob,
+    //   }).unwrap();
+    //   setIsUpdateModalVisible(false);
+    //   notification.success({
+    //     message: "Update user successfully",
+    //   });
+    //   refetch(); // Refetch the user data
+    // } catch (error) {
+    //   console.error("Error updating user: ", error);
+    //   notification.error({
+    //     message: "Failed to update user",
+    //   });
+    // }
   };
 
   const handleDeleteUser = async (userId) => {
-    try {
-      const result = await deleteUserMutation(userId).unwrap();
+    const result = await deleteUserMutation(userId);
+    console.log(result);
+
+    if (result.error.originalStatus == 200) {
       refetch();
       notification.success({
         message: "Delete user successfully",
       });
-    } catch (error) {
-      console.error(error);
+    } else {
       notification.error({
         message: "Delete user unsuccessfully",
       });
@@ -126,7 +109,6 @@ export default function User() {
 
   const handleActiveUser = async (userId) => {
     const result = await activeUserMutation(userId);
-
     if (result.error.originalStatus == 200) {
       refetch();
       notification.success({
@@ -210,6 +192,7 @@ export default function User() {
         ) : (
           <UserList
             userData={userData} // Truyền userData đã lọc qua tìm kiếm vào UserList
+            rawUserData={users}
             onEditUser={handleEditUser}
             handleDeleteUser={handleDeleteUser}
             handleActiveUser={handleActiveUser}
