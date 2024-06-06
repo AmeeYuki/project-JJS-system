@@ -14,6 +14,7 @@ const UpdateUserModal = ({ visible, onUpdate, onCancel, user, loading }) => {
   useEffect(() => {
     if (user && visible) {
       form.setFieldsValue({
+        id: user.id,
         fullname: user.fullname,
         email: user.email,
         phone_number: user.phoneNumber,
@@ -27,8 +28,8 @@ const UpdateUserModal = ({ visible, onUpdate, onCancel, user, loading }) => {
   const handleUpdate = (values) => {
     const updatedValues = {
       ...values,
-      role_id: parseInt(values.role_id, 10),
-      counter_id: parseInt(values.counter_id, 10),
+      // role_id: parseInt(values.role_id, 10),
+      // counter_id: parseInt(values.counter_id, 10),
       dob: values.dob ? values.dob.unix() : null,
     };
     onUpdate(updatedValues);
@@ -46,6 +47,19 @@ const UpdateUserModal = ({ visible, onUpdate, onCancel, user, loading }) => {
         onOk={() => form.submit()}
       >
         <Form form={form} name="form_in_modal" onFinish={handleUpdate}>
+          <Form.Item
+            style={{ display: "none" }}
+            name="id"
+            label="ID"
+            rules={[
+              {
+                required: true,
+                message: "Please input the name of the user!",
+              },
+            ]}
+          >
+            <Input placeholder="Input the full name..." />
+          </Form.Item>
           <Form.Item
             name="fullname"
             label="User Name:"

@@ -5,7 +5,6 @@ import { SearchOutlined } from "@ant-design/icons";
 import ButtonCreate from "../../components/ButtonFilter/ButtonCreate";
 import {
   useActiveUserMutation,
-  useAddUserMutation,
   useCreateUserMutation,
   useDeleteUserMutation,
   useEditUserMutation,
@@ -55,6 +54,20 @@ export default function User() {
 
   const handleUpdateUser = async (values) => {
     console.log(values);
+    try {
+      await editUserMutation(values).unwrap();
+      setIsCreateModalVisible(false);
+      notification.success({
+        message: "Update user successfully",
+      });
+      setIsUpdateModalVisible(false);
+      refetch(); // Refetch the user data
+    } catch (error) {
+      console.error("Error creating user: ", error);
+      notification.error({
+        message: "Update user unsuccessfully",
+      });
+    }
     // try {
     //   if (values.dob) {
     //     values.dob = Math.floor(values.dob.valueOf() / 1000); // Convert dayjs date to Unix timestamp in seconds

@@ -114,7 +114,6 @@ export const userAPI = createApi({
 
 export const {
   useGetAllUserQuery,
-  useAddUserMutation,
   useEditUserMutation,
   useDeleteUserMutation,
   useCreateUserMutation,
