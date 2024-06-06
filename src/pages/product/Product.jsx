@@ -93,6 +93,7 @@ export default function Product() {
   };
 
   const handleUpdateProduct = (values) => {
+    console.log(values);
     editProductMutation(values)
       .unwrap()
       .then(() => {
