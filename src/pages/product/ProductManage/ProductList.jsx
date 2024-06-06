@@ -95,7 +95,8 @@ export default function ProductList({
       columns={columns}
       dataSource={convertedData}
       rowKey="id"
-      scroll={{ y: 330 }}
+      // scroll={{ y: 330 }}
+      pagination={{pageSize: 4}}
     />
   );
 }
