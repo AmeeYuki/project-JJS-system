@@ -3,6 +3,7 @@ import { Modal, Form, Input, Select, InputNumber, Upload, Button } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { useGetTypesQuery } from "../../../services/typeAPI";
 import { useGetCountersQuery } from "../../../services/counterAPI";
+import { update } from "firebase/database";
 
 const { Option } = Select;
 
@@ -56,10 +57,11 @@ const UpdateProductModal = ({
             fileList.length > 0 && fileList[0].status === "done"
               ? fileList[0].url
               : product.image,
-          type_id: values.typeName,
-          counter_id: values.counterName,
+          type_id: values.typeId,
+          counter_id: values.counterId,
           id: product.id,
         };
+        // console.log(updatedProduct);
         onUpdate(updatedProduct);
       })
       .catch((errorInfo) => {
@@ -104,7 +106,7 @@ const UpdateProductModal = ({
           </Form.Item>
 
           <Form.Item
-            name="typeName"
+            name="typeId"
             label="Type:"
             rules={[
               {
@@ -206,7 +208,7 @@ const UpdateProductModal = ({
 
           {/* loi o day */}
           <Form.Item
-            name="counterName"
+            name="counterId"
             label="Counter"
             rules={[
               {

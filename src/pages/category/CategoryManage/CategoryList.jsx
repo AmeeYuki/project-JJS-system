@@ -64,9 +64,10 @@ export default function CategoryList({ categoryData, onEditCategory }) {
       columns={columns}
       dataSource={categoryData}
       rowKey={(record) => record.id}
-      scroll={{
-        y: 330,
-      }}
+      // scroll={{
+      //   y: 330,
+      // }}
+      pagination={{ pageSize: 4 }}
     />
   );
 }
