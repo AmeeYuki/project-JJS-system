@@ -1,5 +1,5 @@
 .customerWrapper {
-  width: 80%;
+  /* width: 80%; */
   margin: 0 auto;
   padding: 20px;
   font-family: Arial, sans-serif;
@@ -61,4 +61,8 @@
   display: flex;
   justify-content: space-between;
   margin-top: 20px;
+}
+.custom-column-header {
+  background-color: black !important;
+  color: white !important;
 }

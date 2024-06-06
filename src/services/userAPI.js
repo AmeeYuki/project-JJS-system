@@ -27,14 +27,14 @@ export const userAPI = createApi({
           : [{ type: "UserList", id: " LIST " }],
     }),
 
-    addUser: builder.mutation({
-      query: (body) => ({
-        method: "POST",
-        url: `userManager`,
-        body,
-      }),
-      invalidatesTags: [{ type: "UserList", id: "LIST" }],
-    }),
+    // addUser: builder.mutation({
+    //   query: (body) => ({
+    //     method: "POST",
+    //     url: `userManager`,
+    //     body,
+    //   }),
+    //   invalidatesTags: [{ type: "UserList", id: "LIST" }],
+    // }),
     createUser: builder.mutation({
       query: (body) => {
         const users = {
