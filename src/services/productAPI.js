@@ -77,7 +77,6 @@ export const productAPI = createApi({
           type_id: patch.type_id,
           counter_id: patch.counter_id,
         };
-        console.log(product);
         return {
           url: `products/update/${id}`,
           method: "PUT",
