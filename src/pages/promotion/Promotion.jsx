@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
-import { DataGrid } from "@mui/x-data-grid";
+import { Input, Button } from "antd";
 import axios from "axios";
-import { Box, Button, TextField, Modal, Typography } from "@mui/material";
+import PromotionTable from "./PromotionTable";
+import PromotionForm from "./PromotionForm";
 import SearchIcon from "@mui/icons-material/Search";
-import columns from "./columns";
-import AddPromotion from "./AddPromotion";
 import "./Promotion.css";
 
 export default function Promotion() {
@@ -29,11 +28,12 @@ export default function Promotion() {
 
   useEffect(() => {
     const lowercasedFilter = searchTerm.toLowerCase();
-    const filteredData = rows.filter(
-      (item) =>
+    const filteredData = rows.filter((item) => {
+      return (
         item.code.toString().includes(lowercasedFilter) ||
-        item.discount.toLowerCase().includes(lowercasedFilter)
-    );
+        item.discount.toString().toLowerCase().includes(lowercasedFilter)
+      );
+    });
     setFilteredRows(filteredData);
   }, [searchTerm, rows]);
 
@@ -45,17 +45,30 @@ export default function Promotion() {
   const handleClose = () => setOpen(false);
   const handleCloseUpdate = () => setOpenUpdate(false);
 
+  const handleAddPromotion = (values) => {
+    axios
+      .post("https://664e3aa4fafad45dfadf753f.mockapi.io/promotion", values)
+      .then((response) => {
+        setRows([...rows, response.data]);
+        setFilteredRows([...rows, response.data]);
+        handleClose();
+      })
+      .catch((error) => {
+        console.error("Error adding promotion: ", error);
+      });
+  };
+
   const handleUpdatePromotion = (promotionId) => {
     const promotion = rows.find((row) => row.id === promotionId);
     setSelectedPromotion(promotion);
     setOpenUpdate(true);
   };
 
-  const handleSaveUpdate = () => {
+  const handleSaveUpdate = (values) => {
     axios
       .put(
         `https://664e3aa4fafad45dfadf753f.mockapi.io/promotion/${selectedPromotion.id}`,
-        selectedPromotion
+        values
       )
       .then((response) => {
         const updatedRows = rows.map((row) =>
@@ -85,145 +98,46 @@ export default function Promotion() {
       });
   };
 
-  const handleAddPromotion = (newPromotion) => {
-    setRows([...rows, newPromotion]);
-    setFilteredRows([...rows, newPromotion]);
-  };
-
   return (
     <div className="promotionWrapper">
       <div className="promotionTitle">
         <h1 className="titlePromotion">Promotion Page</h1>
         <div className="controls">
-          <div className="searchFilter">
-            <div className="searchBar">
-              <SearchIcon className="searchIcon" />
-              <input
-                type="text"
-                className="searchInput"
-                placeholder="Search by Promotion Code or Discount"
-                value={searchTerm}
-                onChange={handleSearch}
-              />
-            </div>
-            <button className="filterButton">Filter</button>
-          </div>
-          <button className="addPromotionButton" onClick={handleOpen}>
+          <Input
+            placeholder="Search by ID or Promotion Code"
+            value={searchTerm}
+            onChange={handleSearch}
+            prefix={<SearchIcon />}
+            style={{ width: 300 }}
+          />
+          <Button type="primary" onClick={handleOpen}>
             + Add Promotion
-          </button>
+          </Button>
         </div>
       </div>
 
       <div className="tb_promotion">
-        <div style={{ height: 400, width: "100%" }}>
-          <DataGrid
-            rows={filteredRows}
-            columns={columns(handleUpdatePromotion, handleDeletePromotion)}
-            initialState={{
-              pagination: {
-                paginationModel: { page: 0, pageSize: 10 },
-              },
-            }}
-            pageSizeOptions={[5, 10]}
-          />
-        </div>
+        <PromotionTable
+          data={filteredRows}
+          handleUpdatePromotion={handleUpdatePromotion}
+          handleDeletePromotion={handleDeletePromotion}
+        />
       </div>
 
-      <AddPromotion
-        open={open}
-        handleClose={handleClose}
-        handleAdd={handleAddPromotion}
+      <PromotionForm
+        visible={open}
+        onCancel={handleClose}
+        onFinish={handleAddPromotion}
       />
 
-      <Modal open={openUpdate} onClose={handleCloseUpdate}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "background.paper",
-            border: "2px solid #000",
-            boxShadow: 24,
-            p: 4,
-          }}
-        >
-          {selectedPromotion && (
-            <>
-              <Typography variant="h6">Update Promotion</Typography>
-              <TextField
-                label="Promotion Code"
-                name="code"
-                value={selectedPromotion.code}
-                onChange={(e) =>
-                  setSelectedPromotion({
-                    ...selectedPromotion,
-                    code: e.target.value,
-                  })
-                }
-                fullWidth
-                margin="normal"
-                placeholder="Promotion Code..."
-              />
-              <TextField
-                label="Discount"
-                name="discount"
-                value={selectedPromotion.discount}
-                onChange={(e) =>
-                  setSelectedPromotion({
-                    ...selectedPromotion,
-                    discount: e.target.value,
-                  })
-                }
-                fullWidth
-                margin="normal"
-                placeholder="Discount..."
-              />
-              <TextField
-                label="Start Date"
-                name="startdate"
-                value={selectedPromotion.startdate}
-                onChange={(e) =>
-                  setSelectedPromotion({
-                    ...selectedPromotion,
-                    startdate: e.target.value,
-                  })
-                }
-                fullWidth
-                margin="normal"
-                placeholder="Start Date..."
-              />
-              <TextField
-                label="End Date"
-                name="enddate"
-                value={selectedPromotion.enddate}
-                onChange={(e) =>
-                  setSelectedPromotion({
-                    ...selectedPromotion,
-                    enddate: e.target.value,
-                  })
-                }
-                fullWidth
-                margin="normal"
-                placeholder="End Date..."
-              />
-            </>
-          )}
-          <div className="modalActions">
-            <Button onClick={handleCloseUpdate} style={{ color: "red" }}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSaveUpdate}
-              variant="contained"
-              color="primary"
-            >
-              Save
-            </Button>
-          </div>
-        </Box>
-      </Modal>
+      {selectedPromotion && (
+        <PromotionForm
+          visible={openUpdate}
+          onCancel={handleCloseUpdate}
+          onFinish={handleSaveUpdate}
+          initialValues={selectedPromotion}
+        />
+      )}
     </div>
   );
 }
