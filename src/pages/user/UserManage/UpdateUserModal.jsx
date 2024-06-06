@@ -11,16 +11,29 @@ const UpdateUserModal = ({ visible, onUpdate, onCancel, user, loading }) => {
   const { data: countersData, isLoading: countersLoading } =
     useGetCountersQuery();
 
-  console.log(user);
+  useEffect(() => {
+    if (user && visible) {
+      form.setFieldsValue({
+        fullname: user.fullname,
+        email: user.email,
+        phone_number: user.phoneNumber,
+        dob: user.dob ? dayjs.unix(user.dob) : null,
+        role_id: user.roleId,
+        counter_id: user.counterId,
+      });
+    }
+  }, [user, visible, form]);
 
   const handleUpdate = (values) => {
-    // Convert role_id and counter_id to integers
-
     const updatedValues = {
       ...values,
+      role_id: parseInt(values.role_id, 10),
+      counter_id: parseInt(values.counter_id, 10),
+      dob: values.dob ? values.dob.unix() : null,
     };
     onUpdate(updatedValues);
   };
+
   return (
     <div className="update-user-page">
       <Modal
@@ -30,19 +43,9 @@ const UpdateUserModal = ({ visible, onUpdate, onCancel, user, loading }) => {
         cancelText="Cancel"
         onCancel={onCancel}
         okButtonProps={{ loading }}
+        onOk={() => form.submit()}
       >
-        <Form
-          form={form}
-          name="form_in_modal"
-          initialValues={{
-            fullname: user ? user.fullname : "",
-            email: user ? user.email : "",
-            phone_number: user ? user.phoneNumber : "",
-            dob: user ? dayjs(user.dob) : null,
-            role_id: user ? user.roleId : null,
-            counter_id: user ? user.counterId : null,
-          }}
-        >
+        <Form form={form} name="form_in_modal" onFinish={handleUpdate}>
           <Form.Item
             name="fullname"
             label="User Name:"

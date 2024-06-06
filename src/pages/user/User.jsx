@@ -54,26 +54,28 @@ export default function User() {
   };
 
   const handleUpdateUser = async (values) => {
-    try {
-      if (values.dob) {
-        values.dob = Math.floor(values.dob.valueOf() / 1000); // Convert dayjs date to Unix timestamp in seconds
-      }
-      const result = await editUserMutation({
-        ...values,
-        id: selectedUser.id,
-        date_of_birth: values.dob,
-      }).unwrap();
-      setIsUpdateModalVisible(false);
-      notification.success({
-        message: "Update user successfully",
-      });
-      refetch(); // Refetch the user data
-    } catch (error) {
-      console.error("Error updating user: ", error);
-      notification.error({
-        message: "Failed to update user",
-      });
-    }
+    console.log(values);
+    // try {
+    //   if (values.dob) {
+    //     values.dob = Math.floor(values.dob.valueOf() / 1000); // Convert dayjs date to Unix timestamp in seconds
+    //     console.log(values.dob);
+    //   }
+    //   const result = await editUserMutation({
+    //     ...values,
+    //     id: selectedUser.id,
+    //     date_of_birth: values.dob,
+    //   }).unwrap();
+    //   setIsUpdateModalVisible(false);
+    //   notification.success({
+    //     message: "Update user successfully",
+    //   });
+    //   refetch(); // Refetch the user data
+    // } catch (error) {
+    //   console.error("Error updating user: ", error);
+    //   notification.error({
+    //     message: "Failed to update user",
+    //   });
+    // }
   };
 
   const handleDeleteUser = async (userId) => {
