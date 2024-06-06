@@ -11,7 +11,7 @@ import { logout, selectAuth } from "../../slices/auth.slice";
 function Login() {
   const [form] = Form.useForm(); // Sử dụng hook Form của Ant Design
   const [error, setError] = useState(null); // Khai báo state error
-  // const [oldPassword, setOldPassword] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
   const auth = useSelector(selectAuth);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -69,6 +69,7 @@ function Login() {
     try {
       const response = await updatePassword({
         id: auth.id,
+        oldPassword: oldPassword,
         password: password,
         retypePassword: confirmPassword,
       });
@@ -122,7 +123,7 @@ function Login() {
             </>
           )}
           {/* Hiển thị thông báo lỗi */}
-          {/* <p>Old Password</p>
+          <p>Old Password</p>
           <Form.Item
             name="oldPassword"
             rules={[
@@ -136,9 +137,9 @@ function Login() {
               placeholder="Enter old password"
               className="form-input"
               value={oldPassword}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => setOldPassword(e.target.value)}
             />
-          </Form.Item> */}
+          </Form.Item>
           <p>New Password</p>
           <Form.Item
             name="newPassword"

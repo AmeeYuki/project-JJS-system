@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from "react"; // Import React
 import "./Login.css";
-import { Alert, Button, Form, Input } from "antd";
+import { Alert, Button, Form, Input, notification } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { selectToken } from "../../slices/auth.slice";
+import {
+  useChangePasswordByEmailMutation,
+  useVerifyMailMutation,
+  useVerifyOtpMutation,
+} from "../../services/authAPI";
 
 function Login() {
   const [form] = Form.useForm(); // Sử dụng hook Form của Ant Design
@@ -11,28 +16,84 @@ function Login() {
   const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const token = useSelector(selectToken);
 
   const [error, setError] = useState(null); // Khai báo state error
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [verifyEmail, setVerifyEmail] = useState(false); // Khai báo state error
   const [verifyOTP, setVerifyOTP] = useState(false); // Khai báo state error
+  const [verifyMail, { isLoading: isVerifyingMail }] = useVerifyMailMutation();
+  const [verifyOTPByMail, { isLoading: isVerifyOTPByMail }] =
+    useVerifyOtpMutation();
+  const [changePasswordByEmail, { isLoading: isChangePasswordByEmail }] =
+    useChangePasswordByEmailMutation();
 
-  //////////////////////////////////////// Dieu kien chuyen trang
-  // useEffect(() => {
-  //   if (token) {
-  //     navigate("/");
-  //   }
-  // }, [token, navigate]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleVerifyEmail = () => {
-    // console.log(email);
-    setVerifyEmail(true);
+  // const handleVerifyEmail = () => {
+  //   // console.log(email);
+  //   setVerifyEmail(true);
+  // };
+
+  const handleVerifyEmail = async () => {
+    if (!email.trim()) {
+      setError("Email is required");
+      return;
+    }
+
+    try {
+      setIsLoading(true); // Đặt trạng thái loading thành true khi bắt đầu gửi email
+
+      const response = await verifyMail({ email });
+      if (response.error.originalStatus === 200) {
+        setError(null);
+        notification.success({
+          message: "Send mail successfully",
+          description: "Please check your mail and input your OTP",
+        });
+        setVerifyEmail(true);
+      } else {
+        // Xác minh email không thành công
+        setError("Failed to send mail, try again in 2 minutes");
+      }
+    } catch (error) {
+      // Lỗi khi gửi yêu cầu API
+      setError("Failed to send mail: " + error.message);
+    } finally {
+      setIsLoading(false); // Đặt trạng thái loading thành false sau khi hoàn thành
+    }
   };
 
-  const handleVerifyOTP = () => {
-    setVerifyOTP(true);
+  const handleVerifyOTP = async () => {
+    // setVerifyOTP(true);
+    console.log("OTP submitted:", otp); // This will be a number
+
+    if (!otp.trim()) {
+      setError("OTP is required");
+      return;
+    }
+    try {
+      setIsLoading(true); // Đặt trạng thái loading thành true khi bắt đầu gửi email
+
+      const response = await verifyOTPByMail({ email, otp });
+      if (response.error.originalStatus === 200) {
+        setError(null);
+        notification.success({
+          message: "Send OTP successfully",
+          description: "Please change your new password",
+        });
+        setVerifyOTP(true);
+      } else {
+        // Xác minh email không thành công
+        setError("Failed to send OTP, try again");
+        // setVerifyEmail(false);
+      }
+    } catch (error) {
+      // Lỗi khi gửi yêu cầu API
+      setError("Failed to send OTP: " + error.message);
+    } finally {
+      setIsLoading(false); // Đặt trạng thái loading thành false sau khi hoàn thành
+    }
   };
 
   const handleChangePassword = async (e) => {
@@ -50,9 +111,34 @@ function Login() {
       setError("Confirm Password does not match");
       return;
     }
-    setVerifyEmail(false);
-    setVerifyOTP(false);
-    navigate("/login");
+    try {
+      setIsLoading(true); // Đặt trạng thái loading thành true khi bắt đầu gửi email
+
+      const response = await changePasswordByEmail({
+        email,
+        password,
+        confirmPassword,
+      });
+      if (response.error.originalStatus === 200) {
+        setError(null);
+        notification.success({
+          message: "Change password successful",
+          description: "Please login!",
+        });
+        setVerifyEmail(false);
+        setVerifyOTP(false);
+        navigate("/login");
+      } else {
+        // Xác minh email không thành công
+        setError("Failed to change, try again");
+        // setVerifyEmail(false);
+      }
+    } catch (error) {
+      // Lỗi khi gửi yêu cầu API
+      setError("Failed to change: " + error.message);
+    } finally {
+      setIsLoading(false); // Đặt trạng thái loading thành false sau khi hoàn thành
+    }
   };
 
   return (
@@ -92,7 +178,12 @@ function Login() {
             </Form.Item>
 
             <Form.Item>
-              <Button type="primary" htmlType="submit" className="submit-btn">
+              <Button
+                type="primary"
+                htmlType="submit"
+                className="submit-btn"
+                loading={isLoading}
+              >
                 Verify Email
               </Button>
             </Form.Item>
@@ -117,7 +208,7 @@ function Login() {
               ]}
             >
               <Input
-                type=""
+                type="number"
                 placeholder="your OTP"
                 className="form-input"
                 value={otp}
@@ -126,7 +217,12 @@ function Login() {
             </Form.Item>
 
             <Form.Item>
-              <Button type="primary" htmlType="submit" className="submit-btn">
+              <Button
+                type="primary"
+                htmlType="submit"
+                className="submit-btn"
+                loading={isLoading}
+              >
                 Verify OTP
               </Button>
             </Form.Item>
@@ -180,7 +276,12 @@ function Login() {
               </>
             )}
             <Form.Item>
-              <Button type="primary" htmlType="submit" className="submit-btn">
+              <Button
+                type="primary"
+                htmlType="submit"
+                className="submit-btn"
+                loading={isLoading}
+              >
                 Change your password
               </Button>
             </Form.Item>

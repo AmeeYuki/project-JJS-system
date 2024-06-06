@@ -28,19 +28,6 @@ export default function CounterList({
       >
         <span>Edit Counter</span>
       </Menu.Item>
-      <Menu.Item key="delete">
-        <Popconfirm
-          title="Are you sure you want to delete this counter?"
-          onConfirm={() => handleDeleteCounter(record.id)}
-          okText="Yes"
-          cancelText="No"
-        >
-          <p className="submenu-countertable-dropdown-delete">
-            <span style={{ color: "#2C5282" }}></span>
-            <span>Delete Counter</span>
-          </p>
-        </Popconfirm>
-      </Menu.Item>
     </Menu>
   );
 

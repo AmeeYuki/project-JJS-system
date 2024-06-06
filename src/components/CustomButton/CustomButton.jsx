@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 const CustomButton = ({
   icon: Icon,
@@ -10,8 +10,19 @@ const CustomButton = ({
   iconPosition = "left",
   fontSize = "16px",
   padding = "10px 20px",
+  hoverStyle = {},
   onClick,
 }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
+
   return (
     <button
       style={{
@@ -19,8 +30,11 @@ const CustomButton = ({
         alignItems: "center",
         padding,
         ...containerStyle,
+        ...(isHovered ? hoverStyle : {}),
       }}
-      onClick={onClick} 
+      onClick={onClick}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {Icon && iconPosition === "left" && (
         <Icon
@@ -38,22 +52,22 @@ const CustomButton = ({
 
 export default CustomButton;
 
-{
-  /* Example
- <CustomButton
-  icon={RiAddLine}
-  text="Add Small"
-  iconSize="16px"
-  iconColor="red"
-  textColor="blue"
-  containerStyle={{
-    backgroundColor: "lightgray",
-    marginBottom: "10px",
-    border: "none",
-  }}
-  iconPosition="left"
-  fontSize="12px"
-  padding="5px 10px"
-/>;
- */
-}
+// Example usage
+// <CustomButton
+//  icon={RiAddLine}
+//  text="Add Small"
+//  iconSize="16px"
+//  iconColor="red"
+//  textColor="blue"
+//  containerStyle={{
+//    backgroundColor: "lightgray",
+//    marginBottom: "10px",
+//    border: "none",
+//  }}
+//  hoverStyle={{
+// opacity: 0.6,
+//  }}
+//  iconPosition="left"
+//  fontSize="12px"
+//  padding="5px 10px"
+// />;

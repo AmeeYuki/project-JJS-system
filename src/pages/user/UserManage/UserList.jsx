@@ -2,26 +2,13 @@ import React from "react";
 import { Space, Table, Tag, Dropdown, Menu, Popconfirm } from "antd";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 
-export default function UserList({ userData, onEditUser, handleDeleteUser }) {
-  // const handleMenuClick = (action, record) => {
-  //   switch (action) {
-  //     case "edit":
-  //       onEditUser(record);
-  //       break;
-  //     case "delete":
-  //       // Handle delete action
-  //       break;
-  //     // case "inactive":
-  //     //   // Handle inactive action
-  //     //   break;
-  //     case "viewDetail":
-  //       // Handle view detail action
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  // };
-
+export default function UserList({
+  userData,
+  onEditUser,
+  handleDeleteUser,
+  handleActiveUser, // Thêm prop để xử lý active user
+  handleInactiveUser, // Thêm prop để xử lý inactive user
+}) {
   const actionsMenu = (record) => (
     <Menu>
       <Menu.Item
@@ -32,21 +19,24 @@ export default function UserList({ userData, onEditUser, handleDeleteUser }) {
         <span>Edit User</span>
       </Menu.Item>
 
-      {/* <Menu.Item
-        key="ActiveUSer"
-        className="submenu-usertable"
-        onClick={() => ActiveUSer(record, true)}
-      >
-        <span>Actice user </span>
-      </Menu.Item> */}
-
-      {/* <Menu.Item
-        key="de-ActiveUSer"
-        className="submenu-usertable"
-        onClick={() => deActiveUSer(record, false)}
-      >
-        <span>De-actice user </span>
-      </Menu.Item> */}
+      {/* Thêm menu item cho active user */}
+      {record.active ? (
+        <Menu.Item
+          key="deactivate"
+          className="submenu-usertable"
+          onClick={() => handleInactiveUser(record.id)}
+        >
+          <span>Inactive user</span>
+        </Menu.Item>
+      ) : (
+        <Menu.Item
+          key="activate"
+          className="submenu-usertable"
+          onClick={() => handleActiveUser(record.id)}
+        >
+          <span>Active user</span>
+        </Menu.Item>
+      )}
 
       <Menu.Item key="delete">
         <Popconfirm
@@ -69,7 +59,6 @@ export default function UserList({ userData, onEditUser, handleDeleteUser }) {
       title: "No.",
       dataIndex: "index",
       key: "index",
-      width: 60,
     },
     {
       title: "Name",
@@ -79,24 +68,22 @@ export default function UserList({ userData, onEditUser, handleDeleteUser }) {
     {
       title: "Email",
       dataIndex: "email",
-      width: 250,
       key: "email",
     },
     {
       title: "Phone",
-      dataIndex: "phone_number",
+      dataIndex: "phoneNumber",
       key: "phone",
-      width: 120,
     },
     {
       title: "Counter",
-      dataIndex: "counter_id",
+      dataIndex: "counterName",
       key: "counter",
-      render: (counter_id) => (counter_id ? counter_id : "All Counter"),
+      render: (counter_id) => (counter_id ? counter_id : ""),
     },
     {
       title: "Role",
-      dataIndex: "role_id",
+      dataIndex: "roleName",
       key: "role",
     },
     {
@@ -113,7 +100,7 @@ export default function UserList({ userData, onEditUser, handleDeleteUser }) {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Dropdown overlay={actionsMenu(record)}>
+          <Dropdown overlay={actionsMenu(record)} trigger={["click"]}>
             <a
               className="ant-dropdown-link"
               onClick={(e) => e.preventDefault()}
@@ -125,7 +112,6 @@ export default function UserList({ userData, onEditUser, handleDeleteUser }) {
       ),
     },
   ];
-
   return (
     <>
       <Table

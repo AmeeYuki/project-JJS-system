@@ -21,7 +21,7 @@ const CreateUserModal = ({ visible, onCreate, onCancel, loading }) => {
   return (
     <div className="create-user-page">
       <Modal
-        visible={visible}
+        open={visible}
         title="Create a new user"
         okText="Create"
         cancelText="Cancel"

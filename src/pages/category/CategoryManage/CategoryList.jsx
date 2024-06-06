@@ -1,6 +1,8 @@
 import React from "react";
 import { Space, Table, Dropdown, Menu } from "antd";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import { format } from "date-fns";
+import { formatCurrency } from "../../product/ProductUtil";
 
 export default function CategoryList({ categoryData, onEditCategory }) {
   const actionsMenu = (record) => (
@@ -18,24 +20,27 @@ export default function CategoryList({ categoryData, onEditCategory }) {
       key: "index",
     },
     {
-      title: "Category Name",
-      dataIndex: "categoryName",
-      key: "categoryName",
+      title: "Type Name",
+      dataIndex: "type",
+      key: "type",
     },
     {
       title: "Buy Price per Gram",
       dataIndex: "buy_price_per_gram",
       key: "buy_price_per_gram",
+      render: (buy_price_per_gram) => formatCurrency(buy_price_per_gram),
     },
     {
       title: "Sell Price per Gram",
       dataIndex: "sell_price_per_gram",
       key: "sell_price_per_gram",
+      render: (sell_price_per_gram) => formatCurrency(sell_price_per_gram),
     },
     {
       title: "Date",
       dataIndex: "date",
       key: "date",
+      render: (date) => format(new Date(date), "dd-MM-yyyy"),
     },
     {
       key: "action",
