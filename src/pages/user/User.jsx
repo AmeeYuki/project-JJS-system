@@ -37,39 +37,6 @@ export default function User() {
   const [inactiveUserMutation, { isLoading: isLoadingInactive }] =
     useInactiveUserMutation();
 
-  function convertData(users) {
-    const converted = users.users.map((el) => ({
-      id: el?.id,
-      fullname: el?.fullname,
-      active: el?.active,
-      counterName: el?.counter?.counterName,
-      counterId: el?.counter?.id,
-      dob: el?.date_of_birth,
-      email: el?.email,
-      phoneNumber: el?.phone_number,
-      roleId: el?.role.id,
-      roleName: el?.role.name,
-    }));
-    console.log("Converted data:", converted);
-    return converted;
-  }
-
-  useEffect(() => {
-    if (users) {
-      // Step 1: Convert the data
-      const convertedData = convertData(users);
-
-      // Step 2: Index the converted data
-      const indexedUsers = convertedData.map((user, index) => ({
-        ...user,
-        index: index + 1,
-      }));
-
-      // Set the user data
-      setUserData(indexedUsers);
-    }
-  }, [users]);
-
   const handleCreateUser = async (values) => {
     try {
       await createUser(values).unwrap();
@@ -110,14 +77,15 @@ export default function User() {
   };
 
   const handleDeleteUser = async (userId) => {
-    try {
-      const result = await deleteUserMutation(userId).unwrap();
+    const result = await deleteUserMutation(userId);
+    console.log(result);
+
+    if (result.error.originalStatus == 200) {
       refetch();
       notification.success({
         message: "Delete user successfully",
       });
-    } catch (error) {
-      console.error(error);
+    } else {
       notification.error({
         message: "Delete user unsuccessfully",
       });
@@ -126,7 +94,6 @@ export default function User() {
 
   const handleActiveUser = async (userId) => {
     const result = await activeUserMutation(userId);
-
     if (result.error.originalStatus == 200) {
       refetch();
       notification.success({
@@ -210,6 +177,7 @@ export default function User() {
         ) : (
           <UserList
             userData={userData} // Truyền userData đã lọc qua tìm kiếm vào UserList
+            rawUserData={users}
             onEditUser={handleEditUser}
             handleDeleteUser={handleDeleteUser}
             handleActiveUser={handleActiveUser}

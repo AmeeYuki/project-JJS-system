@@ -2,10 +2,13 @@ import React, { useEffect } from "react";
 import { Modal, Form, Input, Select, DatePicker } from "antd";
 import moment from "moment";
 import "./CreateUserModal.css";
+import { useGetCountersQuery } from "../../../services/counterAPI";
 
 const { Option } = Select;
 
 const CreateUserModal = ({ visible, onCreate, onCancel, loading }) => {
+  const { data: countersData, isLoading: countersLoading } =
+    useGetCountersQuery();
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -137,10 +140,22 @@ const CreateUserModal = ({ visible, onCreate, onCancel, loading }) => {
               },
             ]}
           >
-            <Select placeholder="Select the counter...">
+            {/* <Select placeholder="Select the counter...">
               <Option value={1}>Counter 1</Option>
               <Option value={2}>Counter 2</Option>
               <Option value={3}>Counter 3</Option>
+            </Select> */}
+            <Select
+              placeholder="Select counter..."
+              loading={countersLoading}
+              disabled={countersLoading}
+            >
+              {countersData &&
+                countersData.map((counter) => (
+                  <Option key={counter.id} value={counter.id}>
+                    {counter.counterName}
+                  </Option>
+                ))}
             </Select>
           </Form.Item>
 
