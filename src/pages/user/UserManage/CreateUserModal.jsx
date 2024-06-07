@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Form, Input, Select, DatePicker } from "antd";
 import moment from "moment";
 import "./CreateUserModal.css";
@@ -10,6 +10,7 @@ const CreateUserModal = ({ visible, onCreate, onCancel, loading }) => {
   const { data: countersData, isLoading: countersLoading } =
     useGetCountersQuery();
   const [form] = Form.useForm();
+  const [showCounter, setShowCounter] = useState(true); // State để theo dõi trường Counter
 
   useEffect(() => {
     if (!visible) {
@@ -21,15 +22,25 @@ const CreateUserModal = ({ visible, onCreate, onCancel, loading }) => {
     console.log("Selected DOB:", date);
   };
 
+  const handleRoleChange = (value) => {
+    setShowCounter(value === 3); // Cập nhật trạng thái của trường Counter dựa vào giá trị của vai trò
+    // Nếu trường Counter bị ẩn, đặt giá trị mặc định là null
+    if (!showCounter) {
+      form.setFieldsValue({
+        counter: null,
+      });
+    }
+  };
+
   return (
     <div className="create-user-page">
       <Modal
-        open={visible}
+        visible={visible}
         title="Create a new user"
         okText="Create"
         cancelText="Cancel"
         onCancel={onCancel}
-        okButtonProps={{ loading }}
+        confirmLoading={loading}
         onOk={() => {
           form
             .validateFields()
@@ -123,57 +134,41 @@ const CreateUserModal = ({ visible, onCreate, onCancel, loading }) => {
               },
             ]}
           >
-            <Select placeholder="Select user type: ">
+            <Select
+              placeholder="Select user type: "
+              onChange={handleRoleChange}
+            >
               <Option value={1}>Admin</Option>
               <Option value={2}>Manager</Option>
               <Option value={3}>Staff</Option>
             </Select>
           </Form.Item>
 
-          <Form.Item
-            name="counter"
-            label="Counter:"
-            rules={[
-              {
-                required: true,
-                message: "Please select the counter!",
-              },
-            ]}
-          >
-            {/* <Select placeholder="Select the counter...">
-              <Option value={1}>Counter 1</Option>
-              <Option value={2}>Counter 2</Option>
-              <Option value={3}>Counter 3</Option>
-            </Select> */}
-            <Select
-              placeholder="Select counter..."
-              loading={countersLoading}
-              disabled={countersLoading}
+          {showCounter && (
+            <Form.Item
+              name="counter"
+              label="Counter:"
+              rules={[
+                {
+                  required: true,
+                  message: "Please select the counter!",
+                },
+              ]}
             >
-              {countersData &&
-                countersData.map((counter) => (
-                  <Option key={counter.id} value={counter.id}>
-                    {counter.counterName}
-                  </Option>
-                ))}
-            </Select>
-          </Form.Item>
-
-          {/* <Form.Item
-            name="active"
-            label="Status:"
-            rules={[
-              {
-                required: true,
-                message: "Please select the status of the user!",
-              },
-            ]}
-          >
-            <Radio.Group>
-              <Radio value={true}>Active</Radio>
-              <Radio value={false}>Inactive</Radio>
-            </Radio.Group>
-          </Form.Item> */}
+              <Select
+                placeholder="Select counter..."
+                loading={countersLoading}
+                disabled={countersLoading}
+              >
+                {countersData &&
+                  countersData.map((counter) => (
+                    <Option key={counter.id} value={counter.id}>
+                      {counter.counterName}
+                    </Option>
+                  ))}
+              </Select>
+            </Form.Item>
+          )}
         </Form>
       </Modal>
     </div>

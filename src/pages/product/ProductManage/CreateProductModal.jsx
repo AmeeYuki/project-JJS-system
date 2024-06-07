@@ -23,7 +23,7 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
   const [fileList, setFileList] = useState([]);
   const { data: typesData, isLoading: typesLoading } = useGetTypesQuery();
   const { data: countersData, isLoading: countersLoading } =
-    useGetCountersQuery(); 
+    useGetCountersQuery();
 
   useEffect(() => {
     if (!visible) {
