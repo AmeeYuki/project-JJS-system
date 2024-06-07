@@ -6,23 +6,29 @@ export default function UserList({
   rawUserData,
   onEditUser,
   handleDeleteUser,
-  handleActiveUser, // Thêm prop để xử lý active user
-  handleInactiveUser, // Thêm prop để xử lý inactive user
+  handleActiveUser,
+  handleInactiveUser,
+  searchValue,
 }) {
   const [userData, setUserData] = useState([]);
 
   useEffect(() => {
     if (rawUserData) {
       const convertedData = convertData(rawUserData);
-
-      const indexedUsers = convertedData.map((user, index) => ({
-        ...user,
-        index: index + 1,
-      }));
-
-      setUserData(indexedUsers);
+      setUserData(convertedData);
     }
   }, [rawUserData]);
+
+  useEffect(() => {
+    // Lọc dữ liệu khi giá trị tìm kiếm thay đổi
+    if (rawUserData) {
+      const filteredData = rawUserData.users.filter((user) =>
+        `${user.fullname}`.toLowerCase().includes(searchValue.toLowerCase())
+      );
+      const convertedData = convertData({ users: filteredData });
+      setUserData(convertedData);
+    }
+  }, [searchValue, rawUserData]);
 
   function convertData(users) {
     return users.users.map((el) => ({
@@ -36,6 +42,7 @@ export default function UserList({
       phoneNumber: el?.phone_number,
       roleId: el?.role.id,
       roleName: el?.role.name,
+      // Kết hợp fullname và phoneNumber thành một chuỗi duy nhất
     }));
   }
 
@@ -49,7 +56,6 @@ export default function UserList({
         <span>Edit User</span>
       </Menu.Item>
 
-      {/* Thêm menu item cho active user */}
       {record.active ? (
         <Menu.Item
           key="deactivate"
@@ -142,13 +148,13 @@ export default function UserList({
       ),
     },
   ];
+
   return (
     <>
       <Table
         columns={columns}
         dataSource={userData}
         rowKey="id"
-        // scroll={{ y: "330px" }}
         pagination={{ pageSize: 5 }}
       />
     </>
