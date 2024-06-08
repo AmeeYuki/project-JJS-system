@@ -8,7 +8,7 @@ export const customerAPI = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: API_URL_BE,
     prepareHeaders: (headers, { getState }) => {
-      const token = selectToken(getState()); // Retrieve token from Redux state using selectToken selector
+      const token = selectToken(getState());
       if (token) {
         headers.append("Authorization", `Bearer ${token}`);
       }
@@ -19,14 +19,48 @@ export const customerAPI = createApi({
   endpoints: (builder) => ({
     getAllCustomer: builder.query({
       query: () => `customers/get_customers`,
-      // `providesTags` determines which 'tag' is attached to the
-      // cached data returned by the query.
-      providesTags: (result) =>
-        result
-          ? result.map(({ id }) => ({ type: "UserList", id }))
-          : [{ type: "UserList", id: " LIST " }],
+      providesTags: ["CustomerList"],
+    }),
+
+    createCustomer: builder.mutation({
+      query: (newCustomer) => ({
+        url: `customers/create`,
+        method: "POST",
+        body: newCustomer,
+      }),
+      invalidatesTags: ["CustomerList"],
+    }),
+    updateCustomer: builder.mutation({
+      query: ({ updatedCustomer }) => ({
+        url: `customers/update/${updatedCustomer.id}`,
+        method: "PUT",
+        body: updatedCustomer,
+      }),
+      invalidatesTags: [{ type: "CustomerList" }],
+    }),
+    deleteCustomer: builder.mutation({
+      query: (customerId) => ({
+        url: `customers/delete/${customerId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: [{ type: "CustomerList" }],
+    }),
+
+    createPromotion: builder.mutation({
+      query: ({ customerId, promotionDetails }) => ({
+        url: `promotions/create_promotion/${customerId}`,
+        method: "POST",
+        body: { promotionDetails },
+      }),
+      invalidatesTags: ["CustomerList"],
     }),
   }),
 });
 
-export const { useGetAllCustomerQuery } = customerAPI;
+export const {
+  useGetAllCustomerQuery,
+  useCreateCustomerMutation,
+  useUpdateCustomerMutation,
+  useDeleteCustomerMutation,
+  useCreatePromotionMutation,
+} = customerAPI;

@@ -15,8 +15,16 @@ const CustomerUpdateForm = ({
     footer={null}
   >
     {selectedCustomer && (
-      <Form layout="vertical">
-        <Form.Item label="Name">
+      <Form
+        layout="vertical"
+        initialValues={selectedCustomer}
+        onFinish={handleSaveUpdate}
+      >
+        <Form.Item
+          label="Name"
+          name="fullName"
+          rules={[{ required: true, message: "Please enter the name" }]}
+        >
           <Input
             name="fullName"
             value={selectedCustomer.fullName}
@@ -28,7 +36,11 @@ const CustomerUpdateForm = ({
             }
           />
         </Form.Item>
-        <Form.Item label="Phone">
+        <Form.Item
+          label="Phone"
+          name="phone"
+          rules={[{ required: true, message: "Please enter the phone number" }]}
+        >
           <Input
             name="phone"
             value={selectedCustomer.phone}
@@ -40,7 +52,11 @@ const CustomerUpdateForm = ({
             }
           />
         </Form.Item>
-        <Form.Item label="Email">
+        <Form.Item
+          label="Email"
+          name="email"
+          rules={[{ required: true, message: "Please enter the email" }]}
+        >
           <Input
             name="email"
             value={selectedCustomer.email}
@@ -52,7 +68,11 @@ const CustomerUpdateForm = ({
             }
           />
         </Form.Item>
-        <Form.Item label="Address">
+        <Form.Item
+          label="Address"
+          name="address"
+          rules={[{ required: true, message: "Please enter the address" }]}
+        >
           <Input
             name="address"
             value={selectedCustomer.address}
@@ -64,7 +84,7 @@ const CustomerUpdateForm = ({
             }
           />
         </Form.Item>
-        <Form.Item label="Gender">
+        <Form.Item label="Gender" name="gender">
           <Radio.Group
             name="gender"
             value={selectedCustomer.gender}
@@ -83,7 +103,7 @@ const CustomerUpdateForm = ({
           <Button onClick={handleCloseUpdate} style={{ marginRight: 8 }}>
             Cancel
           </Button>
-          <Button type="primary" onClick={handleSaveUpdate}>
+          <Button type="primary" htmlType="submit">
             Save
           </Button>
         </Form.Item>
