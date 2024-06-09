@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Button, Input } from "antd";
-// import axios from "axios";
 import CustomerTable from "./CustomerTable";
 import CustomerForm from "./CustomerForm";
 import CustomerDetail from "./CustomerDetail";
@@ -127,12 +126,12 @@ export default function Customer() {
   //     });
   // };
   const handleSaveUpdate = async () => {
-    try {
-      if (!selectedCustomer || !selectedCustomer.id) {
-        console.error("Selected customer or its ID is undefined");
-        return;
-      }
+    if (!selectedCustomer || !selectedCustomer.id) {
+      console.error("Selected customer or its ID is undefined");
+      return;
+    }
 
+    try {
       await updateCustomer({
         id: selectedCustomer.id,
         ...selectedCustomer,
@@ -141,7 +140,7 @@ export default function Customer() {
       handleCloseUpdate();
     } catch (error) {
       console.error("Error updating customer: ", error);
-      alert(`Error: ${error.status} - ${error.data}`);
+      alert(`Error: ${error.message}`);
     }
   };
 

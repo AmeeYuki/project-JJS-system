@@ -31,12 +31,12 @@ export const customerAPI = createApi({
       invalidatesTags: ["CustomerList"],
     }),
     updateCustomer: builder.mutation({
-      query: ({ updatedCustomer }) => ({
-        url: `customers/update/${updatedCustomer.id}`,
+      query: ({ id, ...rest }) => ({
+        url: `customers/update/${id}`,
         method: "PUT",
-        body: updatedCustomer,
+        body: rest,
       }),
-      invalidatesTags: [{ type: "CustomerList" }],
+      invalidatesTags: ["CustomerList"],
     }),
     deleteCustomer: builder.mutation({
       query: (customerId) => ({
