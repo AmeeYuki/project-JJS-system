@@ -19,11 +19,25 @@ export default function UserList({
     }
   }, [rawUserData]);
 
+  // useEffect(() => {
+  //   // Lọc dữ liệu khi giá trị tìm kiếm thay đổi
+  //   if (rawUserData) {
+  //     const filteredData = rawUserData.users.filter((user) =>
+  //       `${user.fullname}`.toLowerCase().includes(searchValue.toLowerCase())
+  //     );
+  //     const convertedData = convertData({ users: filteredData });
+  //     setUserData(convertedData);
+  //   }
+  // }, [searchValue, rawUserData]);
   useEffect(() => {
-    // Lọc dữ liệu khi giá trị tìm kiếm thay đổi
     if (rawUserData) {
-      const filteredData = rawUserData.users.filter((user) =>
-        `${user.fullname}`.toLowerCase().includes(searchValue.toLowerCase())
+      const filteredData = rawUserData.users.filter(
+        (user) =>
+          user.fullname?.toLowerCase().includes(searchValue.toLowerCase()) ||
+          user.phone_number
+            ?.toString()
+            .toLowerCase()
+            .includes(searchValue.toLowerCase())
       );
       const convertedData = convertData({ users: filteredData });
       setUserData(convertedData);

@@ -35,7 +35,7 @@ export const orderAPI = createApi({
       query: (body) => {
         return {
           method: "POST",
-          url: `product`,
+          url: `orders/create`,
           body,
         };
       },

@@ -1,0 +1,100 @@
+.d-flex-center {
+  display: flex;
+  justify-content: space-between;
+}
+
+.d-flex-text-center {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.make-sell-page {
+  padding: 10px 20px;
+  margin-bottom: 40px;
+}
+
+.make-sell-page .header {
+  margin-bottom: 10px;
+}
+.make-sell-page .header .title {
+  font-family: "Playfair Display";
+  font-size: 45px;
+  font-weight: 700;
+  /* margin-bottom: 20px; */
+}
+.make-sell-page .body {
+  padding: 0 10px;
+}
+.make-sell-page .body .customer-space .title {
+  font-family: "Playfair Display";
+  font-size: 30px;
+  font-weight: 500;
+}
+
+.make-sell-page .body .customer-space .information-detail {
+  margin-top: 20px;
+  font-size: 50px;
+}
+
+.make-sell-page .body .customer-space .information-detail p {
+  font-family: "Inner";
+  font-size: 20px;
+}
+
+.make-sell-page .body .product-space {
+  margin-top: 20px;
+}
+.make-sell-page .body .product-space .title {
+  font-family: "Playfair Display";
+  font-size: 30px;
+  font-weight: 500;
+}
+.make-sell-page .body .product-space {
+  margin-top: 20px;
+}
+.make-sell-page .body .product-space .product-show {
+  margin-top: 20px;
+  /* background-color: antiquewhite; */
+}
+.make-sell-page .body .product-space .product-show .product-item {
+  padding: 20px;
+  margin: 0 30px;
+  border: 1px solid #a7a7a7;
+  background-color: #dedede;
+  display: flex;
+  gap: 100px;
+  border-radius: 10px;
+}
+
+.make-sell-page .body .product-space .product-show .image-product {
+  width: 180px;
+  border-radius: 10px;
+}
+.make-sell-page .body .product-space .product-show .info-item p {
+  font-size: 25px;
+}
+.make-sell-page .body .product-space .product-show .info-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.make-sell-page .body .product-space .product-show .info-item .btn-addtocart {
+  font-weight: bold;
+}
+.make-sell-page .body .product-space .cart-total {
+  background-color: #f1f1f1;
+  box-shadow: 1px 1px 0px 0px rgba(0, 0, 0, 0.3);
+  padding: 0 10px;
+  font-size: 20px;
+  font-weight: 400;
+}
+.make-sell-page .body .product-space .cart-total .voucher,
+.make-sell-page .body .product-space .cart-total .policy {
+  border-bottom: 1px solid black;
+  padding: 10px 0;
+}
+
+.make-sell-page .body .product-space .cart-total .money {
+  padding: 10px 0px;
+}

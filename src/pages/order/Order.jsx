@@ -1,14 +1,19 @@
 import "./Order.css";
 import CustomButton from "../../components/CustomButton/CustomButton";
 import { RiAddLine } from "@remixicon/react";
-import SearchInput from "../../components/SearchInput/SearchInput";
+import { AutoComplete, ConfigProvider } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 import OrderList from "./OrderComponent/OrderList";
 import { useGetOrdersQuery } from "../../services/orderAPI";
 import MakeOrderModal from "./OrderComponent/MakeOrderModel";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 export default function Order() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [orderData, seOrderData] = useState([]);
+  const [orderData, setOrderData] = useState([]);
+  const [searchValue, setSearchValue] = useState("");
+  const navigate = useNavigate();
   const {
     data: orders,
     isLoading,
@@ -31,9 +36,23 @@ export default function Order() {
 
   useEffect(() => {
     if (orders) {
-      seOrderData(convertData(orders));
+      setOrderData(convertData(orders));
     }
   }, [orders]);
+
+  useEffect(() => {
+    if (orders) {
+      const filteredOrders = convertData(orders).filter(
+        (order) =>
+          order.createBy.toLowerCase().includes(searchValue.toLowerCase()) ||
+          order.orderId
+            .toString()
+            .toLowerCase()
+            .includes(searchValue.toLowerCase())
+      );
+      setOrderData(filteredOrders);
+    }
+  }, [searchValue, orders]);
 
   console.log(orderData);
   const showModal = () => {
@@ -46,12 +65,16 @@ export default function Order() {
 
   const handleMakeSell = () => {
     setIsModalOpen(false);
-    console.log("Navigate to Make Sell page");
+    navigate("/order/make-sell");
   };
 
   const handleMakePurchase = () => {
     setIsModalOpen(false);
     console.log("Navigate to Make Purchase page");
+  };
+
+  const handleSearch = (value) => {
+    setSearchValue(value);
   };
 
   return (
@@ -62,7 +85,38 @@ export default function Order() {
         </div>
         <div className="action">
           <div className="action-left">
-            <SearchInput placeholder={"Search by order id"} />
+            <ConfigProvider
+              theme={{
+                token: {
+                  borderRadius: 20,
+                },
+              }}
+            >
+              <AutoComplete
+                style={{ width: 300 }}
+                value={searchValue}
+                onSearch={handleSearch}
+                placeholder={
+                  <i
+                    style={{
+                      color: "#2D3748",
+                      fontWeight: "500",
+                      fontSize: "12px",
+                    }}
+                  >
+                    <SearchOutlined
+                      style={{
+                        marginRight: "0.5rem",
+                        fontSize: "15px",
+                        fontWeight: "500",
+                      }}
+                    />{" "}
+                    Search by order id or create by...
+                  </i>
+                }
+                optionLabelProp="text"
+              />
+            </ConfigProvider>
           </div>
           <div className="action-right">
             <div>
