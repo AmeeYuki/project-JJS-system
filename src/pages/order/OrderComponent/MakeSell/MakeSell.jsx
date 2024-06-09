@@ -5,9 +5,12 @@ import CustomerSpace from "./CustomerSpace";
 import ProductSpace from "./ProductSpace";
 import { useAddOrderMutation } from "../../../../services/orderAPI";
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import { selectAuth } from "../../../../slices/auth.slice";
 
-export default function MakeSell() {
+export default function MakeSell({}) {
   const [addOrder, { isLoading }] = useAddOrderMutation();
+  const auth = useSelector(selectAuth);
 
   const [orderData, setOrderData] = useState({
     orderRequests: [
@@ -20,10 +23,10 @@ export default function MakeSell() {
     orderDTO: {
       date: new Date().toISOString(), // Lấy ngày hiện tại
       discount: 0,
-      created_by: "string",
-      type: "string",
+      created_by: auth.name,
+      type: "sell",
       customer_id: 0,
-      user_id: 0,
+      user_id: auth.id,
     },
   });
 
@@ -39,8 +42,9 @@ export default function MakeSell() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    console.log(orderData);
     try {
+      console.log("Submitting order data:", orderData); // Log dữ liệu trước khi gọi mutation
       const { data } = await addOrder(orderData); // Gọi mutation để thêm đơn hàng
       console.log("Added order:", data);
     } catch (error) {
@@ -49,15 +53,35 @@ export default function MakeSell() {
   };
   const handleCustomerInfoChange = (customerInfo) => {
     // Cập nhật thông tin khách hàng vào state orderData
+    console.log("Customer info changed:", customerInfo?.id); // Log dữ liệu khi thông tin khách hàng thay đổi
     setOrderData((prevData) => ({
       ...prevData,
       orderDTO: {
         ...prevData.orderDTO,
-        customer_id: customerInfo.customer_id,
+        customer_id: customerInfo?.id,
         // Cập nhật các trường thông tin khác nếu cần
       },
     }));
   };
+
+  const handleProductChange = (productData) => {
+    // Xử lý dữ liệu sản phẩm tại đây, ví dụ: cập nhật state, log, hoặc thực hiện các hành động khác
+    console.log("Product data changed:", productData);
+
+    // Tạo một mảng mới chứa order requests dựa trên productData
+    const newOrderRequests = productData.map((product) => ({
+      quantity: product.quantity,
+      product_id: product.id,
+      unit_price: product.totalPrice / product.quantity,
+    }));
+
+    // Cập nhật orderRequests trong orderData
+    setOrderData((prevData) => ({
+      ...prevData,
+      orderRequests: newOrderRequests,
+    }));
+  };
+
   return (
     <div className="make-sell-page">
       <div className="header">
@@ -68,12 +92,12 @@ export default function MakeSell() {
           <CustomerSpace onCustomerInfoChange={handleCustomerInfoChange} />
         </div>
         <div className="product-space">
-          <ProductSpace />
+          <ProductSpace onProductChange={handleProductChange} />
         </div>
         <div className="d-flex-center" style={{ marginTop: 20 }}>
           <div></div>
           <div>
-            <Button type="primary" size="large">
+            <Button type="primary" size="large" onClick={handleSubmit}>
               Make Order
             </Button>
           </div>

@@ -5,7 +5,7 @@ import { useLazyGetCustomerByPhoneQuery } from "../../../../services/customerAPI
 import { useSelector } from "react-redux";
 import { selectAuth } from "../../../../slices/auth.slice";
 
-export default function CustomerSpace() {
+export default function CustomerSpace({ onCustomerInfoChange }) {
   const [phone, setPhone] = useState("");
   const [customer, setCustomer] = useState(null);
   const auth = useSelector(selectAuth);
@@ -17,6 +17,7 @@ export default function CustomerSpace() {
       .then((result) => {
         if (result.data) {
           setCustomer(result.data);
+          onCustomerInfoChange(result.data); // Truyền thông tin khách hàng ra ngoài
           notification.success({
             message: "Success",
             description: "Customer found successfully!",

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Button, ConfigProvider, Table } from "antd";
+import { Button, ConfigProvider, Table, InputNumber } from "antd";
 import Search from "antd/es/input/Search";
-import { useLazyGetProductsQuery } from "../../../../services/productAPI";
-import CartInformation from "./CartInformation";
+import { RiCouponLine, RiUserStarLine } from "@remixicon/react";
 
-export default function ProductSpace() {
+import { useLazyGetProductsQuery } from "../../../../services/productAPI";
+
+export default function ProductSpace({ onProductChange }) {
   const [trigger, { data: productsData, isError, isLoading }] =
     useLazyGetProductsQuery();
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -12,6 +13,7 @@ export default function ProductSpace() {
   const [cartItems, setCartItems] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [discountPercent, setDiscountPercent] = useState(10); // Giảm giá mặc định là 10%
 
   const onSearch = (value) => {
     setSearchKeyword(value.trim());
@@ -67,6 +69,7 @@ export default function ProductSpace() {
     setCartItems(updatedCartItems);
     setTotalItems(totalItems + 1);
     setTotalPrice(totalPrice + calculatePrice(product));
+    sendProductData();
   };
 
   const removeFromCart = (product) => {
@@ -76,6 +79,7 @@ export default function ProductSpace() {
     setCartItems(updatedCartItems);
     setTotalItems(totalItems - product.quantity);
     setTotalPrice(totalPrice - productTotalPrice);
+    sendProductData();
   };
 
   const increaseQuantity = (product) => {
@@ -86,6 +90,7 @@ export default function ProductSpace() {
     setCartItems(updatedCartItems);
     setTotalItems(totalItems + 1);
     setTotalPrice(totalPrice + calculatePrice(product));
+    sendProductData();
   };
   const decreaseQuantity = (product) => {
     const updatedCartItems = cartItems
@@ -99,6 +104,99 @@ export default function ProductSpace() {
     setCartItems(updatedCartItems);
     setTotalItems(totalItems - 1);
     setTotalPrice(totalPrice - calculatePrice(product));
+    sendProductData();
+  };
+
+  const subtotal = cartItems.reduce((acc, item) => {
+    return acc + calculatePrice(item) * item.quantity;
+  }, 0);
+
+  const discount = (subtotal * discountPercent) / 100;
+
+  const totalBeforeDiscount = subtotal - discount;
+
+  const columns = [
+    {
+      title: "No.",
+      dataIndex: "no",
+      key: "no",
+      render: (_, __, index) => index + 1,
+    },
+    {
+      title: "Product",
+      dataIndex: "product_name",
+      key: "product_name",
+    },
+    {
+      title: "Type",
+      dataIndex: "type",
+      key: "type",
+      render: (text, record) => record.type.type,
+    },
+    {
+      title: "Price",
+      dataIndex: "price",
+      key: "price",
+      render: (text) => text.toLocaleString(),
+    },
+    {
+      title: "Quantity",
+      dataIndex: "quantity",
+      key: "quantity",
+      render: (_, record) => (
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <Button onClick={() => decreaseQuantity(record)}>-</Button>
+          <span style={{ margin: "0 10px" }}>{record.quantity}</span>
+          <Button onClick={() => increaseQuantity(record)}>+</Button>
+        </div>
+      ),
+    },
+    {
+      title: "Total",
+      dataIndex: "total",
+      key: "total",
+      render: (text) => text.toLocaleString(),
+    },
+    {
+      title: "Action",
+      dataIndex: "action",
+      key: "action",
+      render: (_, record) => (
+        <Button onClick={() => removeFromCart(record)}>Delete</Button>
+      ),
+    },
+  ];
+
+  const data = cartItems.map((item, index) => ({
+    key: index,
+    id: item.id,
+    product_name: item.product_name,
+    type: item.type,
+    price: calculatePrice(item),
+    quantity: item.quantity,
+    total: calculatePrice(item) * item.quantity,
+  }));
+
+  const calculateDiscount = (product) => {
+    const subtotalPerProduct = calculatePrice(product) * product.quantity;
+    const discountPerProduct = (subtotalPerProduct * discountPercent) / 100;
+    return discountPerProduct;
+  };
+  const sendProductData = () => {
+    const productData = cartItems.map((item) => ({
+      id: item.id,
+      quantity: item.quantity,
+      totalPrice: calculatePrice(item) * item.quantity,
+    }));
+
+    onProductChange(productData);
+  };
+  const sendDiscount = () => {
+    const discountData = {
+      percent: discountPercent,
+      value: discount,
+    };
+    onProductChange([], discountData);
   };
 
   return (
@@ -170,12 +268,64 @@ export default function ProductSpace() {
           )}
         </div>
       </div>
-      <CartInformation
-        cartItems={cartItems}
-        removeFromCart={removeFromCart}
-        increaseQuantity={increaseQuantity}
-        decreaseQuantity={decreaseQuantity}
-      />
+      <div className="product-cart">
+        <h1 className="title">Cart Information: </h1>
+        <ConfigProvider
+          theme={{
+            token: {
+              colorBgContainer: "#f1f1f1",
+            },
+          }}
+        >
+          <Table columns={columns} dataSource={data} pagination={false} />
+        </ConfigProvider>
+        <br />
+        <div className="cart-total">
+          <div className="voucher d-flex-center">
+            <div>
+              <p className="d-flex-text-center">
+                <RiCouponLine />
+                Voucher:
+                <Button type="primary" size="small">
+                  Add Voucher
+                </Button>
+              </p>
+            </div>
+            <p>200 VNĐ</p>
+          </div>
+          <div className="policy d-flex-center">
+            <div>
+              <p className="d-flex-text-center">
+                <RiUserStarLine />
+                Customer Policy:
+                <Button type="primary" size="small">
+                  Send Request
+                </Button>
+                <Button type="primary" size="small">
+                  Add policy
+                </Button>
+              </p>
+            </div>
+            <p>200 VNĐ</p>
+          </div>
+          <div className="money ">
+            <div className="d-flex-center">
+              <p>Provisional:</p>
+              <p>{subtotal.toLocaleString()} VNĐ</p>
+            </div>
+            <div className="d-flex-center">
+              <p>Discount ({discountPercent}%):</p>
+              <p>{discount.toLocaleString()} VNĐ</p>
+            </div>
+            <div className="d-flex-center">
+              <p style={{ fontSize: "25px", fontWeight: 500 }}>Total:</p>
+              <p style={{ color: "red", fontWeight: 500 }}>
+                {totalBeforeDiscount.toLocaleString()} VNĐ
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
