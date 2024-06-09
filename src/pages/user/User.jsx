@@ -182,7 +182,7 @@ export default function User() {
                       fontWeight: "500",
                     }}
                   />{" "}
-                  Search by name....
+                  Search by name or phone....
                 </i>
               }
               optionLabelProp="text"

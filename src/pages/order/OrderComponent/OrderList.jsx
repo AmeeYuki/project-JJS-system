@@ -24,19 +24,20 @@ export default function OrderList({ ordersData }) {
       render: (_, __, index) => index + 1,
     },
     {
-      title: "Order ID",
-      dataIndex: "orderId",
-      key: "orderId",
+      title: "Create by",
+      dataIndex: "createBy",
+      key: "createBy",
     },
     {
       title: "Customer",
       dataIndex: "customerName",
       key: "customerName",
     },
+
     {
-      title: "Create by",
-      dataIndex: "createBy",
-      key: "createBy",
+      title: "Order Code",
+      dataIndex: "orderId",
+      key: "orderId",
     },
     {
       title: "Date",
