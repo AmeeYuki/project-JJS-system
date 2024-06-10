@@ -55,15 +55,7 @@ export const router = createBrowserRouter([
           },
           {
             path: "/",
-            element: (
-              <AuthGuard
-                allowedRoles={[
-                  "ROLE_ADMIN",
-                  // "ROLE_TRAINER",
-                  // "ROLE_SUPER_ADMIN",
-                ]}
-              />
-            ),
+            element: <AuthGuard allowedRoles={["ROLE_ADMIN"]} />,
             children: [
               {
                 path: "dashboard",
@@ -72,15 +64,21 @@ export const router = createBrowserRouter([
             ],
           },
 
-          // {
-          //   path: "dashboard",
-          //   element: Dashboard,
-          // },
-
           {
-            path: "counter",
-            element: Counter,
+            path: "/",
+            element: <AuthGuard allowedRoles={["ROLE_ADMIN"]} />,
+            children: [
+              {
+                path: "counter",
+                element: Counter,
+              },
+            ],
           },
+
+          // {
+          //   path: "counter",
+          //   element: Counter,
+          // },
           {
             path: "customer",
             element: Customer,
@@ -154,6 +152,10 @@ export const router = createBrowserRouter([
     path: "login-first-time",
     element: LoginFirstTime,
   },
+  // {
+  //   path: "unauthorised",
+  //   element: Unauthorised,
+  // },
   {
     path: "*",
     element: <div>404 Page not found</div>,

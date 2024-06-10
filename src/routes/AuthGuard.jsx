@@ -15,7 +15,7 @@ const AuthGuard = ({ allowedRoles }) => {
     return <Navigate to="/login" replace />;
   }
   if (allowedRoles && !allowedRoles.some((role) => auth.roles.includes(role))) {
-    return <Navigate to="/403" replace />;
+    return <Navigate to="/unauthorised" replace />;
   }
 
   return <Outlet />;
