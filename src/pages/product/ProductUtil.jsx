@@ -30,10 +30,5 @@ export const formatCurrency = (value) => {
   if (value === undefined || value === null) {
     return "N/A";
   }
-  return (
-    value.toLocaleString("en-US", {
-      minimumFractionDigits: 3,
-      maximumFractionDigits: 3,
-    }) + " VND"
-  );
+  return value.toLocaleString("en-US", {}) + " VND";
 };

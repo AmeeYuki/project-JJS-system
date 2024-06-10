@@ -182,7 +182,7 @@ const UpdateProductModal = ({
               { pattern: /^[0-9]+$/, message: "Please input a valid price!" },
             ]}
           >
-            <Input placeholder="Input the price..." addonAfter=".000 VND" />
+            <Input placeholder="Input the price..." addonAfter=" VND" />
           </Form.Item>
 
           <Form.Item
@@ -196,10 +196,7 @@ const UpdateProductModal = ({
               { pattern: /^[0-9]+$/, message: "Please input a valid price!" },
             ]}
           >
-            <Input
-              placeholder="Input the stone price..."
-              addonAfter=".000 VND"
-            />
+            <Input placeholder="Input the stone price..." addonAfter=" VND" />
           </Form.Item>
 
           <Form.Item name="description" label="Description:">

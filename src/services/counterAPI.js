@@ -47,6 +47,25 @@ export const counterAPI = createApi({
     getCounterByName: builder.query({
       query: (name) => `counters/get_counter_by_name?name=${name}`,
     }),
+    inactiveCounter: builder.mutation({
+      query: (counterId) => ({
+        url: `users/block/${counterId}/0`,
+        method: "PUT",
+      }),
+      invalidatesTags: (result, error, counterId) => [
+        { type: "CounterList", id: counterId },
+      ],
+    }),
+
+    activeCounter: builder.mutation({
+      query: (counterId) => ({
+        url: `users/block/${counterId}/1`,
+        method: "PUT",
+      }),
+      invalidatesTags: (result, error, counterId) => [
+        { type: "CounterList", id: counterId },
+      ],
+    }),
   }),
 });
 
@@ -56,4 +75,6 @@ export const {
   useEditCounterMutation,
   useDeleteCounterMutation,
   useGetCounterByNameQuery,
+  useInactiveCounterMutation,
+  useActiveCounterMutation,
 } = counterAPI;

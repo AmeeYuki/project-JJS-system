@@ -23,7 +23,7 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
   const [fileList, setFileList] = useState([]);
   const { data: typesData, isLoading: typesLoading } = useGetTypesQuery();
   const { data: countersData, isLoading: countersLoading } =
-    useGetCountersQuery(); 
+    useGetCountersQuery();
 
   useEffect(() => {
     if (!visible) {
@@ -203,10 +203,7 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
               { validator: validateNonNegativeNumber },
             ]}
           >
-            <Input
-              placeholder="Input the stone price..."
-              addonAfter=".000 VND"
-            />
+            <Input placeholder="Input the stone price..." addonAfter=" VND" />
           </Form.Item>
           <Form.Item
             name="priceProcessing"
@@ -220,7 +217,7 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
               { validator: validateNonNegativeNumber },
             ]}
           >
-            <Input placeholder="Input the price..." addonAfter=".000 VND" />
+            <Input placeholder="Input the price..." addonAfter=" VND" />
           </Form.Item>
           <Form.Item
             name="weight"
