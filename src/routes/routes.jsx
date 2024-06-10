@@ -54,9 +54,28 @@ export const router = createBrowserRouter([
             element: Home,
           },
           {
-            path: "dashboard",
-            element: Dashboard,
+            path: "/",
+            element: (
+              <AuthGuard
+                allowedRoles={[
+                  "ROLE_ADMIN",
+                  // "ROLE_TRAINER",
+                  // "ROLE_SUPER_ADMIN",
+                ]}
+              />
+            ),
+            children: [
+              {
+                path: "dashboard",
+                element: Dashboard,
+              },
+            ],
           },
+
+          // {
+          //   path: "dashboard",
+          //   element: Dashboard,
+          // },
 
           {
             path: "counter",
@@ -100,22 +119,19 @@ export const router = createBrowserRouter([
           },
         ],
       },
-      // {
-      //   path: "login-first-time",
-      //   element: LoginFirstTime,
-      // },
     ],
   },
+
   {
     path: "/",
     element: <GuestGuard />,
 
     children: [
-      {
-        index: true,
-        // path: "",
-        element: Home,
-      },
+      // {
+      //   index: true,
+      //   // path: "",
+      //   element: Home,
+      // },
       {
         path: "login",
         element: Login,
