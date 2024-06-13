@@ -27,7 +27,7 @@ export default function Customer() {
   });
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const { data: customers, isLoading, refetch } = useGetAllCustomerQuery();
-  console.log(customers);
+  // console.log(customers);
   useEffect(() => {
     if (customers) {
       // Step 1: Convert the data
