@@ -47,18 +47,21 @@ export default function Counter() {
 
   useEffect(() => {
     if (counters) {
-      const filteredCounters = counters.filter(
+      const sortedCounters = [...counters].sort((a, b) => a.id - b.id);
+      const filteredCounters = sortedCounters.filter(
         (counter) =>
           counter.counterName &&
           counter.counterName.toLowerCase().includes(searchValue.toLowerCase())
       );
+
       const indexedCounters = filteredCounters.map((counter, index) => ({
         ...counter,
         index: index + 1,
       }));
+
       setCounterData(indexedCounters);
     }
-  }, [searchValue, counters]);
+  }, [counters, searchValue]);
 
   const handleSearch = (value) => {
     setSearchValue(value);
