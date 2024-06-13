@@ -97,7 +97,12 @@ export default function MakeSell({}) {
         <div className="d-flex-center" style={{ marginTop: 20 }}>
           <div></div>
           <div>
-            <Button type="primary" size="large" onClick={handleSubmit}>
+            <Button
+              type="primary"
+              size="large"
+              loading={isLoading}
+              onClick={handleSubmit}
+            >
               Make Order
             </Button>
           </div>

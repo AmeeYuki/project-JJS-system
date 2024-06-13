@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Space, Table, Tag, Dropdown, Menu, Popconfirm } from "antd";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import { useSelector } from "react-redux";
+import { selectAuth } from "../../../slices/auth.slice";
 
 export default function UserList({
   rawUserData,
@@ -11,6 +13,8 @@ export default function UserList({
   searchValue,
 }) {
   const [userData, setUserData] = useState([]);
+  const auth = useSelector(selectAuth);
+  const idAuth = auth.id;
 
   useEffect(() => {
     if (rawUserData) {
@@ -19,19 +23,9 @@ export default function UserList({
     }
   }, [rawUserData]);
 
-  // useEffect(() => {
-  //   // Lọc dữ liệu khi giá trị tìm kiếm thay đổi
-  //   if (rawUserData) {
-  //     const filteredData = rawUserData.users.filter((user) =>
-  //       `${user.fullname}`.toLowerCase().includes(searchValue.toLowerCase())
-  //     );
-  //     const convertedData = convertData({ users: filteredData });
-  //     setUserData(convertedData);
-  //   }
-  // }, [searchValue, rawUserData]);
   useEffect(() => {
     if (rawUserData) {
-      const filteredData = rawUserData.users.filter(
+      const filteredData = rawUserData?.users?.filter(
         (user) =>
           user.fullname?.toLowerCase().includes(searchValue.toLowerCase()) ||
           user.phone_number
@@ -45,7 +39,7 @@ export default function UserList({
   }, [searchValue, rawUserData]);
 
   function convertData(users) {
-    return users.users.map((el) => ({
+    return users?.users?.map((el) => ({
       id: el?.id,
       fullname: el?.fullname,
       active: el?.active,
@@ -104,11 +98,16 @@ export default function UserList({
     </Menu>
   );
 
+  const dataWithNo = userData?.map((item, index) => ({
+    ...item,
+    no: index + 1,
+  }));
+
   const columns = [
     {
       title: "No.",
-      dataIndex: "index",
-      key: "index",
+      dataIndex: "no",
+      key: "no",
     },
     {
       title: "Name",
@@ -126,10 +125,16 @@ export default function UserList({
       key: "phone",
     },
     {
-      title: "Counter",
+      title: <div style={{ textAlign: "center" }}>Counter</div>,
       dataIndex: "counterName",
       key: "counter",
-      render: (counter_id) => (counter_id ? counter_id : ""),
+      render: (counter_id) => (
+        <div style={{ textAlign: "center" }}>
+          <Tag color={counter_id ? "cyan" : "#333333"}>
+            {counter_id ? counter_id : "NaN"}
+          </Tag>
+        </div>
+      ),
     },
     {
       title: "Role",
@@ -148,18 +153,21 @@ export default function UserList({
     },
     {
       key: "action",
-      render: (_, record) => (
-        <Space size="middle">
-          <Dropdown overlay={actionsMenu(record)} trigger={["click"]}>
-            <a
-              className="ant-dropdown-link"
-              onClick={(e) => e.preventDefault()}
-            >
-              <MoreHorizIcon style={{ color: "#333333" }} />
-            </a>
-          </Dropdown>
-        </Space>
-      ),
+      render: (_, record) =>
+        record.id == idAuth ? (
+          ""
+        ) : (
+          <Space size="middle">
+            <Dropdown overlay={actionsMenu(record)} trigger={["click"]}>
+              <a
+                className="ant-dropdown-link"
+                onClick={(e) => e.preventDefault()}
+              >
+                <MoreHorizIcon style={{ color: "#333333" }} />
+              </a>
+            </Dropdown>
+          </Space>
+        ),
     },
   ];
 
@@ -167,7 +175,7 @@ export default function UserList({
     <>
       <Table
         columns={columns}
-        dataSource={userData}
+        dataSource={dataWithNo}
         rowKey="id"
         pagination={{ pageSize: 5 }}
       />

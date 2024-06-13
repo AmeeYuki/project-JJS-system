@@ -43,6 +43,7 @@ export default function User() {
 
   const handleCreateUser = async (values) => {
     // Kiểm tra số điện thoại có số đầu tiên là 0 không
+
     const phoneNumber = values.phone;
     if (phoneNumber.charAt(0) !== "0") {
       notification.error({

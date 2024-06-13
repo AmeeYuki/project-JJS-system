@@ -45,29 +45,31 @@ export default function OrderList({ ordersData }) {
       key: "date",
     },
     {
-      title: "Type",
+      title: <div style={{ textAlign: "center" }}>Type</div>,
       dataIndex: "type",
       key: "type",
       render: (type) => (
-        <Tag
-          color={
-            type === "sell"
-              ? "yellow"
+        <div style={{ textAlign: "center" }}>
+          <Tag
+            color={
+              type === "sell"
+                ? "yellow"
+                : type === "buy"
+                ? "green"
+                : type === "buy back"
+                ? "blue"
+                : "gray"
+            }
+          >
+            {type === "sell"
+              ? "SELL"
               : type === "buy"
-              ? "green"
+              ? "BUY"
               : type === "buy back"
-              ? "blue"
-              : "gray"
-          }
-        >
-          {type === "sell"
-            ? "SELL"
-            : type === "buy"
-            ? "BUY"
-            : type === "buy back"
-            ? "BUY BACK"
-            : "UNKNOWN"}
-        </Tag>
+              ? "BUY BACK"
+              : "UNKNOWN"}
+          </Tag>
+        </div>
       ),
     },
     // {
@@ -94,7 +96,11 @@ export default function OrderList({ ordersData }) {
 
   return (
     <div>
-      <Table dataSource={ordersData} columns={columns} />
+      <Table
+        dataSource={ordersData}
+        columns={columns}
+        pagination={{ pageSize: 5 }}
+      />
     </div>
   );
 }
