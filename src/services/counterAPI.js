@@ -49,7 +49,7 @@ export const counterAPI = createApi({
     }),
     inactiveCounter: builder.mutation({
       query: (counterId) => ({
-        url: `users/block/${counterId}/0`,
+        url: `counters/delete/${counterId}/0`,
         method: "PUT",
       }),
       invalidatesTags: (result, error, counterId) => [
@@ -59,7 +59,7 @@ export const counterAPI = createApi({
 
     activeCounter: builder.mutation({
       query: (counterId) => ({
-        url: `users/block/${counterId}/1`,
+        url: `counters/delete/${counterId}/1`,
         method: "PUT",
       }),
       invalidatesTags: (result, error, counterId) => [

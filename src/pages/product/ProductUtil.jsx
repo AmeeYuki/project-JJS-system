@@ -1,6 +1,6 @@
 export const convertProductData = (data) => {
   return data.map((item, index) => {
-    const counterName = item.counter_id?.counterName || "N/A";
+    const counterName = item.counter_id?.counterName || "No Counter";
     const counterLocation = item.counter_id?.location || "N/A";
     return {
       id: item.id,

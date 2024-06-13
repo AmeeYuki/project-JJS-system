@@ -203,7 +203,6 @@ const UpdateProductModal = ({
             <Input.TextArea placeholder="Input the description..." />
           </Form.Item>
 
-          {/* loi o day */}
           <Form.Item
             name="counterId"
             label="Counter"
@@ -220,11 +219,13 @@ const UpdateProductModal = ({
               disabled={countersLoading}
             >
               {countersData &&
-                countersData.map((counter) => (
-                  <Option key={counter.id} value={counter.id}>
-                    {counter.counterName}
-                  </Option>
-                ))}
+                countersData
+                  .filter((counter) => counter.status === true)
+                  .map((counter) => (
+                    <Option key={counter.id} value={counter.id}>
+                      {counter.counterName}
+                    </Option>
+                  ))}
             </Select>
           </Form.Item>
 
