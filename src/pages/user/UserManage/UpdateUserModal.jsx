@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Form, Input, Select, DatePicker } from "antd";
 import dayjs from "dayjs";
 import "./CreateUserModal.css";
@@ -10,6 +10,7 @@ const UpdateUserModal = ({ visible, onUpdate, onCancel, user, loading }) => {
   const [form] = Form.useForm();
   const { data: countersData, isLoading: countersLoading } =
     useGetCountersQuery();
+  const [showCounter, setShowCounter] = useState(true); // State để theo dõi trường Counter
 
   useEffect(() => {
     if (user && visible) {
@@ -25,25 +26,32 @@ const UpdateUserModal = ({ visible, onUpdate, onCancel, user, loading }) => {
     }
   }, [user, visible, form]);
 
+  useEffect(() => {
+    // Ẩn hiện trường Counter dựa trên giá trị của vai trò
+    setShowCounter(user?.role_id === 3);
+  }, [user]);
+
   const handleUpdate = (values) => {
     const updatedValues = {
       ...values,
-      // role_id: parseInt(values.role_id, 10),
-      // counter_id: parseInt(values.counter_id, 10),
       dob: values.dob ? values.dob.unix() : null,
     };
     onUpdate(updatedValues);
   };
 
+  const handleRoleChange = (value) => {
+    setShowCounter(value === 3); // Hiển thị trường Counter nếu role là Staff (giá trị 3)
+  };
+
   return (
     <div className="update-user-page">
       <Modal
-        open={visible}
+        visible={visible}
         title="Update User"
         okText="Update"
         cancelText="Cancel"
         onCancel={onCancel}
-        okButtonProps={{ loading }}
+        confirmLoading={loading}
         onOk={() => form.submit()}
       >
         <Form form={form} name="form_in_modal" onFinish={handleUpdate}>
@@ -130,35 +138,37 @@ const UpdateUserModal = ({ visible, onUpdate, onCancel, user, loading }) => {
               },
             ]}
           >
-            <Select placeholder="Select user type">
+            <Select placeholder="Select user type" onChange={handleRoleChange}>
               <Option value={1}>Admin</Option>
               <Option value={2}>Manager</Option>
               <Option value={3}>Staff</Option>
             </Select>
           </Form.Item>
-          <Form.Item
-            name="counter_id"
-            label="Counter:"
-            rules={[
-              {
-                required: true,
-                message: "Please select the counter!",
-              },
-            ]}
-          >
-            <Select
-              placeholder="Select counter..."
-              loading={countersLoading}
-              disabled={countersLoading}
+          {showCounter && ( // Hiển thị trường Counter nếu showCounter là true
+            <Form.Item
+              name="counter_id"
+              label="Counter:"
+              rules={[
+                {
+                  required: true,
+                  message: "Please select the counter!",
+                },
+              ]}
             >
-              {countersData &&
-                countersData.map((counter) => (
-                  <Option key={counter.id} value={counter.id}>
-                    {counter.counterName}
-                  </Option>
-                ))}
-            </Select>
-          </Form.Item>
+              <Select
+                placeholder="Select counter..."
+                loading={countersLoading}
+                disabled={countersLoading}
+              >
+                {countersData &&
+                  countersData.map((counter) => (
+                    <Option key={counter.id} value={counter.id}>
+                      {counter.counterName}
+                    </Option>
+                  ))}
+              </Select>
+            </Form.Item>
+          )}
         </Form>
       </Modal>
     </div>

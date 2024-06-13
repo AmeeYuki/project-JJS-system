@@ -21,6 +21,9 @@ const Customer = Loadable({
   loader: () => import("../pages/customer/Customer"),
 });
 const Order = Loadable({ loader: () => import("../pages/order/Order") });
+const MakeSell = Loadable({
+  loader: () => import("../pages/order/OrderComponent/MakeSell/MakeSell"),
+});
 const Product = Loadable({ loader: () => import("../pages/product/Product") });
 const Promotion = Loadable({
   loader: () => import("../pages/promotion/Promotion"),
@@ -72,8 +75,8 @@ export const router = createBrowserRouter([
             element: Order,
           },
           {
-            path: "order",
-            element: Order,
+            path: "order/make-sell",
+            element: MakeSell,
           },
           {
             path: "product",
