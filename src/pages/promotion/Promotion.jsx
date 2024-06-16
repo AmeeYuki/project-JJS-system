@@ -1,103 +1,105 @@
 import { useState, useEffect } from "react";
-import { Input, Button } from "antd";
-import axios from "axios";
+import { Input, Button, Spin, Alert } from "antd";
 import PromotionTable from "./PromotionTable";
 import PromotionForm from "./PromotionForm";
 import SearchIcon from "@mui/icons-material/Search";
 import "./Promotion.css";
+import {
+  useGetAllPromotionsQuery,
+  useAddPromotionMutation,
+  useUpdatePromotionMutation,
+  useDeletePromotionMutation,
+} from "../../services/promotionAPI";
 
 export default function Promotion() {
-  const [rows, setRows] = useState([]);
+  // Fetch promotions data
+  const {
+    data: promotions = [],
+    error,
+    isLoading,
+  } = useGetAllPromotionsQuery();
+
+  // Mutations for adding, updating, and deleting promotions
+  const [addPromotion] = useAddPromotionMutation();
+  const [updatePromotion] = useUpdatePromotionMutation();
+  const [deletePromotion] = useDeletePromotionMutation();
+
+  // State for search, filtering, and form visibility
   const [filteredRows, setFilteredRows] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [open, setOpen] = useState(false);
   const [openUpdate, setOpenUpdate] = useState(false);
   const [selectedPromotion, setSelectedPromotion] = useState(null);
 
+  // Effect to update filtered rows based on promotions data
   useEffect(() => {
-    axios
-      .get("https://664e3aa4fafad45dfadf753f.mockapi.io/promotion")
-      .then((response) => {
-        setRows(response.data);
-        setFilteredRows(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching data: ", error);
-      });
-  }, []);
+    setFilteredRows(promotions);
+  }, [promotions]);
 
+  // Effect to filter rows based on search term
   useEffect(() => {
     const lowercasedFilter = searchTerm.toLowerCase();
-    const filteredData = rows.filter((item) => {
+    const filteredData = promotions.filter((item) => {
       return (
-        item.code.toString().includes(lowercasedFilter) ||
-        item.discount.toString().toLowerCase().includes(lowercasedFilter)
+        item.code.toString().toLowerCase().includes(lowercasedFilter) ||
+        item.discount_percentage
+          .toString()
+          .toLowerCase()
+          .includes(lowercasedFilter)
       );
     });
     setFilteredRows(filteredData);
-  }, [searchTerm, rows]);
+  }, [searchTerm, promotions]);
 
-  const handleSearch = (event) => {
-    setSearchTerm(event.target.value);
-  };
+  // Event handlers
+  const handleSearch = (event) => setSearchTerm(event.target.value);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const handleCloseUpdate = () => setOpenUpdate(false);
 
-  const handleAddPromotion = (values) => {
-    axios
-      .post("https://664e3aa4fafad45dfadf753f.mockapi.io/promotion", values)
-      .then((response) => {
-        setRows([...rows, response.data]);
-        setFilteredRows([...rows, response.data]);
-        handleClose();
-      })
-      .catch((error) => {
-        console.error("Error adding promotion: ", error);
-      });
+  const handleAddPromotion = async (values) => {
+    try {
+      await addPromotion(values).unwrap();
+      handleClose();
+    } catch (error) {
+      console.error("Error adding promotion: ", error);
+    }
   };
 
   const handleUpdatePromotion = (promotionId) => {
-    const promotion = rows.find((row) => row.id === promotionId);
+    const promotion = promotions.find((promo) => promo.id === promotionId);
     setSelectedPromotion(promotion);
     setOpenUpdate(true);
   };
 
-  const handleSaveUpdate = (values) => {
-    axios
-      .put(
-        `https://664e3aa4fafad45dfadf753f.mockapi.io/promotion/${selectedPromotion.id}`,
-        values
-      )
-      .then((response) => {
-        const updatedRows = rows.map((row) =>
-          row.id === response.data.id ? response.data : row
-        );
-        setRows(updatedRows);
-        setFilteredRows(updatedRows);
-        handleCloseUpdate();
-      })
-      .catch((error) => {
-        console.error("Error updating promotion: ", error);
-      });
+  const handleSaveUpdate = async (values) => {
+    try {
+      await updatePromotion({ id: selectedPromotion.id, ...values }).unwrap();
+      handleCloseUpdate();
+    } catch (error) {
+      console.error("Error updating promotion: ", error);
+    }
   };
 
-  const handleDeletePromotion = (promotionId) => {
-    axios
-      .delete(
-        `https://664e3aa4fafad45dfadf753f.mockapi.io/promotion/${promotionId}`
-      )
-      .then(() => {
-        const updatedRows = rows.filter((row) => row.id !== promotionId);
-        setRows(updatedRows);
-        setFilteredRows(updatedRows);
-      })
-      .catch((error) => {
-        console.error("Error deleting promotion: ", error);
-      });
+  const handleDeletePromotion = async (promotionId) => {
+    try {
+      await deletePromotion(promotionId).unwrap();
+    } catch (error) {
+      console.error("Error deleting promotion: ", error);
+    }
   };
 
+  // Render loading or error states
+  if (isLoading) {
+    return <Spin size="large" />;
+  }
+
+  if (error) {
+    return <Alert message="Error loading promotions" type="error" />;
+  }
+
+  // Main render
   return (
     <div className="promotionWrapper">
       <div className="promotionTitle">

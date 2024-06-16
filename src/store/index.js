@@ -13,6 +13,7 @@ import orderReducer from "../slices/order.slice";
 import customerReducer from "../slices/customer.slice";
 import { userAPI } from "../services/userAPI";
 import authReducer from "../slices/auth.slice";
+import promotionReducer from "../slices/promotion.slice";
 //API
 import { authApi } from "../services/authAPI";
 import { productAPI } from "../services/productAPI";
@@ -20,6 +21,7 @@ import { counterAPI } from "../services/counterAPI";
 import { typeAPI } from "../services/typeAPI";
 import { orderAPI } from "../services/orderAPI";
 import { customerAPI } from "../services/customerAPI";
+import { promotionAPI } from "../services/promotionAPI";
 
 const persistConfig = {
   key: "root",
@@ -44,6 +46,7 @@ export const store = configureStore({
     [typeAPI.reducerPath]: typeAPI.reducer,
     [orderAPI.reducerPath]: orderAPI.reducer,
     [customerAPI.reducerPath]: customerAPI.reducer,
+    [promotionAPI.reducerPath]: promotionAPI.reducer,
 
     // flower: persistedReducer,
     auth: persistedAuthReducer,
@@ -53,6 +56,7 @@ export const store = configureStore({
     order: orderReducer,
     type: typeReducer,
     customer: customerReducer,
+    promotion: promotionReducer,
   },
   // middleware: (getDefaultMiddleware) =>
   //   getDefaultMiddleware().concat(flowerApi.middleware),
@@ -67,7 +71,8 @@ export const store = configureStore({
       productAPI.middleware,
       counterAPI.middleware,
       typeAPI.middleware,
-      customerAPI.middleware
+      customerAPI.middleware,
+      promotionAPI.middleware
     ), //user them API test
 });
 
