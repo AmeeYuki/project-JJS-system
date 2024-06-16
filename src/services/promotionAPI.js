@@ -11,6 +11,8 @@ export const promotionAPI = createApi({
       const token = selectToken(getState());
       if (token) {
         headers.append("Authorization", `Bearer ${token}`);
+      } else {
+        console.warn("No token found");
       }
       headers.append("Content-Type", "application/json");
       return headers;

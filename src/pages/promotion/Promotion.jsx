@@ -25,7 +25,7 @@ export default function Promotion() {
   const [deletePromotion] = useDeletePromotionMutation();
 
   // State for search, filtering, and form visibility
-  const [filteredRows, setFilteredRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState(promotions);
   const [searchTerm, setSearchTerm] = useState("");
   const [open, setOpen] = useState(false);
   const [openUpdate, setOpenUpdate] = useState(false);
