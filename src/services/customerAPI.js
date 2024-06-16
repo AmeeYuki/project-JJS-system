@@ -8,7 +8,7 @@ export const customerAPI = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: API_URL_BE,
     prepareHeaders: (headers, { getState }) => {
-      const token = selectToken(getState());
+      const token = selectToken(getState()); // Retrieve token from Redux state using selectToken selector
       if (token) {
         headers.append("Authorization", `Bearer ${token}`);
       }
@@ -19,48 +19,25 @@ export const customerAPI = createApi({
   endpoints: (builder) => ({
     getAllCustomer: builder.query({
       query: () => `customers/get_customers`,
-      providesTags: ["CustomerList"],
+      // `providesTags` determines which 'tag' is attached to the
+      // cached data returned by the query.
+      providesTags: (result) =>
+        result
+          ? result.map(({ id }) => ({ type: "UserList", id }))
+          : [{ type: "UserList", id: " LIST " }],
     }),
-
-    createCustomer: builder.mutation({
-      query: (newCustomer) => ({
-        url: `customers/create`,
-        method: "POST",
-        body: newCustomer,
-      }),
-      invalidatesTags: ["CustomerList"],
-    }),
-    updateCustomer: builder.mutation({
-      query: ({ id, ...rest }) => ({
-        url: `customers/update/${id}`,
-        method: "PUT",
-        body: rest,
-      }),
-      invalidatesTags: ["CustomerList"],
-    }),
-    deleteCustomer: builder.mutation({
-      query: (customerId) => ({
-        url: `customers/delete/${customerId}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: [{ type: "CustomerList" }],
-    }),
-
-    createPromotion: builder.mutation({
-      query: ({ customerId, promotionDetails }) => ({
-        url: `promotions/create_promotion/${customerId}`,
-        method: "POST",
-        body: { promotionDetails },
-      }),
-      invalidatesTags: ["CustomerList"],
+    getCustomerByPhone: builder.query({
+      query: (phone) => `customers/get_customer_by_phone?phone=${phone}`,
+      providesTags: (result) =>
+        result
+          ? [{ type: "CustomerList", id: result.id }]
+          : [{ type: "CustomerList", id: "LIST" }],
     }),
   }),
 });
 
 export const {
   useGetAllCustomerQuery,
-  useCreateCustomerMutation,
-  useUpdateCustomerMutation,
-  useDeleteCustomerMutation,
-  useCreatePromotionMutation,
+  useGetCustomerByPhoneQuery,
+  useLazyGetCustomerByPhoneQuery,
 } = customerAPI;

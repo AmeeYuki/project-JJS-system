@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from "react";
 import "./User.css";
-import { Input, message, notification } from "antd";
+import {
+  AutoComplete,
+  ConfigProvider,
+  Input,
+  message,
+  notification,
+} from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import ButtonCreate from "../../components/ButtonFilter/ButtonCreate";
 import {
   useActiveUserMutation,
-  useAddUserMutation,
   useCreateUserMutation,
   useDeleteUserMutation,
   useEditUserMutation,
@@ -18,11 +23,10 @@ import UpdateUserModal from "./UserManage/UpdateUserModal";
 import { CircularProgress } from "@mui/material";
 import CustomButton from "../../components/CustomButton/CustomButton";
 import { RiAddLine } from "@remixicon/react";
-import SearchInput from "../../components/SearchInput/SearchInput";
+import dayjs from "dayjs";
 
 export default function User() {
   const { data: users, isLoading, refetch } = useGetAllUserQuery();
-  const [userData, setUserData] = useState([]);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -37,40 +41,27 @@ export default function User() {
   const [inactiveUserMutation, { isLoading: isLoadingInactive }] =
     useInactiveUserMutation();
 
-  function convertData(users) {
-    const converted = users.users.map((el) => ({
-      id: el?.id,
-      fullname: el?.fullname,
-      active: el?.active,
-      counterName: el?.counter?.counterName,
-      counterId: el?.counter?.id,
-      dob: el?.date_of_birth,
-      email: el?.email,
-      phoneNumber: el?.phone_number,
-      roleId: el?.role.id,
-      roleName: el?.role.name,
-    }));
-    console.log("Converted data:", converted);
-    return converted;
-  }
-
-  useEffect(() => {
-    if (users) {
-      // Step 1: Convert the data
-      const convertedData = convertData(users);
-
-      // Step 2: Index the converted data
-      const indexedUsers = convertedData.map((user, index) => ({
-        ...user,
-        index: index + 1,
-      }));
-
-      // Set the user data
-      setUserData(indexedUsers);
-    }
-  }, [users]);
-
   const handleCreateUser = async (values) => {
+    // Kiểm tra số điện thoại có số đầu tiên là 0 không
+    const phoneNumber = values.phone;
+    if (phoneNumber.charAt(0) !== "0") {
+      notification.error({
+        message: "Phone number not valid",
+      });
+      return; // Kết thúc hàm nếu số điện thoại không bắt đầu bằng số 0
+    }
+    const dob = values.dob; // Lấy timestamp của ngày sinh
+    const eighteenYearsAgo = dayjs().subtract(18, "years").unix(); // Lấy timestamp của ngày 18 năm trước
+    console.log(dob);
+    console.log(eighteenYearsAgo);
+    // Kiểm tra nếu ngày sinh dưới 18 tuổi
+    if (dob > eighteenYearsAgo) {
+      notification.error({
+        message: "The user is under 18 years old.",
+      });
+      return; // Kết thúc hàm nếu người dùng chưa đủ 18 tuổi
+    }
+
     try {
       await createUser(values).unwrap();
       setIsCreateModalVisible(false);
@@ -87,37 +78,33 @@ export default function User() {
   };
 
   const handleUpdateUser = async (values) => {
+    console.log(values);
     try {
-      if (values.dob) {
-        values.dob = Math.floor(values.dob.valueOf() / 1000); // Convert dayjs date to Unix timestamp in seconds
-      }
-      const result = await editUserMutation({
-        ...values,
-        id: selectedUser.id,
-        date_of_birth: values.dob,
-      }).unwrap();
-      setIsUpdateModalVisible(false);
+      await editUserMutation(values).unwrap();
+      setIsCreateModalVisible(false);
       notification.success({
         message: "Update user successfully",
       });
+      setIsUpdateModalVisible(false);
       refetch(); // Refetch the user data
     } catch (error) {
-      console.error("Error updating user: ", error);
+      console.error("Error creating user: ", error);
       notification.error({
-        message: "Failed to update user",
+        message: "Update user unsuccessfully",
       });
     }
   };
 
   const handleDeleteUser = async (userId) => {
-    try {
-      const result = await deleteUserMutation(userId).unwrap();
+    const result = await deleteUserMutation(userId);
+    console.log(result);
+
+    if (result.error.originalStatus == 200) {
       refetch();
       notification.success({
         message: "Delete user successfully",
       });
-    } catch (error) {
-      console.error(error);
+    } else {
       notification.error({
         message: "Delete user unsuccessfully",
       });
@@ -126,7 +113,6 @@ export default function User() {
 
   const handleActiveUser = async (userId) => {
     const result = await activeUserMutation(userId);
-
     if (result.error.originalStatus == 200) {
       refetch();
       notification.success({
@@ -158,6 +144,11 @@ export default function User() {
     setIsUpdateModalVisible(true);
   };
 
+  const handleSearch = (value) => {
+    setSearchValue(value);
+    console.log(value);
+  };
+
   return (
     <div className="user-manage-page">
       <div className="header">
@@ -165,12 +156,38 @@ export default function User() {
       </div>
       <div className="action">
         <div className="action-left">
-          <SearchInput
-            placeholder="Search by name or phone number"
-            value={searchValue}
-            // onChange={onChangeSearch}
-            // onPressEnter={() => handleSearch(searchValue)}
-          />
+          <ConfigProvider
+            theme={{
+              token: {
+                borderRadius: 20,
+              },
+            }}
+          >
+            <AutoComplete
+              style={{ width: 300 }}
+              value={searchValue}
+              onSearch={handleSearch}
+              placeholder={
+                <i
+                  style={{
+                    color: "#2D3748",
+                    fontWeight: "500",
+                    fontSize: "12px",
+                  }}
+                >
+                  <SearchOutlined
+                    style={{
+                      marginRight: "0.5rem",
+                      fontSize: "15px",
+                      fontWeight: "500",
+                    }}
+                  />{" "}
+                  Search by name or phone....
+                </i>
+              }
+              optionLabelProp="text"
+            />
+          </ConfigProvider>
         </div>
         <div className="action-right">
           <div>
@@ -209,11 +226,12 @@ export default function User() {
           </div>
         ) : (
           <UserList
-            userData={userData} // Truyền userData đã lọc qua tìm kiếm vào UserList
+            rawUserData={users}
             onEditUser={handleEditUser}
             handleDeleteUser={handleDeleteUser}
             handleActiveUser={handleActiveUser}
             handleInactiveUser={handleInactiveUser}
+            searchValue={searchValue}
           />
         )}
       </div>

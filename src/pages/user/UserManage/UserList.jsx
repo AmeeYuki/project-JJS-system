@@ -1,14 +1,65 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Space, Table, Tag, Dropdown, Menu, Popconfirm } from "antd";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 
 export default function UserList({
-  userData,
+  rawUserData,
   onEditUser,
   handleDeleteUser,
-  handleActiveUser, // Thêm prop để xử lý active user
-  handleInactiveUser, // Thêm prop để xử lý inactive user
+  handleActiveUser,
+  handleInactiveUser,
+  searchValue,
 }) {
+  const [userData, setUserData] = useState([]);
+
+  useEffect(() => {
+    if (rawUserData) {
+      const convertedData = convertData(rawUserData);
+      setUserData(convertedData);
+    }
+  }, [rawUserData]);
+
+  // useEffect(() => {
+  //   // Lọc dữ liệu khi giá trị tìm kiếm thay đổi
+  //   if (rawUserData) {
+  //     const filteredData = rawUserData.users.filter((user) =>
+  //       `${user.fullname}`.toLowerCase().includes(searchValue.toLowerCase())
+  //     );
+  //     const convertedData = convertData({ users: filteredData });
+  //     setUserData(convertedData);
+  //   }
+  // }, [searchValue, rawUserData]);
+  useEffect(() => {
+    if (rawUserData) {
+      const filteredData = rawUserData.users.filter(
+        (user) =>
+          user.fullname?.toLowerCase().includes(searchValue.toLowerCase()) ||
+          user.phone_number
+            ?.toString()
+            .toLowerCase()
+            .includes(searchValue.toLowerCase())
+      );
+      const convertedData = convertData({ users: filteredData });
+      setUserData(convertedData);
+    }
+  }, [searchValue, rawUserData]);
+
+  function convertData(users) {
+    return users.users.map((el) => ({
+      id: el?.id,
+      fullname: el?.fullname,
+      active: el?.active,
+      counterName: el?.counter?.counterName,
+      counterId: el?.counter?.id,
+      dob: el?.date_of_birth,
+      email: el?.email,
+      phoneNumber: el?.phone_number,
+      roleId: el?.role.id,
+      roleName: el?.role.name,
+      // Kết hợp fullname và phoneNumber thành một chuỗi duy nhất
+    }));
+  }
+
   const actionsMenu = (record) => (
     <Menu>
       <Menu.Item
@@ -19,7 +70,6 @@ export default function UserList({
         <span>Edit User</span>
       </Menu.Item>
 
-      {/* Thêm menu item cho active user */}
       {record.active ? (
         <Menu.Item
           key="deactivate"
@@ -112,13 +162,14 @@ export default function UserList({
       ),
     },
   ];
+
   return (
     <>
       <Table
         columns={columns}
         dataSource={userData}
         rowKey="id"
-        scroll={{ y: "330px" }}
+        pagination={{ pageSize: 5 }}
       />
     </>
   );

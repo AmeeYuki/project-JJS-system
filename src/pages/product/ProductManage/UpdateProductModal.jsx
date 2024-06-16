@@ -3,6 +3,7 @@ import { Modal, Form, Input, Select, InputNumber, Upload, Button } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { useGetTypesQuery } from "../../../services/typeAPI";
 import { useGetCountersQuery } from "../../../services/counterAPI";
+import { update } from "firebase/database";
 
 const { Option } = Select;
 
@@ -56,10 +57,11 @@ const UpdateProductModal = ({
             fileList.length > 0 && fileList[0].status === "done"
               ? fileList[0].url
               : product.image,
-          type_id: values.typeName,
-          counter_id: values.counterName,
+          type_id: values.typeId,
+          counter_id: values.counterId,
           id: product.id,
         };
+        // console.log(updatedProduct);
         onUpdate(updatedProduct);
       })
       .catch((errorInfo) => {
@@ -104,7 +106,7 @@ const UpdateProductModal = ({
           </Form.Item>
 
           <Form.Item
-            name="typeName"
+            name="typeId"
             label="Type:"
             rules={[
               {
@@ -180,7 +182,7 @@ const UpdateProductModal = ({
               { pattern: /^[0-9]+$/, message: "Please input a valid price!" },
             ]}
           >
-            <Input placeholder="Input the price..." addonAfter=".000 VND" />
+            <Input placeholder="Input the price..." addonAfter=" VND" />
           </Form.Item>
 
           <Form.Item
@@ -194,19 +196,15 @@ const UpdateProductModal = ({
               { pattern: /^[0-9]+$/, message: "Please input a valid price!" },
             ]}
           >
-            <Input
-              placeholder="Input the stone price..."
-              addonAfter=".000 VND"
-            />
+            <Input placeholder="Input the stone price..." addonAfter=" VND" />
           </Form.Item>
 
           <Form.Item name="description" label="Description:">
             <Input.TextArea placeholder="Input the description..." />
           </Form.Item>
 
-          {/* loi o day */}
           <Form.Item
-            name="counterName"
+            name="counterId"
             label="Counter"
             rules={[
               {
@@ -221,11 +219,13 @@ const UpdateProductModal = ({
               disabled={countersLoading}
             >
               {countersData &&
-                countersData.map((counter) => (
-                  <Option key={counter.id} value={counter.id}>
-                    {counter.counterName}
-                  </Option>
-                ))}
+                countersData
+                  .filter((counter) => counter.status === true)
+                  .map((counter) => (
+                    <Option key={counter.id} value={counter.id}>
+                      {counter.counterName}
+                    </Option>
+                  ))}
             </Select>
           </Form.Item>
 

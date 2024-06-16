@@ -65,19 +65,18 @@ export const productAPI = createApi({
     editProduct: builder.mutation({
       query: ({ id, ...patch }) => {
         const product = {
-          product_name: patch.productName,
+          product_name: patch.product_name,
           barcode: patch.barcode,
           quantity: patch.quantity,
-          price_processing: patch.priceProcessing,
-          price_stone: patch.priceStone,
+          price_processing: patch.price_processing,
+          price_stone: patch.price_stone,
           weight: patch.weight,
-          weight_unit: patch.weightUnit,
+          weight_unit: patch.weight_unit,
           description: patch.description,
           image_url: patch.image_url,
-          type_id: patch.typeName,
-          counter_id: patch.counterName,
+          type_id: patch.type_id,
+          counter_id: patch.counter_id,
         };
-
         return {
           url: `products/update/${id}`,
           method: "PUT",
@@ -112,6 +111,7 @@ export const productAPI = createApi({
 
 export const {
   useGetProductsQuery,
+  useLazyGetProductsQuery,
   useAddProductMutation,
   useEditProductMutation,
   useDeleteProductMutation,

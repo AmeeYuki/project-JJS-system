@@ -39,12 +39,13 @@ export default function Category() {
 
   useEffect(() => {
     if (categories) {
-      let filteredCategories = categories;
+      let filteredCategories = [...categories];
       if (searchValue) {
         filteredCategories = categories.filter((category) =>
           category.type?.toLowerCase().includes(searchValue.toLowerCase())
         );
       }
+      filteredCategories.sort((a, b) => a.id - b.id);
       const indexedCategories = filteredCategories.map((category, index) => ({
         ...category,
         index: index + 1,

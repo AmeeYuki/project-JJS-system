@@ -100,9 +100,10 @@ export default function ProductListCounter({
       columns={columns}
       dataSource={convertedProductData}
       rowKey="id"
-      scroll={{
-        y: 330,
-      }}
+      // scroll={{
+      //   y: 330,
+      // }}
+      pagination={{pageSize: 4}}
     />
   );
 }
