@@ -3,6 +3,9 @@ import { Button, ConfigProvider, Table } from "antd";
 import Search from "antd/es/input/Search";
 import { RiCouponLine, RiUserStarLine } from "@remixicon/react";
 import { useGetProductsQuery } from "../../../../services/productAPI";
+import PromotionModal from "./PromotionModal";
+import VoucherModal from "./VoucherModal";
+import SendRequestModal from "./SendRequestModal";
 
 export default function ProductSpace({ onProductChange }) {
   const { data: productsData, isError, isLoading } = useGetProductsQuery();
@@ -10,7 +13,11 @@ export default function ProductSpace({ onProductChange }) {
   const [cartItems, setCartItems] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
-  const [discountPercent, setDiscountPercent] = useState(10); // Default discount is 10%
+  const [discountPercent, setDiscountPercent] = useState(10);
+  const [isPromotionModalVisible, setPromotionModalVisible] = useState(false);
+  const [isVoucherModalVisible, setVoucherModalVisible] = useState(false);
+  const [isSendRequestModalVisible, setSendRequestModalVisible] =
+    useState(false);
 
   useEffect(() => {
     if (isError) {
@@ -19,15 +26,11 @@ export default function ProductSpace({ onProductChange }) {
   }, [isError]);
 
   const calculatePrice = (product) => {
-    if (!product) return 0;
-
-    const stonePrice = product.price_stone || 0;
-    const processingPrice = product.price_processing || 0;
-    const typeSellPrice = product.type?.sell_price_per_gram || 0;
-    const weight = product.weight || 0;
-
+    const stonePrice = product.price_stone;
+    const processingPrice = product.price_processing;
+    const typeSellPrice = product.type?.sell_price_per_gram;
+    const weight = product.weight;
     const totalPrice = stonePrice + processingPrice + typeSellPrice * weight;
-
     return totalPrice;
   };
 
@@ -46,7 +49,7 @@ export default function ProductSpace({ onProductChange }) {
     setCartItems(updatedCartItems);
     setTotalItems(totalItems + 1);
     setTotalPrice(totalPrice + calculatePrice(product));
-    sendProductData();
+    sendProductData(updatedCartItems);
   };
 
   const removeFromCart = (product) => {
@@ -56,7 +59,7 @@ export default function ProductSpace({ onProductChange }) {
     setCartItems(updatedCartItems);
     setTotalItems(totalItems - product.quantity);
     setTotalPrice(totalPrice - productTotalPrice);
-    sendProductData();
+    sendProductData(updatedCartItems);
   };
 
   const increaseQuantity = (product) => {
@@ -67,7 +70,7 @@ export default function ProductSpace({ onProductChange }) {
     setCartItems(updatedCartItems);
     setTotalItems(totalItems + 1);
     setTotalPrice(totalPrice + calculatePrice(product));
-    sendProductData();
+    sendProductData(updatedCartItems);
   };
 
   const decreaseQuantity = (product) => {
@@ -82,11 +85,11 @@ export default function ProductSpace({ onProductChange }) {
     setCartItems(updatedCartItems);
     setTotalItems(totalItems - 1);
     setTotalPrice(totalPrice - calculatePrice(product));
-    sendProductData();
+    sendProductData(updatedCartItems);
   };
 
   const subtotal = cartItems.reduce((acc, item) => {
-    return acc + calculatePrice(item) * item.quantity;
+    return acc + item.price * item.quantity;
   }, 0);
 
   const discount = (subtotal * discountPercent) / 100;
@@ -104,6 +107,16 @@ export default function ProductSpace({ onProductChange }) {
       title: "Product Name",
       dataIndex: "product_name",
       key: "product_name",
+      render: (_, record) => (
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <img
+            src={record.product_image}
+            alt={record.product_name}
+            style={{ width: "50px", height: "50px", marginRight: "10px" }}
+          />
+          <span>{record.product_name}</span>
+        </div>
+      ),
     },
     {
       title: "Barcode",
@@ -120,7 +133,7 @@ export default function ProductSpace({ onProductChange }) {
       title: "Price",
       dataIndex: "price",
       key: "price",
-      render: (text, record) => calculatePrice(record).toLocaleString(),
+      render: (price) => new Intl.NumberFormat("vi-VN").format(price) + " VNĐ",
     },
     {
       title: "Action",
@@ -143,6 +156,16 @@ export default function ProductSpace({ onProductChange }) {
       title: "Product",
       dataIndex: "product_name",
       key: "product_name",
+      render: (_, record) => (
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <img
+            src={record.product_image}
+            alt={record.product_name}
+            style={{ width: "50px", height: "50px", marginRight: "10px" }}
+          />
+          <span>{record.product_name}</span>
+        </div>
+      ),
     },
     {
       title: "Barcode",
@@ -159,7 +182,7 @@ export default function ProductSpace({ onProductChange }) {
       title: "Price",
       dataIndex: "price",
       key: "price",
-      render: (text) => text.toLocaleString(),
+      render: (price) => new Intl.NumberFormat("vi-VN").format(price) + " VNĐ",
     },
     {
       title: "Quantity",
@@ -193,14 +216,13 @@ export default function ProductSpace({ onProductChange }) {
     key: index,
     id: item.id,
     product_name: item.product_name,
+    product_image: item.product_image,
     barcode: item.barcode,
-
     type: item.type,
-    price: calculatePrice(item),
+    price: item.price,
     quantity: item.quantity,
-    total: calculatePrice(item) * item.quantity,
+    total: item.price * item.quantity,
   }));
-
   const filteredProducts =
     productsData?.products.filter((item) =>
       item.barcode.toLowerCase().includes(searchTerm.toLowerCase())
@@ -209,17 +231,19 @@ export default function ProductSpace({ onProductChange }) {
   const productData = filteredProducts.map((item, index) => ({
     key: index,
     id: item.id,
+    product_image: item.image_url,
     product_name: item.product_name,
     barcode: item.barcode,
     type: item.type,
     price: calculatePrice(item),
   }));
+  console.log(filteredProducts);
 
-  const sendProductData = () => {
-    const productData = cartItems.map((item) => ({
+  const sendProductData = (updatedCartItems = cartItems) => {
+    const productData = updatedCartItems.map((item) => ({
       id: item.id,
       quantity: item.quantity,
-      totalPrice: calculatePrice(item) * item.quantity,
+      totalPrice: item.price * item.quantity,
     }));
 
     onProductChange(productData);
@@ -296,7 +320,11 @@ export default function ProductSpace({ onProductChange }) {
               <p className="d-flex-text-center">
                 <RiCouponLine />
                 Voucher:
-                <Button type="primary" size="small">
+                <Button
+                  type="primary"
+                  size="small"
+                  onClick={() => setVoucherModalVisible(true)}
+                >
                   Add Voucher
                 </Button>
               </p>
@@ -308,10 +336,18 @@ export default function ProductSpace({ onProductChange }) {
               <p className="d-flex-text-center">
                 <RiUserStarLine />
                 Customer Policy:
-                <Button type="primary" size="small">
+                <Button
+                  type="primary"
+                  size="small"
+                  onClick={() => setSendRequestModalVisible(true)}
+                >
                   Send Request
                 </Button>
-                <Button type="primary" size="small">
+                <Button
+                  type="primary"
+                  size="small"
+                  onClick={() => setPromotionModalVisible(true)}
+                >
                   Add policy
                 </Button>
               </p>
@@ -336,6 +372,18 @@ export default function ProductSpace({ onProductChange }) {
           </div>
         </div>
       </div>
+      <PromotionModal
+        isVisible={isPromotionModalVisible}
+        onClose={() => setPromotionModalVisible(false)}
+      />
+      <VoucherModal
+        isVisible={isVoucherModalVisible}
+        onClose={() => setVoucherModalVisible(false)}
+      />
+      <SendRequestModal
+        isVisible={isSendRequestModalVisible}
+        onClose={() => setSendRequestModalVisible(false)}
+      />
     </div>
   );
 }

@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function MakeSell({}) {
   const [addOrder, { isLoading }] = useAddOrderMutation();
+  const [customerData, setCustomerData] = useState(false);
   // const [loading, isLoading] = useState(false);
   const auth = useSelector(selectAuth);
   const navigate = useNavigate();
@@ -44,44 +45,33 @@ export default function MakeSell({}) {
     }));
   };
 
-  // const handleSubmit = async (e) => {
-  //   try {
-  //     console.log("Submitting order data:", orderData); // Log dữ liệu trước khi gọi mutation
-  //     const response = await addOrder(orderData); // Gọi mutation để thêm đơn hàng
-  //     console.log("Added order:", data);
-  //     notification.success({
-  //       message: "Maker Order Successfully",
-  //     });
-  //     notification;
-  //     navigate("/order");
-  //   } catch (error) {
-  //     console.error("Error adding order:", error);
-  //     notification.error({
-  //       message: "Maker Order Successfully",
-  //     });
-  //   }
-  // };
-
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission behavior
-    try {
-      const response = await addOrder(orderData); // Call the mutation to add the order and unwrap the response
-      console.log(response);
-      if (response) {
-        notification.success({
-          message: "Order made successfully",
-        });
-        navigate("/order");
-      } else {
-        throw new Error(`Unexpected status code: ${response.status}`);
-      }
-    } catch (error) {
-      console.error("Error adding order:", error);
+    console.log(orderData);
+
+    if (orderData.orderRequests.length <= 0) {
       notification.error({
-        message: "Error making order",
-        description: error.message,
+        message: "Not product in cart",
       });
+      return;
     }
+    // try {
+    //   const response = await addOrder(orderData); // Call the mutation to add the order and unwrap the response
+    //   console.log(response);
+    //   if (response) {
+    //     notification.success({
+    //       message: "Order made successfully",
+    //     });
+    //     // navigate("/order");
+    //   } else {
+    //     throw new Error(`Unexpected status code: ${response.status}`);
+    //   }
+    // } catch (error) {
+    //   console.error("Error adding order:", error);
+    //   notification.error({
+    //     message: "Error making order",
+    //     description: error.message,
+    //   });
+    // }
   };
 
   const handleCustomerInfoChange = (customerInfo) => {
@@ -99,20 +89,30 @@ export default function MakeSell({}) {
 
   const handleProductChange = (productData) => {
     // Xử lý dữ liệu sản phẩm tại đây, ví dụ: cập nhật state, log, hoặc thực hiện các hành động khác
-    console.log("Product data changed:", productData);
+    // console.log("Product data changed:", productData);
 
     // Tạo một mảng mới chứa order requests dựa trên productData
     const newOrderRequests = productData.map((product) => ({
       quantity: product.quantity,
       product_id: product.id,
-      unit_price: product.totalPrice / product.quantity,
+      unit_price: product.totalPrice,
     }));
+
+    console.log("newOrderRequests:", newOrderRequests);
 
     // Cập nhật orderRequests trong orderData
     setOrderData((prevData) => ({
       ...prevData,
       orderRequests: newOrderRequests,
     }));
+  };
+
+  const handleGetCustomerInfo = () => {
+    setCustomerData(true);
+  };
+
+  const handleBackOrder = () => {
+    navigate("/order");
   };
 
   return (
@@ -122,24 +122,45 @@ export default function MakeSell({}) {
       </div>
       <div className="body">
         <div className="customer-space">
-          <CustomerSpace onCustomerInfoChange={handleCustomerInfoChange} />
+          <CustomerSpace
+            onCustomerInfoChange={handleCustomerInfoChange}
+            handleGetCustomerInfo={handleGetCustomerInfo}
+          />
         </div>
-        <div className="product-space">
-          <ProductSpace onProductChange={handleProductChange} />
-        </div>
-        <div className="d-flex-center" style={{ marginTop: 20 }}>
-          <div></div>
-          <div>
-            <Button
-              type="primary"
-              size="large"
-              onClick={handleSubmit}
-              loading={isLoading}
-            >
-              Make Order
-            </Button>
+        {customerData == true ? (
+          <div className="product-space">
+            <ProductSpace onProductChange={handleProductChange} />
           </div>
-        </div>
+        ) : null}
+
+        {customerData == true ? (
+          <div className="d-flex-center" style={{ marginTop: 20 }}>
+            <div>
+              <Button type="primary" size="large" onClick={handleBackOrder}>
+                Back
+              </Button>
+            </div>
+            <div>
+              <Button
+                type="primary"
+                size="large"
+                onClick={handleSubmit}
+                loading={isLoading}
+              >
+                Make Order
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="d-flex-center" style={{ marginTop: 20 }}>
+            <div>
+              <Button type="primary" size="large" onClick={handleBackOrder}>
+                Back
+              </Button>
+            </div>
+            <div></div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 .d-flex-center {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .d-flex-text-center {

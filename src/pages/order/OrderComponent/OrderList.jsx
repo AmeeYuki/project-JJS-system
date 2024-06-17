@@ -14,7 +14,6 @@ export default function OrderList({ ordersData }) {
       </Menu.Item>
     </Menu>
   );
-  console.log(ordersData);
 
   const columns = [
     {

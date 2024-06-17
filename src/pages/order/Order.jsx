@@ -19,7 +19,6 @@ export default function Order() {
     isLoading,
     refetch: refetchOrderData,
   } = useGetOrdersQuery();
-  console.log(orders);
 
   function convertData(orders) {
     return orders.orders.map((el) => {
@@ -54,7 +53,6 @@ export default function Order() {
     }
   }, [searchValue, orders]);
 
-  console.log(orderData);
   const showModal = () => {
     setIsModalOpen(true);
   };
