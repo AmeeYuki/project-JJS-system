@@ -1,4 +1,4 @@
-import { Table, Space } from "antd";
+import { Table, Space, Tag } from "antd";
 import PropTypes from "prop-types";
 import ActionsMenu from "./ActionsMenu";
 
@@ -11,21 +11,9 @@ const PromotionTable = ({
     { title: "No.", dataIndex: "id", key: "id", width: 60 },
     { title: "Promotion Code", dataIndex: "code", key: "code", width: 150 },
     {
-      title: "Description",
-      dataIndex: "description",
-      key: "description",
-      width: 200,
-    },
-    {
       title: "Discount Percentage",
       dataIndex: "discount_percentage",
       key: "discount_percentage",
-      width: 150,
-    },
-    {
-      title: "Fixed Discount Amount",
-      dataIndex: "fixed_discount_amount",
-      key: "fixed_discount_amount",
       width: 150,
     },
     {
@@ -36,11 +24,15 @@ const PromotionTable = ({
     },
     { title: "End Date", dataIndex: "end_date", key: "end_date", width: 150 },
     {
-      title: "Is Used",
+      title: "Status",
       dataIndex: "is_used",
       key: "is_used",
       width: 100,
-      render: (is_used) => (is_used ? "Yes" : "No"),
+      render: (is_used) => (
+        <Tag color={is_used ? "green" : "red"}>
+          {is_used ? "Active" : "Inactive"}
+        </Tag>
+      ),
     },
     {
       title: "Actions",

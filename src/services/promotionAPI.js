@@ -15,42 +15,38 @@ export const promotionAPI = createApi({
         console.warn("No token found");
       }
       headers.append("Content-Type", "application/json");
+      console.log("Headers", headers);
       return headers;
     },
   }),
+
   endpoints: (builder) => ({
     getAllPromotions: builder.query({
-      query: () => `/promotions/get_all_promotions`,
-      providesTags: (result) =>
-        result
-          ? result.map(({ id }) => ({ type: "PromotionList", id }))
-          : [{ type: "PromotionList", id: "LIST" }],
+      query: () => `promotions/get_all_promotions`,
+      providesTags: ["PromotionList"],
     }),
-
     addPromotion: builder.mutation({
       query: (newPromotion) => ({
-        url: `/promotions/create`,
+        url: `promotions/create`,
         method: "POST",
         body: newPromotion,
       }),
-      invalidatesTags: [{ type: "PromotionList", id: "LIST" }],
+      invalidatesTags: ["PromotionList"],
     }),
     updatePromotion: builder.mutation({
       query: ({ id, ...updatedPromotion }) => ({
-        url: `/promotions/use/${id}`,
+        url: `promotions/use/${id}`,
         method: "PUT",
         body: updatedPromotion,
       }),
-      invalidatesTags: (result, error, { id }) => [
-        { type: "PromotionList", id },
-      ],
+      invalidatesTags: ["PromotionList"],
     }),
     deletePromotion: builder.mutation({
       query: (id) => ({
-        url: `/promotions/delete/${id}`,
+        url: `promotions/delete/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: (result, error, id) => [{ type: "PromotionList", id }],
+      invalidatesTags: ["PromotionList"],
     }),
   }),
 });

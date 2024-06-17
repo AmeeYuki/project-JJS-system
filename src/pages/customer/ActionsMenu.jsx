@@ -5,7 +5,7 @@ const ActionsMenu = ({
   customerId,
   handleViewDetail,
   handleUpdateCustomer,
-  handleDeleteCustomer,
+  // handleDeleteCustomer,
   handleCreatePromotion,
 }) => {
   const menu = (
@@ -16,9 +16,9 @@ const ActionsMenu = ({
       <Menu.Item key="2" onClick={() => handleUpdateCustomer(customerId)}>
         Update Customer
       </Menu.Item>
-      <Menu.Item key="3" onClick={() => handleDeleteCustomer(customerId)}>
+      {/* <Menu.Item key="3" onClick={() => handleDeleteCustomer(customerId)}>
         Delete Customer
-      </Menu.Item>
+      </Menu.Item> */}
       <Menu.Item key="4" onClick={() => handleCreatePromotion(customerId)}>
         Create Promotion
       </Menu.Item>
@@ -27,7 +27,7 @@ const ActionsMenu = ({
 
   return (
     <Dropdown overlay={menu} trigger={["click"]}>
-      <a onClick={(e) => e.preventDefault()}>Actions</a>
+      <a onClick={(e) => e.preventDefault()}>...</a>
     </Dropdown>
   );
 };
@@ -36,7 +36,7 @@ ActionsMenu.propTypes = {
   customerId: PropTypes.number.isRequired,
   handleViewDetail: PropTypes.func.isRequired,
   handleUpdateCustomer: PropTypes.func.isRequired,
-  handleDeleteCustomer: PropTypes.func.isRequired,
+  // handleDeleteCustomer: PropTypes.func.isRequired,
   handleCreatePromotion: PropTypes.func.isRequired,
 };
 

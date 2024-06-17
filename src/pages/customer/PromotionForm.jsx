@@ -1,4 +1,4 @@
-import { Modal, Button, Input, Form } from "antd";
+import { Modal, Button, Input, Form, notification } from "antd";
 import PropTypes from "prop-types";
 import { useState } from "react";
 
@@ -8,15 +8,29 @@ const PromotionForm = ({
   selectedCustomer,
   handleSavePromotion,
 }) => {
+  const [form] = Form.useForm();
   const [promotionDetails, setPromotionDetails] = useState("");
 
   const handleInputChange = (e) => {
     setPromotionDetails(e.target.value);
   };
 
-  const onFinish = () => {
-    handleSavePromotion(promotionDetails);
-    setPromotionDetails("");
+  const onFinish = async () => {
+    try {
+      await handleSavePromotion(promotionDetails);
+      notification.success({
+        message: "Success",
+        description: "Promotion details saved successfully.",
+      });
+      form.resetFields();
+      setPromotionDetails("");
+      handleClosePromotion();
+    } catch (error) {
+      notification.error({
+        message: "Error",
+        description: `Failed to save promotion details: ${error.message}`,
+      });
+    }
   };
 
   return (
@@ -27,9 +41,10 @@ const PromotionForm = ({
       footer={null}
     >
       {selectedCustomer && (
-        <Form layout="vertical" onFinish={onFinish}>
+        <Form form={form} layout="vertical" onFinish={onFinish}>
           <Form.Item
-            label={`Create Promotion for ${selectedCustomer.fullName}`}
+            label="Promotion Details"
+            name="promotionDetails"
             rules={[
               { required: true, message: "Please enter promotion details" },
             ]}
@@ -58,8 +73,19 @@ const PromotionForm = ({
 PromotionForm.propTypes = {
   openPromotion: PropTypes.bool.isRequired,
   handleClosePromotion: PropTypes.func.isRequired,
-  selectedCustomer: PropTypes.object,
+  selectedCustomer: PropTypes.shape({
+    fullName: PropTypes.string,
+    phone: PropTypes.string,
+    email: PropTypes.string,
+    address: PropTypes.string,
+    gender: PropTypes.string,
+    accumulated_point: PropTypes.number,
+  }),
   handleSavePromotion: PropTypes.func.isRequired,
+};
+
+PromotionForm.defaultProps = {
+  selectedCustomer: null,
 };
 
 export default PromotionForm;

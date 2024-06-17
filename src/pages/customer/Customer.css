@@ -1,5 +1,5 @@
 .customerWrapper {
-  /* width: 80%; */
+  
   margin: 0 auto;
   padding: 20px;
   font-family: Arial, sans-serif;
@@ -59,6 +59,7 @@
 
 .modalActions {
   display: flex;
+   font-size: 1em;
   justify-content: space-between;
   margin-top: 20px;
 }

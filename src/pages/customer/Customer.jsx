@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Button, Input } from "antd";
+import { Button, Input, message } from "antd";
 import CustomerTable from "./CustomerTable";
 import CustomerForm from "./CustomerForm";
 import CustomerDetail from "./CustomerDetail";
@@ -10,7 +10,7 @@ import {
   useGetAllCustomerQuery,
   useCreateCustomerMutation,
   useUpdateCustomerMutation,
-  useDeleteCustomerMutation,
+  // useDeleteCustomerMutation,
 } from "../../services/customerAPI";
 
 export default function Customer() {
@@ -33,11 +33,12 @@ export default function Customer() {
   const { data: customers, isLoading, refetch } = useGetAllCustomerQuery();
   const [createCustomer] = useCreateCustomerMutation();
   const [updateCustomer] = useUpdateCustomerMutation();
-  const [deleteCustomer] = useDeleteCustomerMutation();
+  // const [deleteCustomer] = useDeleteCustomerMutation();
 
   useEffect(() => {
     if (customers) {
-      const indexedUsers = customers.map((user, index) => ({
+      const sortedCustomers = [...customers].sort((a, b) => a.id - b.id);
+      const indexedUsers = sortedCustomers.map((user, index) => ({
         ...user,
         index: index + 1,
       }));
@@ -76,10 +77,11 @@ export default function Customer() {
     try {
       await createCustomer(newCustomer).unwrap();
       refetch();
+      message.success("Customer added successfully!");
       handleClose();
     } catch (error) {
       console.error("Error adding customer: ", error);
-      alert(`Error: ${error.status} - ${error.data}`);
+      message.error(`Error adding customer: ${error.message}`);
     }
   };
 
@@ -95,6 +97,24 @@ export default function Customer() {
     setOpenUpdate(true);
   };
 
+  // const handleSaveUpdate = async () => {
+  //   if (!selectedCustomer || !selectedCustomer.id) {
+  //     console.error("Selected customer or its ID is undefined");
+  //     return;
+  //   }
+
+  //   try {
+  //     await updateCustomer({
+  //       id: selectedCustomer.id,
+  //       ...selectedCustomer,
+  //     }).unwrap();
+  //     refetch();
+  //     handleCloseUpdate();
+  //   } catch (error) {
+  //     console.error("Error updating customer: ", error);
+  //     alert(`Error: ${error.message}`);
+  //   }
+  // };
   const handleSaveUpdate = async () => {
     if (!selectedCustomer || !selectedCustomer.id) {
       console.error("Selected customer or its ID is undefined");
@@ -102,27 +122,39 @@ export default function Customer() {
     }
 
     try {
-      await updateCustomer({
+      const response = await updateCustomer({
         id: selectedCustomer.id,
         ...selectedCustomer,
       }).unwrap();
-      refetch();
+
+      if (response && response.data) {
+        setRows((prevRows) =>
+          prevRows.map((row) =>
+            row.id === selectedCustomer.id ? response.data : row
+          )
+        );
+
+        message.success("Customer updated successfully!");
+      } else {
+        message.warning("No data returned from update.");
+      }
+
       handleCloseUpdate();
     } catch (error) {
       console.error("Error updating customer: ", error);
-      alert(`Error: ${error.message}`);
+      message.error(`Error updating customer: ${error.message}`);
     }
   };
 
-  const handleDeleteCustomer = async (customerId) => {
-    try {
-      await deleteCustomer(customerId).unwrap();
-      refetch();
-    } catch (error) {
-      console.error("Error deleting customer: ", error);
-      alert(`Error: ${error.status} - ${error.data}`);
-    }
-  };
+  // const handleDeleteCustomer = async (customerId) => {
+  //   try {
+  //     await deleteCustomer(customerId).unwrap();
+  //     refetch();
+  //   } catch (error) {
+  //     console.error("Error deleting customer: ", error);
+  //     alert(`Error: ${error.status} - ${error.data}`);
+  //   }
+  // };
   const handleCreatePromotion = (customerId) => {
     const customer = rows.find((row) => row.id === customerId);
     setSelectedCustomer(customer);
@@ -147,7 +179,6 @@ export default function Customer() {
               value={searchTerm}
               onChange={handleSearch}
             />
-            <Button className="filterButton">Filter</Button>
           </div>
           <Button className="addCustomerButton" onClick={handleOpen}>
             Add Customer
@@ -161,7 +192,7 @@ export default function Customer() {
             data={filteredRows}
             handleViewDetail={handleViewDetail}
             handleUpdateCustomer={handleUpdateCustomer}
-            handleDeleteCustomer={handleDeleteCustomer}
+            // handleDeleteCustomer={handleDeleteCustomer}
             handleCreatePromotion={handleCreatePromotion}
           />
         </div>

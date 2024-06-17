@@ -12,31 +12,26 @@ import {
 } from "../../services/promotionAPI";
 
 export default function Promotion() {
-  // Fetch promotions data
   const {
     data: promotions = [],
     error,
     isLoading,
   } = useGetAllPromotionsQuery();
 
-  // Mutations for adding, updating, and deleting promotions
   const [addPromotion] = useAddPromotionMutation();
   const [updatePromotion] = useUpdatePromotionMutation();
   const [deletePromotion] = useDeletePromotionMutation();
 
-  // State for search, filtering, and form visibility
   const [filteredRows, setFilteredRows] = useState(promotions);
   const [searchTerm, setSearchTerm] = useState("");
   const [open, setOpen] = useState(false);
   const [openUpdate, setOpenUpdate] = useState(false);
   const [selectedPromotion, setSelectedPromotion] = useState(null);
 
-  // Effect to update filtered rows based on promotions data
   useEffect(() => {
     setFilteredRows(promotions);
   }, [promotions]);
 
-  // Effect to filter rows based on search term
   useEffect(() => {
     const lowercasedFilter = searchTerm.toLowerCase();
     const filteredData = promotions.filter((item) => {
@@ -51,7 +46,6 @@ export default function Promotion() {
     setFilteredRows(filteredData);
   }, [searchTerm, promotions]);
 
-  // Event handlers
   const handleSearch = (event) => setSearchTerm(event.target.value);
 
   const handleOpen = () => setOpen(true);
@@ -90,7 +84,6 @@ export default function Promotion() {
     }
   };
 
-  // Render loading or error states
   if (isLoading) {
     return <Spin size="large" />;
   }
@@ -99,7 +92,6 @@ export default function Promotion() {
     return <Alert message="Error loading promotions" type="error" />;
   }
 
-  // Main render
   return (
     <div className="promotionWrapper">
       <div className="promotionTitle">
