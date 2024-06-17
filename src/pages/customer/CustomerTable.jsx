@@ -1,5 +1,5 @@
+import { Table } from "antd";
 import PropTypes from "prop-types";
-import { Table, Space } from "antd";
 import ActionsMenu from "./ActionsMenu";
 
 const CustomerTable = ({
@@ -10,48 +10,33 @@ const CustomerTable = ({
   handleCreatePromotion,
 }) => {
   const columns = [
-    { title: "No.", dataIndex: "id", key: "id", width: 70 },
+    { title: "ID", dataIndex: "id", key: "id" },
+    { title: "Name", dataIndex: "fullName", key: "fullName" },
+    { title: "Phone", dataIndex: "phone", key: "phone" },
+    { title: "Email", dataIndex: "email", key: "email" },
+    { title: "Address", dataIndex: "address", key: "address" },
+    { title: "Gender", dataIndex: "gender", key: "gender" },
     {
-      title: "Customer Name",
-      dataIndex: "fullName",
-      key: "fullName",
-      width: 200,
-    },
-    { title: "Email", dataIndex: "email", key: "email", width: 200 },
-    { title: "Phone number", dataIndex: "phone", key: "phone", width: 150 },
-    { title: "Address", dataIndex: "address", key: "address", width: 200 },
-    {
-      title: " Points",
+      title: "Accumulated Points",
       dataIndex: "accumulated_point",
       key: "accumulated_point",
-      width: 90,
     },
     {
       title: "Actions",
-      key: "action",
-      render: (_, record) => (
-        <Space size="middle">
-          <ActionsMenu
-            customerId={record.id}
-            handleViewDetail={handleViewDetail}
-            handleUpdateCustomer={handleUpdateCustomer}
-            handleDeleteCustomer={handleDeleteCustomer}
-            handleCreatePromotion={handleCreatePromotion}
-          />
-        </Space>
+      key: "actions",
+      render: (text, record) => (
+        <ActionsMenu
+          customerId={record.id}
+          handleViewDetail={handleViewDetail}
+          handleUpdateCustomer={handleUpdateCustomer}
+          handleDeleteCustomer={handleDeleteCustomer}
+          handleCreatePromotion={handleCreatePromotion}
+        />
       ),
     },
   ];
 
-  return (
-    <Table
-      columns={columns}
-      dataSource={data}
-      rowKey="id"
-      pagination={{ pageSize: 10 }}
-      scroll={{ y: 330 }}
-    />
-  );
+  return <Table dataSource={data} columns={columns} rowKey="id" />;
 };
 
 CustomerTable.propTypes = {
