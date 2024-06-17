@@ -20,7 +20,7 @@ export const promotionAPI = createApi({
   }),
   endpoints: (builder) => ({
     getAllPromotions: builder.query({
-      query: () => `/promotions/promotions`,
+      query: () => `/promotions/get_all_promotions`,
       providesTags: (result) =>
         result
           ? result.map(({ id }) => ({ type: "PromotionList", id }))
