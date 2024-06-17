@@ -1,6 +1,6 @@
 export const convertProductData = (data) => {
   return data.map((item, index) => {
-    const counterName = item.counter_id?.counterName || "N/A";
+    const counterName = item.counter_id?.counterName || "No Counter";
     const counterLocation = item.counter_id?.location || "N/A";
     return {
       id: item.id,
@@ -30,10 +30,5 @@ export const formatCurrency = (value) => {
   if (value === undefined || value === null) {
     return "N/A";
   }
-  return (
-    value.toLocaleString("en-US", {
-      minimumFractionDigits: 3,
-      maximumFractionDigits: 3,
-    }) + " VND"
-  );
+  return value.toLocaleString("en-US", {}) + " VND";
 };

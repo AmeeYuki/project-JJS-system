@@ -56,7 +56,7 @@ const CreateCategoryModal = ({ visible, onCreate, onCancel, loading }) => {
         >
           <InputNumber
             placeholder="Input the price..."
-            addonAfter=".000 VND"
+            addonAfter=" VND"
             style={{ width: "100%" }}
           />
         </Form.Item>
@@ -77,7 +77,7 @@ const CreateCategoryModal = ({ visible, onCreate, onCancel, loading }) => {
         >
           <InputNumber
             placeholder="Input the price..."
-            addonAfter=".000 VND"
+            addonAfter=" VND"
             style={{ width: "100%" }}
           />
         </Form.Item>

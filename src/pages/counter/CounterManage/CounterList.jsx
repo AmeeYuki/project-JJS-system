@@ -1,12 +1,13 @@
 import React from "react";
-import { Space, Table, Dropdown, Menu, Popconfirm } from "antd";
+import { Space, Table, Dropdown, Menu, Tag } from "antd";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { useNavigate } from "react-router-dom";
 
 export default function CounterList({
   counterData,
   onEditCounter,
-  handleDeleteCounter,
+  handleActiveCounter,
+  handleInactiveCounter,
 }) {
   const navigate = useNavigate();
 
@@ -28,6 +29,23 @@ export default function CounterList({
       >
         <span>Edit Counter</span>
       </Menu.Item>
+      {record.status ? (
+        <Menu.Item
+          key="deactivate"
+          className="submenu-usertable"
+          onClick={() => handleInactiveCounter(record.id)}
+        >
+          <span>Inactive Counter</span>
+        </Menu.Item>
+      ) : (
+        <Menu.Item
+          key="activate"
+          className="submenu-usertable"
+          onClick={() => handleActiveCounter(record.id)}
+        >
+          <span>Active Counter</span>
+        </Menu.Item>
+      )}
     </Menu>
   );
 
@@ -46,6 +64,16 @@ export default function CounterList({
       title: "Location",
       dataIndex: "location",
       key: "location",
+    },
+    {
+      title: "Status",
+      key: "status",
+      dataIndex: "status",
+      render: (active) => (
+        <Tag color={active ? "green" : "volcano"}>
+          {active ? "ACTIVE" : "INACTIVE"}
+        </Tag>
+      ),
     },
     {
       key: "action",
@@ -72,7 +100,7 @@ export default function CounterList({
       // scroll={{
       //   y: 330,
       // }}
-      pagination={{pageSize: 4}}
+      pagination={{ pageSize: 4 }}
     />
   );
 }

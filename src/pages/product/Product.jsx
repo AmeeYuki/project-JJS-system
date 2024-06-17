@@ -57,7 +57,8 @@ export default function Product() {
               .includes(searchValue.toLowerCase())) ||
           (product.barcode && product.barcode.includes(searchValue))
       );
-      const indexedProducts = filteredProducts.map((product, index) => ({
+      const sortedProducts = filteredProducts.sort((a, b) => a.id - b.id);
+      const indexedProducts = sortedProducts.map((product, index) => ({
         ...product,
         index: index + 1,
       }));
