@@ -1,6 +1,5 @@
 import { Dropdown, Menu } from "antd";
 import PropTypes from "prop-types";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 
 const ActionsMenu = ({
   customerId,
@@ -28,9 +27,7 @@ const ActionsMenu = ({
 
   return (
     <Dropdown overlay={menu} trigger={["click"]}>
-      <a onClick={(e) => e.preventDefault()}>
-        <MoreHorizIcon />
-      </a>
+      <a onClick={(e) => e.preventDefault()}>Actions</a>
     </Dropdown>
   );
 };

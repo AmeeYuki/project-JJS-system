@@ -8,7 +8,7 @@ export const customerAPI = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: API_URL_BE,
     prepareHeaders: (headers, { getState }) => {
-      const token = selectToken(getState()); // Retrieve token from Redux state using selectToken selector
+      const token = selectToken(getState());
       if (token) {
         headers.append("Authorization", `Bearer ${token}`);
       }
@@ -19,25 +19,37 @@ export const customerAPI = createApi({
   endpoints: (builder) => ({
     getAllCustomer: builder.query({
       query: () => `customers/get_customers`,
-      // `providesTags` determines which 'tag' is attached to the
-      // cached data returned by the query.
-      providesTags: (result) =>
-        result
-          ? result.map(({ id }) => ({ type: "UserList", id }))
-          : [{ type: "UserList", id: " LIST " }],
+      providesTags: ["CustomerList"],
     }),
-    getCustomerByPhone: builder.query({
-      query: (phone) => `customers/get_customer_by_phone?phone=${phone}`,
-      providesTags: (result) =>
-        result
-          ? [{ type: "CustomerList", id: result.id }]
-          : [{ type: "CustomerList", id: "LIST" }],
+    createCustomer: builder.mutation({
+      query: (newCustomer) => ({
+        url: `customers/create`,
+        method: "POST",
+        body: newCustomer,
+      }),
+      invalidatesTags: ["CustomerList"],
+    }),
+    updateCustomer: builder.mutation({
+      query: ({ id, ...updatedCustomer }) => ({
+        url: `customers/update/${id}`,
+        method: "PUT",
+        body: updatedCustomer,
+      }),
+      invalidatesTags: ["CustomerList"],
+    }),
+    deleteCustomer: builder.mutation({
+      query: (id) => ({
+        url: `customers/delete/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["CustomerList"],
     }),
   }),
 });
 
 export const {
   useGetAllCustomerQuery,
-  useGetCustomerByPhoneQuery,
-  useLazyGetCustomerByPhoneQuery,
+  useCreateCustomerMutation,
+  useUpdateCustomerMutation,
+  useDeleteCustomerMutation,
 } = customerAPI;

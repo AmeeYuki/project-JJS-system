@@ -1,13 +1,17 @@
 import { useState, useEffect } from "react";
 import { Button, Input } from "antd";
-import axios from "axios";
 import CustomerTable from "./CustomerTable";
 import CustomerForm from "./CustomerForm";
 import CustomerDetail from "./CustomerDetail";
 import CustomerUpdateForm from "./CustomerUpdateForm";
 import PromotionForm from "./PromotionForm";
 import "./Customer.css";
-import { useGetAllCustomerQuery } from "../../services/customerAPI";
+import {
+  useGetAllCustomerQuery,
+  useCreateCustomerMutation,
+  useUpdateCustomerMutation,
+  useDeleteCustomerMutation,
+} from "../../services/customerAPI";
 
 export default function Customer() {
   const [rows, setRows] = useState([]);
@@ -27,32 +31,20 @@ export default function Customer() {
   });
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const { data: customers, isLoading, refetch } = useGetAllCustomerQuery();
-  // console.log(customers);
+  const [createCustomer] = useCreateCustomerMutation();
+  const [updateCustomer] = useUpdateCustomerMutation();
+  const [deleteCustomer] = useDeleteCustomerMutation();
+
   useEffect(() => {
     if (customers) {
-      // Step 1: Convert the data
-
       const indexedUsers = customers.map((user, index) => ({
         ...user,
         index: index + 1,
       }));
-
-      // Set the user data
+      setRows(indexedUsers);
       setFilteredRows(indexedUsers);
     }
   }, [customers]);
-
-  // useEffect(() => {
-  //   axios
-  //     .get("http://localhost:8080/api/v1/customers/get_customers")
-  //     .then((response) => {
-  //       setRows(response.data);
-  //       setFilteredRows(response.data);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error fetching data: ", error);
-  //     });
-  // }, []);
 
   useEffect(() => {
     const lowercasedFilter = searchTerm.toLowerCase();
@@ -80,17 +72,15 @@ export default function Customer() {
     setNewCustomer({ ...newCustomer, [name]: value });
   };
 
-  const handleAddCustomer = () => {
-    axios
-      .post("http://localhost:8080/api/v1/customers/create", newCustomer)
-      .then((response) => {
-        setRows([...rows, response.data]);
-        setFilteredRows([...rows, response.data]);
-        handleClose();
-      })
-      .catch((error) => {
-        console.error("Error adding customer: ", error);
-      });
+  const handleAddCustomer = async () => {
+    try {
+      await createCustomer(newCustomer).unwrap();
+      refetch();
+      handleClose();
+    } catch (error) {
+      console.error("Error adding customer: ", error);
+      alert(`Error: ${error.status} - ${error.data}`);
+    }
   };
 
   const handleViewDetail = (customerId) => {
@@ -105,38 +95,34 @@ export default function Customer() {
     setOpenUpdate(true);
   };
 
-  const handleSaveUpdate = () => {
-    axios
-      .put(
-        `http://localhost:8080/api/v1/customers/update/${selectedCustomer.id}`,
-        selectedCustomer
-      )
-      .then((response) => {
-        const updatedRows = rows.map((row) =>
-          row.id === response.data.id ? response.data : row
-        );
-        setRows(updatedRows);
-        setFilteredRows(updatedRows);
-        handleCloseUpdate();
-      })
-      .catch((error) => {
-        console.error("Error updating customer: ", error);
-      });
+  const handleSaveUpdate = async () => {
+    if (!selectedCustomer || !selectedCustomer.id) {
+      console.error("Selected customer or its ID is undefined");
+      return;
+    }
+
+    try {
+      await updateCustomer({
+        id: selectedCustomer.id,
+        ...selectedCustomer,
+      }).unwrap();
+      refetch();
+      handleCloseUpdate();
+    } catch (error) {
+      console.error("Error updating customer: ", error);
+      alert(`Error: ${error.message}`);
+    }
   };
 
-  const handleDeleteCustomer = (customerId) => {
-    axios
-      .delete(`http://localhost:8080/api/v1/customers/delete/${customerId}`)
-      .then(() => {
-        const updatedRows = rows.filter((row) => row.id !== customerId);
-        setRows(updatedRows);
-        setFilteredRows(updatedRows);
-      })
-      .catch((error) => {
-        console.error("Error deleting customer: ", error);
-      });
+  const handleDeleteCustomer = async (customerId) => {
+    try {
+      await deleteCustomer(customerId).unwrap();
+      refetch();
+    } catch (error) {
+      console.error("Error deleting customer: ", error);
+      alert(`Error: ${error.status} - ${error.data}`);
+    }
   };
-
   const handleCreatePromotion = (customerId) => {
     const customer = rows.find((row) => row.id === customerId);
     setSelectedCustomer(customer);
