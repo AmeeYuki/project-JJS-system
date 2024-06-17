@@ -1,45 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Button, ConfigProvider, Table, InputNumber } from "antd";
+import { Button, ConfigProvider, Table } from "antd";
 import Search from "antd/es/input/Search";
 import { RiCouponLine, RiUserStarLine } from "@remixicon/react";
-
-import { useLazyGetProductsQuery } from "../../../../services/productAPI";
+import { useGetProductsQuery } from "../../../../services/productAPI";
 
 export default function ProductSpace({ onProductChange }) {
-  const [trigger, { data: productsData, isError, isLoading }] =
-    useLazyGetProductsQuery();
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [searchKeyword, setSearchKeyword] = useState("");
+  const { data: productsData, isError, isLoading } = useGetProductsQuery();
+  const [searchTerm, setSearchTerm] = useState("");
   const [cartItems, setCartItems] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
-  const [discountPercent, setDiscountPercent] = useState(10); // Giảm giá mặc định là 10%
-
-  const onSearch = (value) => {
-    setSearchKeyword(value.trim());
-    if (value.trim() === "") {
-      setFilteredProducts([]);
-    } else {
-      trigger(value);
-    }
-  };
+  const [discountPercent, setDiscountPercent] = useState(10); // Default discount is 10%
 
   useEffect(() => {
     if (isError) {
       console.error("Error fetching product data.");
     }
   }, [isError]);
-
-  useEffect(() => {
-    if (productsData && productsData.products) {
-      const filtered = productsData.products.filter((product) =>
-        product.barcode.includes(searchKeyword)
-      );
-      setFilteredProducts(filtered);
-    } else {
-      setFilteredProducts([]);
-    }
-  }, [searchKeyword, productsData]);
 
   const calculatePrice = (product) => {
     if (!product) return 0;
@@ -92,6 +69,7 @@ export default function ProductSpace({ onProductChange }) {
     setTotalPrice(totalPrice + calculatePrice(product));
     sendProductData();
   };
+
   const decreaseQuantity = (product) => {
     const updatedCartItems = cartItems
       .map((item) =>
@@ -115,7 +93,46 @@ export default function ProductSpace({ onProductChange }) {
 
   const totalBeforeDiscount = subtotal - discount;
 
-  const columns = [
+  const productColumns = [
+    {
+      title: "No.",
+      dataIndex: "no",
+      key: "no",
+      render: (_, __, index) => index + 1,
+    },
+    {
+      title: "Product Name",
+      dataIndex: "product_name",
+      key: "product_name",
+    },
+    {
+      title: "Barcode",
+      dataIndex: "barcode",
+      key: "barcode",
+    },
+    {
+      title: "Type",
+      dataIndex: "type",
+      key: "type",
+      render: (text, record) => record.type.type,
+    },
+    {
+      title: "Price",
+      dataIndex: "price",
+      key: "price",
+      render: (text, record) => calculatePrice(record).toLocaleString(),
+    },
+    {
+      title: "Action",
+      dataIndex: "action",
+      key: "action",
+      render: (_, record) => (
+        <Button onClick={() => addToCart(record)}>Add to Cart</Button>
+      ),
+    },
+  ];
+
+  const cartColumns = [
     {
       title: "No.",
       dataIndex: "no",
@@ -126,6 +143,11 @@ export default function ProductSpace({ onProductChange }) {
       title: "Product",
       dataIndex: "product_name",
       key: "product_name",
+    },
+    {
+      title: "Barcode",
+      dataIndex: "barcode",
+      key: "barcode",
     },
     {
       title: "Type",
@@ -167,21 +189,32 @@ export default function ProductSpace({ onProductChange }) {
     },
   ];
 
-  const data = cartItems.map((item, index) => ({
+  const cartData = cartItems.map((item, index) => ({
     key: index,
     id: item.id,
     product_name: item.product_name,
+    barcode: item.barcode,
+
     type: item.type,
     price: calculatePrice(item),
     quantity: item.quantity,
     total: calculatePrice(item) * item.quantity,
   }));
 
-  const calculateDiscount = (product) => {
-    const subtotalPerProduct = calculatePrice(product) * product.quantity;
-    const discountPerProduct = (subtotalPerProduct * discountPercent) / 100;
-    return discountPerProduct;
-  };
+  const filteredProducts =
+    productsData?.products.filter((item) =>
+      item.barcode.toLowerCase().includes(searchTerm.toLowerCase())
+    ) || [];
+
+  const productData = filteredProducts.map((item, index) => ({
+    key: index,
+    id: item.id,
+    product_name: item.product_name,
+    barcode: item.barcode,
+    type: item.type,
+    price: calculatePrice(item),
+  }));
+
   const sendProductData = () => {
     const productData = cartItems.map((item) => ({
       id: item.id,
@@ -191,6 +224,7 @@ export default function ProductSpace({ onProductChange }) {
 
     onProductChange(productData);
   };
+
   const sendDiscount = () => {
     const discountData = {
       percent: discountPercent,
@@ -212,8 +246,8 @@ export default function ProductSpace({ onProductChange }) {
         >
           <Search
             style={{ width: "400px" }}
-            placeholder="Search by barcode"
-            onSearch={onSearch}
+            placeholder="Search by product name"
+            onSearch={(value) => setSearchTerm(value)}
             enterButton
           />
         </ConfigProvider>
@@ -221,47 +255,19 @@ export default function ProductSpace({ onProductChange }) {
         <div className="product-show">
           {isLoading ? (
             <p>Loading...</p>
-          ) : filteredProducts?.length > 0 ? (
-            <div className="product-item" key={filteredProducts[0].id}>
-              <div style={{ width: 200 }}>
-                <img
-                  className="image-product"
-                  src={
-                    filteredProducts[0].image_url ||
-                    "https://kitadiamonds.com.vn/datafiles/setone/16781741575723_hinh-kim-cuong-goc.png"
-                  }
-                  alt="Product"
-                />
-              </div>
-              <div className="info-item">
-                <div className="product-details">
-                  <p>Product name: {filteredProducts[0].product_name}</p>
-                  <p>Barcode: {filteredProducts[0].barcode}</p>
-                  <p>
-                    Price:{" "}
-                    {calculatePrice(filteredProducts[0]).toLocaleString()}
-                  </p>
-                  <p>Type: {filteredProducts[0].type.type}</p>
-                </div>
-                <div style={{ display: "flex", justifyContent: "end" }}>
-                  <Button
-                    className="btn-addtocart"
-                    type="primary"
-                    size="large"
-                    onClick={() => addToCart(filteredProducts[0])}
-                  >
-                    Add to cart
-                  </Button>
-                </div>
-              </div>
-            </div>
+          ) : productsData && productsData.products ? (
+            <Table
+              columns={productColumns}
+              dataSource={productData}
+              pagination={{ pageSize: 4 }}
+            />
           ) : (
             <p>
               {isLoading ? (
                 "Loading..."
               ) : (
                 <div className="info-item" style={{ height: 150 }}>
-                  Not product here
+                  No products available
                 </div>
               )}
             </p>
@@ -277,7 +283,11 @@ export default function ProductSpace({ onProductChange }) {
             },
           }}
         >
-          <Table columns={columns} dataSource={data} pagination={false} />
+          <Table
+            columns={cartColumns}
+            dataSource={cartData}
+            pagination={false}
+          />
         </ConfigProvider>
         <br />
         <div className="cart-total">
@@ -308,7 +318,7 @@ export default function ProductSpace({ onProductChange }) {
             </div>
             <p>200 VNĐ</p>
           </div>
-          <div className="money ">
+          <div className="money">
             <div className="d-flex-center">
               <p>Provisional:</p>
               <p>{subtotal.toLocaleString()} VNĐ</p>

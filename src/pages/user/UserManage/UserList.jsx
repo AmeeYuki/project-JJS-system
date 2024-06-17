@@ -142,13 +142,15 @@ export default function UserList({
       key: "role",
     },
     {
-      title: "Status",
+      title: <div style={{ textAlign: "center" }}>Status</div>,
       key: "active",
       dataIndex: "active",
       render: (active) => (
-        <Tag color={active ? "green" : "volcano"}>
-          {active ? "ACTIVE" : "INACTIVE"}
-        </Tag>
+        <div style={{ textAlign: "center" }}>
+          <Tag color={active ? "green" : "volcano"}>
+            {active ? "ACTIVE" : "INACTIVE"}
+          </Tag>
+        </div>
       ),
     },
     {

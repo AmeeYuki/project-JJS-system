@@ -1,6 +1,7 @@
 import React from "react";
 import { Dropdown, Menu, Space, Table, Tag } from "antd";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import dayjs from "dayjs";
 
 export default function OrderList({ ordersData }) {
   const actionsMenu = (record) => (
@@ -43,6 +44,7 @@ export default function OrderList({ ordersData }) {
       title: "Date",
       dataIndex: "date",
       key: "date",
+      render: (date) => dayjs(date).format("DD/MM/YYYY"),
     },
     {
       title: <div style={{ textAlign: "center" }}>Type</div>,

@@ -23,7 +23,7 @@ export default function MakeSell({}) {
     orderDTO: {
       date: new Date().toISOString(), // Lấy ngày hiện tại
       discount: 0,
-      created_by: auth.name,
+      // created_by: auth.name,
       type: "sell",
       customer_id: 0,
       user_id: auth.id,

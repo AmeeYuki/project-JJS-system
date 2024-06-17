@@ -25,7 +25,7 @@ export default function Order() {
     return orders.orders.map((el) => {
       return {
         orderId: el?.id,
-        customerName: el?.customer_id,
+        customerName: el?.customer.fullName,
         createBy: el?.created_by,
         date: el?.date,
         type: el?.type,
