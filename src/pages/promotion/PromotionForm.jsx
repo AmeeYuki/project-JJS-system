@@ -1,12 +1,20 @@
-// import React from "react";
-import { Modal, Form, Input, Button } from "antd";
+import { Modal, Form, Input, Button, DatePicker, Switch } from "antd";
 import PropTypes from "prop-types";
+import moment from "moment";
 
 const PromotionForm = ({
   visible,
   onCancel,
   onFinish,
-  initialValues = { code: "", discount: "", startdate: "", enddate: "" },
+  initialValues = {
+    code: "",
+    description: "",
+    discount_percentage: "",
+    fixed_discount_amount: "",
+    start_date: "",
+    end_date: "",
+    is_used: false,
+  },
 }) => {
   return (
     <Modal
@@ -15,18 +23,39 @@ const PromotionForm = ({
       onCancel={onCancel}
       footer={null}
     >
-      <Form layout="vertical" onFinish={onFinish} initialValues={initialValues}>
+      <Form
+        layout="vertical"
+        onFinish={onFinish}
+        initialValues={{
+          ...initialValues,
+          start_date: initialValues.start_date
+            ? moment(initialValues.start_date)
+            : null,
+          end_date: initialValues.end_date
+            ? moment(initialValues.end_date)
+            : null,
+        }}
+      >
         <Form.Item label="Promotion Code" name="code">
           <Input placeholder="Promotion Code..." />
         </Form.Item>
-        <Form.Item label="Discount" name="discount">
-          <Input placeholder="Discount..." />
+        <Form.Item label="Description" name="description">
+          <Input placeholder="Description..." />
         </Form.Item>
-        <Form.Item label="Start Date" name="startdate">
-          <Input placeholder="Start Date..." />
+        <Form.Item label="Discount Percentage" name="discount_percentage">
+          <Input placeholder="Discount Percentage..." />
         </Form.Item>
-        <Form.Item label="End Date" name="enddate">
-          <Input placeholder="End Date..." />
+        <Form.Item label="Fixed Discount Amount" name="fixed_discount_amount">
+          <Input placeholder="Fixed Discount Amount..." />
+        </Form.Item>
+        <Form.Item label="Start Date" name="start_date">
+          <DatePicker />
+        </Form.Item>
+        <Form.Item label="End Date" name="end_date">
+          <DatePicker />
+        </Form.Item>
+        <Form.Item label="Is Used" name="is_used" valuePropName="checked">
+          <Switch />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">

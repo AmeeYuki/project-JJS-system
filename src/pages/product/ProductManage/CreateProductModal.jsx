@@ -13,14 +13,15 @@ import { UploadOutlined } from "@ant-design/icons";
 import { storage } from "../../../config/FireBaseImage/firebaseConfig";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { useGetTypesQuery } from "../../../services/typeAPI";
-import { useGetCountersQuery } from "../../../services/counterAPI"; // Thêm import này
+import { useGetCountersQuery } from "../../../services/counterAPI";
 
 const { Option } = Select;
 
-const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
+const CreateProductModal = ({ visible, onCreate, onCancel }) => {
   const [form] = Form.useForm();
   const [imageUrl, setImageUrl] = useState(null);
   const [fileList, setFileList] = useState([]);
+  const [loading, setLoading] = useState(false);
   const { data: typesData, isLoading: typesLoading } = useGetTypesQuery();
   const { data: countersData, isLoading: countersLoading } =
     useGetCountersQuery();
@@ -30,6 +31,7 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
       form.resetFields();
       setFileList([]);
       setImageUrl(null);
+      setLoading(false);
     }
   }, [visible]);
 
@@ -39,6 +41,7 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
       setImageUrl(null);
     }
   };
+  
   const generateBarcode = (type) => {
     const randomNum = Math.floor(100000 + Math.random() * 900000);
     return type + randomNum;
@@ -86,6 +89,7 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
   };
 
   const handleOk = async () => {
+    setLoading(true);
     try {
       const values = await form.validateFields();
       const imageUrl = await handleUpload();
@@ -98,15 +102,18 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
           image: imageUrl,
           barcode: barcode,
         };
-        onCreate(productData);
+        await onCreate(productData);
         form.resetFields();
         setFileList([]);
         setImageUrl(null);
+        setLoading(false);
       } else {
         message.error("Please upload an image.");
+        setLoading(false);
       }
     } catch (error) {
       console.log("Validation Failed:", error);
+      setLoading(false);
     }
   };
 
@@ -128,8 +135,8 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
         }
         okText="Create"
         cancelText="Cancel"
-        onCancel={onCancel}
         okButtonProps={{ loading }}
+        onCancel={onCancel}
         onOk={handleOk}
       >
         <Form form={form} name="form_in_modal" initialValues={{ active: true }}>
@@ -203,10 +210,7 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
               { validator: validateNonNegativeNumber },
             ]}
           >
-            <Input
-              placeholder="Input the stone price..."
-              addonAfter=".000 VND"
-            />
+            <Input placeholder="Input the stone price..." addonAfter=" VND" />
           </Form.Item>
           <Form.Item
             name="priceProcessing"
@@ -220,7 +224,7 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
               { validator: validateNonNegativeNumber },
             ]}
           >
-            <Input placeholder="Input the price..." addonAfter=".000 VND" />
+            <Input placeholder="Input the price..." addonAfter=" VND" />
           </Form.Item>
           <Form.Item
             name="weight"
@@ -275,17 +279,19 @@ const CreateProductModal = ({ visible, onCreate, onCancel, loading }) => {
               disabled={countersLoading}
             >
               {countersData &&
-                countersData.map((counter) => (
-                  <Option key={counter.id} value={counter.id}>
-                    {counter.counterName}
-                  </Option>
-                ))}
+                countersData
+                  .filter((counter) => counter.status === true)
+                  .map((counter) => (
+                    <Option key={counter.id} value={counter.id}>
+                      {counter.counterName}
+                    </Option>
+                  ))}
             </Select>
           </Form.Item>
           <Form.Item
             name="image"
             label="
-        Image (png, jpg)"
+          Image (png, jpg)"
             rules={[
               {
                 required: true,

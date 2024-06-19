@@ -1,4 +1,3 @@
-// import React from "react";
 import { Table, Space } from "antd";
 import PropTypes from "prop-types";
 import ActionsMenu from "./ActionsMenu";
@@ -10,20 +9,39 @@ const PromotionTable = ({
 }) => {
   const columns = [
     { title: "No.", dataIndex: "id", key: "id", width: 60 },
-    { title: "Promotion Code", dataIndex: "code", key: "code", width: 200 },
+    { title: "Promotion Code", dataIndex: "code", key: "code", width: 150 },
     {
-      title: "Discount(VND)",
-      dataIndex: "discount",
-      key: "discount",
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
       width: 200,
     },
     {
-      title: "Start Date",
-      dataIndex: "startdate",
-      key: "startdate",
+      title: "Discount Percentage",
+      dataIndex: "discount_percentage",
+      key: "discount_percentage",
       width: 150,
     },
-    { title: "End Date", dataIndex: "enddate", key: "enddate", width: 150 },
+    {
+      title: "Fixed Discount Amount",
+      dataIndex: "fixed_discount_amount",
+      key: "fixed_discount_amount",
+      width: 150,
+    },
+    {
+      title: "Start Date",
+      dataIndex: "start_date",
+      key: "start_date",
+      width: 150,
+    },
+    { title: "End Date", dataIndex: "end_date", key: "end_date", width: 150 },
+    {
+      title: "Is Used",
+      dataIndex: "is_used",
+      key: "is_used",
+      width: 100,
+      render: (is_used) => (is_used ? "Yes" : "No"),
+    },
     {
       title: "Actions",
       key: "action",

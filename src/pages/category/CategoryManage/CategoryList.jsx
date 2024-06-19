@@ -4,11 +4,11 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { format } from "date-fns";
 import { formatCurrency } from "../../product/ProductUtil";
 
-export default function CategoryList({ categoryData, onEditCategory }) {
+export default function CategoryList({ categoryData, onEditCategory }) {  
   const actionsMenu = (record) => (
     <Menu>
       <Menu.Item key="edit" onClick={() => onEditCategory(record)}>
-        <span>Edit Category</span>
+        <span>Edit Type</span>
       </Menu.Item>
     </Menu>
   );

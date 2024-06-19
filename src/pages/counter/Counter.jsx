@@ -7,6 +7,8 @@ import {
   useDeleteCounterMutation,
   useEditCounterMutation,
   useGetCountersQuery,
+  useInactiveCounterMutation,
+  useActiveCounterMutation,
 } from "../../services/counterAPI";
 import CounterList from "./CounterManage/CounterList";
 import CreateCounterModal from "./CounterManage/CreateCounterModal";
@@ -28,8 +30,10 @@ export default function Counter() {
     useEditCounterMutation();
   const [addCounterMutation, { isLoading: isLoadingAdd }] =
     useAddCounterMutation();
-  const [deleteCounterMutation, { isLoading: isLoadingDelete }] =
-    useDeleteCounterMutation();
+  const [activeCounterMutation, { isLoading: isLoadingActive }] =
+    useActiveCounterMutation();
+  const [inactiveCounterMutation, { isLoading: isLoadingInactive }] =
+    useInactiveCounterMutation();
 
   useEffect(() => {
     if (counters) {
@@ -43,18 +47,21 @@ export default function Counter() {
 
   useEffect(() => {
     if (counters) {
-      const filteredCounters = counters.filter(
+      const sortedCounters = [...counters].sort((a, b) => a.id - b.id);
+      const filteredCounters = sortedCounters.filter(
         (counter) =>
           counter.counterName &&
           counter.counterName.toLowerCase().includes(searchValue.toLowerCase())
       );
+
       const indexedCounters = filteredCounters.map((counter, index) => ({
         ...counter,
         index: index + 1,
       }));
+
       setCounterData(indexedCounters);
     }
-  }, [searchValue, counters]);
+  }, [counters, searchValue]);
 
   const handleSearch = (value) => {
     setSearchValue(value);
@@ -93,6 +100,34 @@ export default function Counter() {
       .catch((error) => {
         console.error("Error updating counter: ", error);
       });
+  };
+
+  const handleActiveCounter = async (counterId) => {
+    const result = await activeCounterMutation(counterId);
+    if (result.error.originalStatus == 200) {
+      refetch();
+      notification.success({
+        message: "Counter activated successfully",
+      });
+    } else {
+      notification.error({
+        message: "Counter activated unsuccessfully",
+      });
+    }
+  };
+
+  const handleInactiveCounter = async (counterId) => {
+    const result = await inactiveCounterMutation(counterId);
+    if (result.error.originalStatus == 200) {
+      refetch();
+      notification.success({
+        message: "Counter inactivated successfully",
+      });
+    } else {
+      notification.error({
+        message: "Counter inactivated unsuccessfully",
+      });
+    }
   };
 
   const handleEditCounter = (counter) => {
@@ -166,6 +201,8 @@ export default function Counter() {
             counterData={counterData}
             onEditCounter={handleEditCounter}
             onViewCounterDetail={handleViewCounterDetail}
+            handleActiveCounter={handleActiveCounter}
+            handleInactiveCounter={handleInactiveCounter}
           />
         )}
       </div>

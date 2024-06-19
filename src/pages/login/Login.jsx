@@ -32,7 +32,7 @@ function Login() {
           navigate("/login-first-time");
           notification.success({
             message: "Login successfully",
-            description: "Welcome !",
+            description: "Welcome to Luminary !",
           });
           dispatch(setToken(result.data.token));
         } else {

@@ -182,7 +182,7 @@ const UpdateProductModal = ({
               { pattern: /^[0-9]+$/, message: "Please input a valid price!" },
             ]}
           >
-            <Input placeholder="Input the price..." addonAfter=".000 VND" />
+            <Input placeholder="Input the price..." addonAfter=" VND" />
           </Form.Item>
 
           <Form.Item
@@ -196,17 +196,13 @@ const UpdateProductModal = ({
               { pattern: /^[0-9]+$/, message: "Please input a valid price!" },
             ]}
           >
-            <Input
-              placeholder="Input the stone price..."
-              addonAfter=".000 VND"
-            />
+            <Input placeholder="Input the stone price..." addonAfter=" VND" />
           </Form.Item>
 
           <Form.Item name="description" label="Description:">
             <Input.TextArea placeholder="Input the description..." />
           </Form.Item>
 
-          {/* loi o day */}
           <Form.Item
             name="counterId"
             label="Counter"
@@ -223,11 +219,13 @@ const UpdateProductModal = ({
               disabled={countersLoading}
             >
               {countersData &&
-                countersData.map((counter) => (
-                  <Option key={counter.id} value={counter.id}>
-                    {counter.counterName}
-                  </Option>
-                ))}
+                countersData
+                  .filter((counter) => counter.status === true)
+                  .map((counter) => (
+                    <Option key={counter.id} value={counter.id}>
+                      {counter.counterName}
+                    </Option>
+                  ))}
             </Select>
           </Form.Item>
 

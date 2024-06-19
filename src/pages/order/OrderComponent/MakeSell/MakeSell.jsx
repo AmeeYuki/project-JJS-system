@@ -1,16 +1,19 @@
 import Search from "antd/es/input/Search";
 import "./MakeSell.css";
-import { Button, Col, ConfigProvider, Row } from "antd";
+import { Button, Col, ConfigProvider, Row, notification } from "antd";
 import CustomerSpace from "./CustomerSpace";
 import ProductSpace from "./ProductSpace";
 import { useAddOrderMutation } from "../../../../services/orderAPI";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { selectAuth } from "../../../../slices/auth.slice";
+import { useNavigate } from "react-router-dom";
 
 export default function MakeSell({}) {
   const [addOrder, { isLoading }] = useAddOrderMutation();
+  // const [loading, isLoading] = useState(false);
   const auth = useSelector(selectAuth);
+  const navigate = useNavigate();
 
   const [orderData, setOrderData] = useState({
     orderRequests: [
@@ -41,16 +44,46 @@ export default function MakeSell({}) {
     }));
   };
 
+  // const handleSubmit = async (e) => {
+  //   try {
+  //     console.log("Submitting order data:", orderData); // Log dữ liệu trước khi gọi mutation
+  //     const response = await addOrder(orderData); // Gọi mutation để thêm đơn hàng
+  //     console.log("Added order:", data);
+  //     notification.success({
+  //       message: "Maker Order Successfully",
+  //     });
+  //     notification;
+  //     navigate("/order");
+  //   } catch (error) {
+  //     console.error("Error adding order:", error);
+  //     notification.error({
+  //       message: "Maker Order Successfully",
+  //     });
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
-    console.log(orderData);
+    e.preventDefault(); // Prevent default form submission behavior
     try {
-      console.log("Submitting order data:", orderData); // Log dữ liệu trước khi gọi mutation
-      const { data } = await addOrder(orderData); // Gọi mutation để thêm đơn hàng
-      console.log("Added order:", data);
+      const response = await addOrder(orderData); // Call the mutation to add the order and unwrap the response
+      console.log(response);
+      if (response) {
+        notification.success({
+          message: "Order made successfully",
+        });
+        navigate("/order");
+      } else {
+        throw new Error(`Unexpected status code: ${response.status}`);
+      }
     } catch (error) {
       console.error("Error adding order:", error);
+      notification.error({
+        message: "Error making order",
+        description: error.message,
+      });
     }
   };
+
   const handleCustomerInfoChange = (customerInfo) => {
     // Cập nhật thông tin khách hàng vào state orderData
     console.log("Customer info changed:", customerInfo?.id); // Log dữ liệu khi thông tin khách hàng thay đổi
@@ -97,7 +130,12 @@ export default function MakeSell({}) {
         <div className="d-flex-center" style={{ marginTop: 20 }}>
           <div></div>
           <div>
-            <Button type="primary" size="large" onClick={handleSubmit}>
+            <Button
+              type="primary"
+              size="large"
+              onClick={handleSubmit}
+              loading={isLoading}
+            >
               Make Order
             </Button>
           </div>
