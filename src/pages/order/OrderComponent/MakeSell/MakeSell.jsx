@@ -54,24 +54,24 @@ export default function MakeSell({}) {
       });
       return;
     }
-    // try {
-    //   const response = await addOrder(orderData); // Call the mutation to add the order and unwrap the response
-    //   console.log(response);
-    //   if (response) {
-    //     notification.success({
-    //       message: "Order made successfully",
-    //     });
-    //     // navigate("/order");
-    //   } else {
-    //     throw new Error(`Unexpected status code: ${response.status}`);
-    //   }
-    // } catch (error) {
-    //   console.error("Error adding order:", error);
-    //   notification.error({
-    //     message: "Error making order",
-    //     description: error.message,
-    //   });
-    // }
+    try {
+      const response = await addOrder(orderData); // Call the mutation to add the order and unwrap the response
+      console.log(response);
+      if (response) {
+        notification.success({
+          message: "Order made successfully",
+        });
+        navigate("/order");
+      } else {
+        throw new Error(`Unexpected status code: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Error adding order:", error);
+      notification.error({
+        message: "Error making order",
+        description: error.message,
+      });
+    }
   };
 
   const handleCustomerInfoChange = (customerInfo) => {

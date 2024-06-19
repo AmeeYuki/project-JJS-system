@@ -21,6 +21,9 @@ const Customer = Loadable({
   loader: () => import("../pages/customer/Customer"),
 });
 const Order = Loadable({ loader: () => import("../pages/order/Order") });
+const OrderDetail = Loadable({
+  loader: () => import("../pages/order/OrderComponent/OrderDetail"),
+});
 const MakeSell = Loadable({
   loader: () => import("../pages/order/OrderComponent/MakeSell/MakeSell"),
 });
@@ -71,8 +74,8 @@ export const router = createBrowserRouter([
             element: Order,
           },
           {
-            path: "order",
-            element: Order,
+            path: "order/:id",
+            element: OrderDetail,
           },
           {
             path: "order/make-sell",

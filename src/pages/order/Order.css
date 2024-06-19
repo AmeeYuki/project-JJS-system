@@ -30,3 +30,9 @@
   display: flex;
   justify-content: space-between;
 }
+.order-page .information {
+  /* margin-top: 5px; */
+  font-family: "Playfair Display";
+  font-size: 40px;
+  font-weight: 500;
+}

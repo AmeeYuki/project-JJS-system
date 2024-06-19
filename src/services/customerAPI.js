@@ -44,6 +44,13 @@ export const customerAPI = createApi({
       }),
       invalidatesTags: ["CustomerList"],
     }),
+    getCustomerByPhone: builder.query({
+      query: (phone) => `customers/get_customer_by_phone?phone=${phone}`,
+      providesTags: (result) =>
+        result
+          ? [{ type: "CustomerList", id: result.id }]
+          : [{ type: "CustomerList", id: "LIST" }],
+    }),
   }),
 });
 
@@ -52,4 +59,5 @@ export const {
   useCreateCustomerMutation,
   useUpdateCustomerMutation,
   useDeleteCustomerMutation,
+  useLazyGetCustomerByPhoneQuery,
 } = customerAPI;
