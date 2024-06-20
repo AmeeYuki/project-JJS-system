@@ -57,6 +57,70 @@ export const router = createBrowserRouter([
             element: Home,
           },
           {
+            path: "/",
+            element: <AuthGuard allowedRoles={["ROLE_ADMIN"]} />,
+            children: [
+              {
+                path: "dashboard",
+                element: Dashboard,
+              },
+              {
+                path: "user",
+                element: User,
+              },
+            ],
+          },
+
+          {
+            path: "/",
+            element: (
+              <AuthGuard allowedRoles={["ROLE_ADMIN", "ROLE_MANAGER"]} />
+            ),
+            children: [
+              {
+                path: "counter",
+                element: Counter,
+              },
+              {
+                path: "promotion",
+                element: Promotion,
+              },
+              {
+                path: "category",
+                element: Category,
+              },
+              {
+                path: "counter/:id",
+                element: CounterDetail,
+              },
+            ],
+          },
+
+          {
+            path: "/",
+            element: (
+              <AuthGuard
+                allowedRoles={["ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STAFF"]}
+              />
+            ),
+            children: [
+              {
+                path: "customer",
+                element: Customer,
+              },
+              {
+                path: "order",
+                element: Order,
+              },
+              {
+                path: "order/make-sell",
+                element: MakeSell,
+              },
+              {
+                path: "product",
+                element: Product,
+              },
+            ],
             path: "dashboard",
             element: Dashboard,
           },
@@ -103,22 +167,19 @@ export const router = createBrowserRouter([
           },
         ],
       },
-      // {
-      //   path: "login-first-time",
-      //   element: LoginFirstTime,
-      // },
     ],
   },
+
   {
     path: "/",
     element: <GuestGuard />,
 
     children: [
-      {
-        index: true,
-        // path: "",
-        element: Home,
-      },
+      // {
+      //   index: true,
+      //   // path: "",
+      //   element: Home,
+      // },
       {
         path: "login",
         element: Login,
@@ -141,6 +202,10 @@ export const router = createBrowserRouter([
     path: "login-first-time",
     element: LoginFirstTime,
   },
+  // {
+  //   path: "unauthorised",
+  //   element: Unauthorised,
+  // },
   {
     path: "*",
     element: <div>404 Page not found</div>,
