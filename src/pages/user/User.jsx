@@ -78,9 +78,8 @@ export default function User() {
   };
 
   const handleUpdateUser = async (values) => {
-    console.log(values);
     try {
-      await editUserMutation(values).unwrap();
+      const response = editUserMutation(values);
       setIsCreateModalVisible(false);
       notification.success({
         message: "Update user successfully",
@@ -113,6 +112,7 @@ export default function User() {
 
   const handleActiveUser = async (userId) => {
     const result = await activeUserMutation(userId);
+
     if (result.error.originalStatus == 200) {
       refetch();
       notification.success({
