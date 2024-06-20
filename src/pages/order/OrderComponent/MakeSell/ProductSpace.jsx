@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Button, ConfigProvider, Table } from "antd";
-import Search from "antd/es/input/Search";
-import { RiCouponLine, RiUserStarLine } from "@remixicon/react";
+import { ConfigProvider } from "antd";
 import { useGetProductsQuery } from "../../../../services/productAPI";
+import ProductTable from "./ProductTable";
+import CartTable from "./CartTable";
+import CartSummary from "./CartSummary";
+import ProductSearch from "./ProductSearch";
 import PromotionModal from "./PromotionModal";
 import VoucherModal from "./VoucherModal";
 import SendRequestModal from "./SendRequestModal";
@@ -96,133 +98,6 @@ export default function ProductSpace({ onProductChange }) {
 
   const totalBeforeDiscount = subtotal - discount;
 
-  const productColumns = [
-    {
-      title: "No.",
-      dataIndex: "no",
-      key: "no",
-      render: (_, __, index) => index + 1,
-    },
-    {
-      title: "Product Name",
-      dataIndex: "product_name",
-      key: "product_name",
-      render: (_, record) => (
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <img
-            src={record.product_image}
-            alt={record.product_name}
-            style={{ width: "50px", height: "50px", marginRight: "10px" }}
-          />
-          <span>{record.product_name}</span>
-        </div>
-      ),
-    },
-    {
-      title: "Barcode",
-      dataIndex: "barcode",
-      key: "barcode",
-    },
-    {
-      title: "Type",
-      dataIndex: "type",
-      key: "type",
-      render: (text, record) => record.type.type,
-    },
-    {
-      title: "Price",
-      dataIndex: "price",
-      key: "price",
-      render: (price) => new Intl.NumberFormat("vi-VN").format(price) + " VNĐ",
-    },
-    {
-      title: "Action",
-      dataIndex: "action",
-      key: "action",
-      render: (_, record) => (
-        <Button onClick={() => addToCart(record)}>Add to Cart</Button>
-      ),
-    },
-  ];
-
-  const cartColumns = [
-    {
-      title: "No.",
-      dataIndex: "no",
-      key: "no",
-      render: (_, __, index) => index + 1,
-    },
-    {
-      title: "Product",
-      dataIndex: "product_name",
-      key: "product_name",
-      render: (_, record) => (
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <img
-            src={record.product_image}
-            alt={record.product_name}
-            style={{ width: "50px", height: "50px", marginRight: "10px" }}
-          />
-          <span>{record.product_name}</span>
-        </div>
-      ),
-    },
-    {
-      title: "Barcode",
-      dataIndex: "barcode",
-      key: "barcode",
-    },
-    {
-      title: "Type",
-      dataIndex: "type",
-      key: "type",
-      render: (text, record) => record.type.type,
-    },
-    {
-      title: "Price",
-      dataIndex: "price",
-      key: "price",
-      render: (price) => new Intl.NumberFormat("vi-VN").format(price) + " VNĐ",
-    },
-    {
-      title: "Quantity",
-      dataIndex: "quantity",
-      key: "quantity",
-      render: (_, record) => (
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <Button onClick={() => decreaseQuantity(record)}>-</Button>
-          <span style={{ margin: "0 10px" }}>{record.quantity}</span>
-          <Button onClick={() => increaseQuantity(record)}>+</Button>
-        </div>
-      ),
-    },
-    {
-      title: "Total",
-      dataIndex: "total",
-      key: "total",
-      render: (text) => text.toLocaleString(),
-    },
-    {
-      title: "Action",
-      dataIndex: "action",
-      key: "action",
-      render: (_, record) => (
-        <Button onClick={() => removeFromCart(record)}>Delete</Button>
-      ),
-    },
-  ];
-
-  const cartData = cartItems.map((item, index) => ({
-    key: index,
-    id: item.id,
-    product_name: item.product_name,
-    product_image: item.product_image,
-    barcode: item.barcode,
-    type: item.type,
-    price: item.price,
-    quantity: item.quantity,
-    total: item.price * item.quantity,
-  }));
   const filteredProducts =
     productsData?.products.filter((item) =>
       item.barcode.toLowerCase().includes(searchTerm.toLowerCase())
@@ -234,6 +109,7 @@ export default function ProductSpace({ onProductChange }) {
     product_image: item.image_url,
     product_name: item.product_name,
     barcode: item.barcode,
+    quantity: item.quantity,
     type: item.type,
     price: calculatePrice(item),
   }));
@@ -261,30 +137,13 @@ export default function ProductSpace({ onProductChange }) {
     <div className="product-space">
       <div className="product-select">
         <h1 className="title">Product: </h1>
-        <ConfigProvider
-          theme={{
-            token: {
-              borderRadius: "6px",
-            },
-          }}
-        >
-          <Search
-            style={{ width: "400px" }}
-            placeholder="Search by product name"
-            onSearch={(value) => setSearchTerm(value)}
-            enterButton
-          />
-        </ConfigProvider>
+        <ProductSearch setSearchTerm={setSearchTerm} />
 
         <div className="product-show">
           {isLoading ? (
             <p>Loading...</p>
           ) : productsData && productsData.products ? (
-            <Table
-              columns={productColumns}
-              dataSource={productData}
-              pagination={{ pageSize: 4 }}
-            />
+            <ProductTable products={productData} addToCart={addToCart} />
           ) : (
             <p>
               {isLoading ? (
@@ -307,70 +166,23 @@ export default function ProductSpace({ onProductChange }) {
             },
           }}
         >
-          <Table
-            columns={cartColumns}
-            dataSource={cartData}
-            pagination={false}
+          <CartTable
+            cartItems={cartItems}
+            increaseQuantity={increaseQuantity}
+            decreaseQuantity={decreaseQuantity}
+            removeFromCart={removeFromCart}
           />
         </ConfigProvider>
         <br />
-        <div className="cart-total">
-          <div className="voucher d-flex-center">
-            <div>
-              <p className="d-flex-text-center">
-                <RiCouponLine />
-                Voucher:
-                <Button
-                  type="primary"
-                  size="small"
-                  onClick={() => setVoucherModalVisible(true)}
-                >
-                  Add Voucher
-                </Button>
-              </p>
-            </div>
-            <p>200 VNĐ</p>
-          </div>
-          <div className="policy d-flex-center">
-            <div>
-              <p className="d-flex-text-center">
-                <RiUserStarLine />
-                Customer Policy:
-                <Button
-                  type="primary"
-                  size="small"
-                  onClick={() => setSendRequestModalVisible(true)}
-                >
-                  Send Request
-                </Button>
-                <Button
-                  type="primary"
-                  size="small"
-                  onClick={() => setPromotionModalVisible(true)}
-                >
-                  Add policy
-                </Button>
-              </p>
-            </div>
-            <p>200 VNĐ</p>
-          </div>
-          <div className="money">
-            <div className="d-flex-center">
-              <p>Provisional:</p>
-              <p>{subtotal.toLocaleString()} VNĐ</p>
-            </div>
-            <div className="d-flex-center">
-              <p>Discount ({discountPercent}%):</p>
-              <p>{discount.toLocaleString()} VNĐ</p>
-            </div>
-            <div className="d-flex-center">
-              <p style={{ fontSize: "25px", fontWeight: 500 }}>Total:</p>
-              <p style={{ color: "red", fontWeight: 500 }}>
-                {totalBeforeDiscount.toLocaleString()} VNĐ
-              </p>
-            </div>
-          </div>
-        </div>
+        <CartSummary
+          subtotal={subtotal}
+          discount={discount}
+          discountPercent={discountPercent}
+          totalBeforeDiscount={totalBeforeDiscount}
+          setVoucherModalVisible={setVoucherModalVisible}
+          setPromotionModalVisible={setPromotionModalVisible}
+          setSendRequestModalVisible={setSendRequestModalVisible}
+        />
       </div>
       <PromotionModal
         isVisible={isPromotionModalVisible}

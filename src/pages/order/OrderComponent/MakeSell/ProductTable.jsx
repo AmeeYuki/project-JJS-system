@@ -42,6 +42,11 @@ const ProductTable = ({ products, addToCart }) => {
       render: (price) => new Intl.NumberFormat("vi-VN").format(price) + " VNĐ",
     },
     {
+      title: "Available Quantity",
+      dataIndex: "quantity",
+      key: "available_quantity",
+    },
+    {
       title: "Action",
       dataIndex: "action",
       key: "action",
