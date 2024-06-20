@@ -61,59 +61,63 @@ export const router = createBrowserRouter([
                 path: "dashboard",
                 element: Dashboard,
               },
+              {
+                path: "user",
+                element: User,
+              },
             ],
           },
 
           {
             path: "/",
-            element: <AuthGuard allowedRoles={["ROLE_ADMIN"]} />,
+            element: (
+              <AuthGuard allowedRoles={["ROLE_ADMIN", "ROLE_MANAGER"]} />
+            ),
             children: [
               {
                 path: "counter",
                 element: Counter,
               },
+              {
+                path: "promotion",
+                element: Promotion,
+              },
+              {
+                path: "category",
+                element: Category,
+              },
+              {
+                path: "counter/:id",
+                element: CounterDetail,
+              },
             ],
           },
 
-          // {
-          //   path: "counter",
-          //   element: Counter,
-          // },
           {
-            path: "customer",
-            element: Customer,
-          },
-          {
-            path: "order",
-            element: Order,
-          },
-          {
-            path: "order",
-            element: Order,
-          },
-          {
-            path: "order/make-sell",
-            element: MakeSell,
-          },
-          {
-            path: "product",
-            element: Product,
-          },
-          {
-            path: "promotion",
-            element: Promotion,
-          },
-          {
-            path: "user",
-            element: User,
-          },
-          {
-            path: "category",
-            element: Category,
-          },
-          {
-            path: "counter/:id",
-            element: CounterDetail,
+            path: "/",
+            element: (
+              <AuthGuard
+                allowedRoles={["ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STAFF"]}
+              />
+            ),
+            children: [
+              {
+                path: "customer",
+                element: Customer,
+              },
+              {
+                path: "order",
+                element: Order,
+              },
+              {
+                path: "order/make-sell",
+                element: MakeSell,
+              },
+              {
+                path: "product",
+                element: Product,
+              },
+            ],
           },
         ],
       },
