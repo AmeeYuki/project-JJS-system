@@ -10,21 +10,19 @@ const CreateUserModal = ({ visible, onCreate, onCancel, loading }) => {
   const { data: countersData, isLoading: countersLoading } =
     useGetCountersQuery();
   const [form] = Form.useForm();
-  const [showCounter, setShowCounter] = useState(true); // State để theo dõi trường Counter
-
+  const [showCounter, setShowCounter] = useState(true);
   useEffect(() => {
     if (!visible) {
-      form.resetFields(); // Reset form fields when modal is closed
+      form.resetFields();
     }
   }, [form, visible]);
 
   const handleDateChange = (date, dateString) => {
-    console.log("Selected DOB:", date);
+    // console.log("Selected DOB:", date);
   };
 
   const handleRoleChange = (value) => {
-    setShowCounter(value === 3); // Cập nhật trạng thái của trường Counter dựa vào giá trị của vai trò
-    // Nếu trường Counter bị ẩn, đặt giá trị mặc định là null
+    setShowCounter(value === 3);
     if (!showCounter) {
       form.setFieldsValue({
         counter: null,

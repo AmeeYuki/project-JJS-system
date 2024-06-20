@@ -42,6 +42,9 @@ const Category = Loadable({
 const CounterDetail = Loadable({
   loader: () => import("../pages/counter/CounterDetail"),
 });
+const Policy = Loadable({
+  loader: () => import("../pages/customerPolicy/Policy"),
+});
 
 export const router = createBrowserRouter([
   {
@@ -120,6 +123,10 @@ export const router = createBrowserRouter([
               {
                 path: "order/:id",
                 element: OrderDetail,
+              },
+              {
+                path: "policy",
+                element: Policy,
               },
             ],
           },
