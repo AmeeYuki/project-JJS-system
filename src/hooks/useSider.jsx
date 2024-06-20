@@ -11,62 +11,69 @@ import {
   TagOutlined,
   PercentageOutlined,
 } from "@ant-design/icons";
-import LogoutIcon from "@mui/icons-material/Logout";
 
-import LogoutButton from "../components/LogoutButton/LogoutButton";
+import { selectAuth } from "../slices/auth.slice";
+import { useSelector } from "react-redux";
 
 const useSider = () => {
+  const auth = useSelector(selectAuth);
+  const role = auth?.roles[0]; // Assuming role is the first element in the roles array
+
   const siderList = useMemo(() => {
-    return [
+    const list = [
       {
         label: "Home",
         icon: <HomeOutlined />,
         href: "",
+        roles: ["ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STAFF"],
       },
       {
         label: "Dashboard",
         icon: <AreaChartOutlined />,
         href: "dashboard",
+        roles: ["ROLE_ADMIN"],
       },
-
       {
         label: "Product",
         icon: <ShoppingOutlined />,
         href: "product",
+        roles: ["ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STAFF"],
       },
       {
         label: "Order",
         icon: <ShoppingCartOutlined />,
         href: "order",
+        roles: ["ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STAFF"],
       },
       {
         label: "Customer",
         icon: <UsergroupDeleteOutlined />,
         href: "customer",
+        roles: ["ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STAFF"],
       },
       {
         label: "User manager",
         icon: <UserOutlined />,
         href: "user",
+        roles: ["ROLE_ADMIN"],
       },
       {
         label: "Counter",
         icon: <TagOutlined />,
         href: "counter",
+        roles: ["ROLE_ADMIN", "ROLE_MANAGER"],
       },
       {
         label: "Promotion",
         icon: <PercentageOutlined />,
         href: "promotion",
+        roles: ["ROLE_ADMIN", "ROLE_MANAGER"],
       },
-
-      // {
-      //   label: "Setting",
-      //   icon: <FieldTimeOutlined />,
-      //   href: "Setting",
-      // },
     ];
-  }, []);
+
+    return list.filter((item) => item.roles.includes(role));
+  }, [role]);
+
   return siderList;
 };
 
