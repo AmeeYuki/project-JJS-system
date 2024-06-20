@@ -42,18 +42,17 @@ const Category = Loadable({
 const CounterDetail = Loadable({
   loader: () => import("../pages/counter/CounterDetail"),
 });
+
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <AuthGuard />,
-
     children: [
       {
         element: <MainLayout />,
         children: [
           {
             index: true,
-            // path: "",
             element: Home,
           },
           {
@@ -70,7 +69,6 @@ export const router = createBrowserRouter([
               },
             ],
           },
-
           {
             path: "/",
             element: (
@@ -95,7 +93,6 @@ export const router = createBrowserRouter([
               },
             ],
           },
-
           {
             path: "/",
             element: (
@@ -120,66 +117,20 @@ export const router = createBrowserRouter([
                 path: "product",
                 element: Product,
               },
+              {
+                path: "order/:id",
+                element: OrderDetail,
+              },
             ],
-            path: "dashboard",
-            element: Dashboard,
-          },
-
-          {
-            path: "counter",
-            element: Counter,
-          },
-          {
-            path: "customer",
-            element: Customer,
-          },
-          {
-            path: "order",
-            element: Order,
-          },
-          {
-            path: "order/:id",
-            element: OrderDetail,
-          },
-          {
-            path: "order/make-sell",
-            element: MakeSell,
-          },
-          {
-            path: "product",
-            element: Product,
-          },
-          {
-            path: "promotion",
-            element: Promotion,
-          },
-          {
-            path: "user",
-            element: User,
-          },
-          {
-            path: "category",
-            element: Category,
-          },
-          {
-            path: "counter/:id",
-            element: CounterDetail,
           },
         ],
       },
     ],
   },
-
   {
     path: "/",
     element: <GuestGuard />,
-
     children: [
-      // {
-      //   index: true,
-      //   // path: "",
-      //   element: Home,
-      // },
       {
         path: "login",
         element: Login,
@@ -190,22 +141,10 @@ export const router = createBrowserRouter([
       },
     ],
   },
-  // {
-  //   path: "login",
-  //   element: Login,
-  // },
-  // {
-  //   path: "forget-password",
-  //   element: ForgetPassword,
-  // },
   {
     path: "login-first-time",
     element: LoginFirstTime,
   },
-  // {
-  //   path: "unauthorised",
-  //   element: Unauthorised,
-  // },
   {
     path: "*",
     element: <div>404 Page not found</div>,
