@@ -22,7 +22,7 @@ const Customer = Loadable({
 });
 const Order = Loadable({ loader: () => import("../pages/order/Order") });
 const OrderDetail = Loadable({
-  loader: () => import("../pages/order/OrderComponent/OrderDetail"),
+  loader: () => import("../pages/order/OrderComponent/OrderDetail/OrderDetail"),
 });
 const MakeSell = Loadable({
   loader: () => import("../pages/order/OrderComponent/MakeSell/MakeSell"),
@@ -44,6 +44,11 @@ const CounterDetail = Loadable({
 });
 const Policy = Loadable({
   loader: () => import("../pages/customerPolicy/Policy"),
+});
+
+const MakePurchase = Loadable({
+  loader: () =>
+    import("../pages/order/OrderComponent/MakePurchased/MakePurchase"),
 });
 
 export const router = createBrowserRouter([
@@ -115,6 +120,10 @@ export const router = createBrowserRouter([
               {
                 path: "order/make-sell",
                 element: MakeSell,
+              },
+              {
+                path: "order/make-purchase",
+                element: MakePurchase,
               },
               {
                 path: "product",

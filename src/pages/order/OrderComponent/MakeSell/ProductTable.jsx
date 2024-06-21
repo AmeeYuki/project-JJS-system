@@ -43,7 +43,7 @@ const ProductTable = ({ products, addToCart }) => {
     },
     {
       title: "Available Quantity",
-      dataIndex: "quantity",
+      dataIndex: "available_quantity",
       key: "available_quantity",
     },
     {

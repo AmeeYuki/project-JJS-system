@@ -31,6 +31,24 @@ export const orderAPI = createApi({
           : [{ type: "OrderList", id: "LIST" }],
     }),
 
+    getOrderDetail: builder.query({
+      query: (id) => `order_details/get_order_detail_by_order_id/${id}`,
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({
+                type: "OrderList",
+                id,
+              })),
+              { type: "OrderList", id: "LIST" },
+            ]
+          : [{ type: "OrderList", id: "LIST" }],
+    }),
+
+    getOrderById: builder.query({
+      query: (id) => `orders/get_order_by_id/${id}`,
+    }),
+
     addOrder: builder.mutation({
       query: (body) => {
         return {
@@ -67,7 +85,11 @@ export const orderAPI = createApi({
 
 export const {
   useGetOrdersQuery,
+  useGetOrderByIdQuery,
   useAddOrderMutation,
   useEditOrderMutation,
   useDeleteOrderMutation,
+  useGetOrderDetailQuery,
+  useLazyGetOrderByIdQuery,
+  useLazyGetOrderDetailQuery,
 } = orderAPI;

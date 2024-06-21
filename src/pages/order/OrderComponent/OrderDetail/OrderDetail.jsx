@@ -1,0 +1,60 @@
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  useGetOrderByIdQuery,
+  useGetOrderDetailQuery,
+} from "../../../../services/orderAPI"; // Adjust the path as necessary
+import InformationCustomer from "./InformationCustomer";
+import "../../Order.css";
+import OrderTable from "./OrderTable";
+import { Button, Spin } from "antd";
+
+export default function OrderDetail() {
+  const { id } = useParams();
+  const { data: order } = useGetOrderByIdQuery(id);
+  const { data: products } = useGetOrderDetailQuery(id);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (order && products) {
+      setIsLoading(false);
+    }
+  }, [order, products]);
+
+  if (isLoading) {
+    return (
+      <div>
+        <Spin />
+      </div>
+    );
+  }
+
+  const handleBackOrder = () => {
+    navigate("/order");
+  };
+
+  return (
+    <div className="order-page">
+      <div className="header">
+        <h1 className="title">Order Detail</h1>
+        <hr />
+      </div>
+      <div className="information">
+        <InformationCustomer order={order} />
+      </div>
+      <div className="order-space">
+        <OrderTable products={products} />
+      </div>
+
+      <div className="d-flex-center" style={{ marginTop: 20 }}>
+        <div>
+          <Button type="primary" size="large" onClick={handleBackOrder}>
+            Back
+          </Button>
+        </div>
+        <div></div>
+      </div>
+    </div>
+  );
+}

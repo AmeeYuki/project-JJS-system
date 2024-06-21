@@ -68,7 +68,7 @@ export default function Order() {
 
   const handleMakePurchase = () => {
     setIsModalOpen(false);
-    console.log("Navigate to Make Purchase page");
+    navigate("/order/make-purchase");
   };
 
   const handleSearch = (value) => {

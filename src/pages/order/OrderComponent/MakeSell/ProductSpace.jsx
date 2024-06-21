@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ConfigProvider } from "antd";
+import { ConfigProvider, message } from "antd";
 import { useGetProductsQuery } from "../../../../services/productAPI";
 import ProductTable from "./ProductTable";
 import CartTable from "./CartTable";
@@ -40,6 +40,15 @@ export default function ProductSpace({ onProductChange }) {
     const existingItemIndex = cartItems.findIndex(
       (item) => item.id === product.id
     );
+
+    const currentQuantityInCart =
+      existingItemIndex >= 0 ? cartItems[existingItemIndex].quantity : 0;
+
+    if (currentQuantityInCart + 1 > product.available_quantity) {
+      message.error("Cannot add more than available quantity.");
+      return;
+    }
+
     let updatedCartItems = [...cartItems];
 
     if (existingItemIndex >= 0) {
@@ -65,6 +74,18 @@ export default function ProductSpace({ onProductChange }) {
   };
 
   const increaseQuantity = (product) => {
+    const existingItemIndex = cartItems.findIndex(
+      (item) => item.id === product.id
+    );
+
+    const currentQuantityInCart =
+      existingItemIndex >= 0 ? cartItems[existingItemIndex].quantity : 0;
+
+    if (currentQuantityInCart + 1 > product.available_quantity) {
+      message.error("Cannot add more than available quantity.");
+      return;
+    }
+
     const updatedCartItems = cartItems.map((item) =>
       item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
     );
@@ -109,9 +130,9 @@ export default function ProductSpace({ onProductChange }) {
     product_image: item.image_url,
     product_name: item.product_name,
     barcode: item.barcode,
-    quantity: item.quantity,
     type: item.type,
     price: calculatePrice(item),
+    available_quantity: item.quantity,
   }));
   console.log(filteredProducts);
 

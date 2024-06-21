@@ -2,16 +2,22 @@ import React from "react";
 import { Dropdown, Menu, Space, Table, Tag } from "antd";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
 export default function OrderList({ ordersData }) {
+  const navigate = useNavigate();
   const actionsMenu = (record) => (
     <Menu>
-      <Menu.Item key="viewDetail">
-        <span>View Detail</span>
+      <Menu.Item
+        key="edit"
+        className="submenu-usertable"
+        onClick={() => navigate(`/order/${record.orderId}`)}
+      >
+        <span>View Detail </span>
       </Menu.Item>
-      <Menu.Item key="edit">
+      {/* <Menu.Item key="edit">
         <span>Edit User</span>
-      </Menu.Item>
+      </Menu.Item> */}
     </Menu>
   );
 
