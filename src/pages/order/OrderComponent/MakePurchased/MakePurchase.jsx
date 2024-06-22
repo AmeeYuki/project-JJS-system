@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { SearchOutlined } from "@ant-design/icons";
-import { Input, message, Row, Col, Card, Button } from "antd";
+import { Input, message, Button } from "antd";
 import {
   useAddOrderMutation,
   useLazyGetOrderByIdQuery,
@@ -12,6 +12,7 @@ import Cart from "./Cart";
 import "./MakePurchase.css";
 import { useSelector } from "react-redux";
 import { selectAuth } from "../../../../slices/auth.slice";
+import { useNavigate } from "react-router-dom";
 
 export default function MakePurchase() {
   const [orderId, setOrderId] = useState("");
@@ -19,17 +20,17 @@ export default function MakePurchase() {
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState([]);
   const auth = useSelector(selectAuth);
-
+  const navigate = useNavigate();
   const [addOrder, { isLoading }] = useAddOrderMutation();
   const [orderData, setOrderData] = useState({
-    orderRequests: [], // Danh sách sản phẩm trong giỏ hàng
+    orderRequests: [],
     orderDTO: {
-      date: new Date().toISOString(), // Ngày hiện tại
-      discount: 0, // Giảm giá (nếu có)
-      created_by: auth.name, // Người tạo đơn hàng
-      type: "buy", // Loại đơn hàng (có thể là buy, sell, ...)
-      customer_id: 0, // ID khách hàng (nếu có)
-      user_id: auth.id, // ID người dùng tạo đơn hàng
+      date: new Date().toISOString(),
+      discount: 0,
+      created_by: auth.name,
+      type: "buy",
+      customer_id: 0,
+      user_id: auth.id,
     },
   });
 
@@ -41,7 +42,22 @@ export default function MakePurchase() {
   const handleSearch = async () => {
     try {
       const orderData = await getOrderById(orderId).unwrap();
+      if (orderData.type === "buy") {
+        message.error("Cannot process orders of type 'buy'.");
+        return; // Exit the function if the order type is 'buy'
+      }
+
+      console.log(orderData);
+      console.log(orderData.customer.id);
       setOrder(orderData);
+      setOrderData((prevData) => ({
+        ...prevData,
+        orderDTO: {
+          ...prevData.orderDTO,
+          customer_id: orderData.customer.id, // Assuming orderData contains customer.id
+        },
+      }));
+
       const productsData = await getOrderDetail(orderId).unwrap();
       setProducts(productsData);
     } catch (error) {
@@ -49,12 +65,13 @@ export default function MakePurchase() {
     }
   };
 
+  console.log(orderData);
+
   const addToCart = (product) => {
     const existingItem = cartItems.find(
       (item) => item.product_name === product.product_name
     );
 
-    // Kiểm tra số lượng yêu cầu không được vượt quá quantity của sản phẩm
     if (existingItem && existingItem.quantity + 1 > product.quantity) {
       message.error(`Cannot add more than ${product.quantity} items`);
     } else {
@@ -76,25 +93,22 @@ export default function MakePurchase() {
   };
 
   const handleMakeOrder = async () => {
+    console.log(cartItems);
     try {
-      // Lấy danh sách sản phẩm từ giỏ hàng để thêm vào đơn hàng
       const orderRequests = cartItems.map((item) => ({
         quantity: item.quantity,
         product_id: item.product_id,
-        unit_price: item.unit_price,
+        unit_price: item.totalPriceSell,
       }));
 
-      // Cập nhật orderData với danh sách sản phẩm từ giỏ hàng
-      setOrderData({
+      const finalOrderData = {
         ...orderData,
-        orderRequests: orderRequests,
-      });
+        orderRequests,
+      };
 
-      // Gọi API để tạo đơn hàng
-      const result = await addOrder(orderData).unwrap();
+      console.log(finalOrderData);
+      const result = await addOrder(finalOrderData).unwrap();
       message.success("Order successfully created!");
-
-      // Sau khi đơn hàng được tạo thành công, làm sạch giỏ hàng và đặt lại dữ liệu đơn hàng
       setCartItems([]);
       setOrderData({
         orderRequests: [],
@@ -103,10 +117,12 @@ export default function MakePurchase() {
           discount: 0,
           created_by: auth.name,
           type: "buy",
-          customer_id: 0,
+          customer_id: 0, // Reset customer_id after order creation
           user_id: auth.id,
         },
       });
+      setOrder(null);
+      navigate("/order");
     } catch (error) {
       message.error("Failed to create order.");
     }
@@ -144,7 +160,7 @@ export default function MakePurchase() {
                 type="primary"
                 onClick={handleMakeOrder}
                 loading={isLoading}
-                disabled={orderData.orderRequests.length === 0}
+                disabled={cartItems.length === 0}
               >
                 Make Order
               </Button>

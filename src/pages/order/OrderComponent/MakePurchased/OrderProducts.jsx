@@ -71,10 +71,19 @@ const OrderProducts = ({ products, addToCart }) => {
     return priceProcessing + priceStone + weight * sellPricePerGram;
   };
 
+  const calculateTotalBuyPrice = (
+    priceProcessing,
+    priceStone,
+    weight,
+    sellPricePerGram
+  ) => {
+    return priceProcessing + priceStone + weight * sellPricePerGram;
+  };
   const orderData = products.map((item, index) => ({
     key: index,
     no: index + 1,
     product_name: item.product.productName,
+    product_id: item.product.id,
     product_image: item.product.imageUrl,
     quantity: item.quantity,
     weight: item.product.weight,
@@ -91,6 +100,12 @@ const OrderProducts = ({ products, addToCart }) => {
       item.product.priceStone,
       item.product.weight,
       item.product.type.sell_price_per_gram
+    ),
+    totalPriceBuy: calculateTotalBuyPrice(
+      item.product.priceProcessing,
+      item.product.priceStone,
+      item.product.weight,
+      item.product.type.buy_price_per_gram
     ),
   }));
 
