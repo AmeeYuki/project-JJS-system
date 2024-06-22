@@ -75,36 +75,6 @@ export default function MakePurchase() {
     setCartItems(cartItems.filter((item) => item.key !== key));
   };
 
-  const addToOrderData = (product) => {
-    const { product_id, unit_price, quantity } = product;
-
-    const existingRequest = orderData.orderRequests.find(
-      (item) => item.product_id === product_id
-    );
-
-    if (existingRequest) {
-      const updatedRequests = orderData.orderRequests.map((item) =>
-        item.product_id === product_id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      );
-      setOrderData({
-        ...orderData,
-        orderRequests: updatedRequests,
-      });
-    } else {
-      const newRequest = {
-        quantity: quantity,
-        product_id: product_id,
-        unit_price: unit_price,
-      };
-      setOrderData({
-        ...orderData,
-        orderRequests: [...orderData.orderRequests, newRequest],
-      });
-    }
-  };
-
   const handleMakeOrder = async () => {
     try {
       // Lấy danh sách sản phẩm từ giỏ hàng để thêm vào đơn hàng

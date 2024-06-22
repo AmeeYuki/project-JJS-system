@@ -16,21 +16,21 @@ const Cart = ({ cartItems, removeFromCart }) => {
       key: "product_name",
     },
     {
+      title: "Price",
+      dataIndex: "totalPriceSell",
+      key: "unitPrice",
+      render: (totalPriceSell) => `${totalPriceSell.toLocaleString()} VNĐ`,
+    },
+    {
       title: "Quantity",
       dataIndex: "quantity",
       key: "quantity",
     },
     {
-      title: "Price",
-      dataIndex: "unitPrice",
-      key: "unitPrice",
-      render: (price) => `${price.toLocaleString()} VNĐ`,
-    },
-    {
       title: "Total",
       key: "total",
       render: (_, record) =>
-        `${(record.unitPrice * record.quantity).toLocaleString()} VNĐ`,
+        `${(record.totalPriceSell * record.quantity).toLocaleString()} VNĐ`,
     },
     {
       title: "Action",
@@ -42,6 +42,37 @@ const Cart = ({ cartItems, removeFromCart }) => {
       ),
     },
   ];
+
+  // const calculateTotalPrice = (
+  //   priceProcessing,
+  //   priceStone,
+  //   weight,
+  //   sellPricePerGram
+  // ) => {
+  //   return priceProcessing + priceStone + weight * sellPricePerGram;
+  // };
+  // const orderData = products.map((item, index) => ({
+  //   key: index,
+  //   no: index + 1,
+  //   product_name: item.product.productName,
+  //   product_image: item.product.imageUrl,
+  //   quantity: item.quantity,
+  //   weight: item.product.weight,
+  //   weightUnit: item.product.weightUnit,
+  //   unitPrice: item.unitPrice,
+  //   barcode: item.product.barcode,
+  //   priceProcessing: item.product.priceProcessing,
+  //   priceStone: item.product.priceStone,
+  //   buy_price_per_gram: item.product.type.buy_price_per_gram,
+  //   sell_price_per_gram: item.product.type.sell_price_per_gram,
+  //   type: item.product.type.type,
+  //   totalPriceSell: calculateTotalPrice(
+  //     item.product.priceProcessing,
+  //     item.product.priceStone,
+  //     item.product.weight,
+  //     item.product.type.sell_price_per_gram
+  //   ),
+  // }));
 
   return (
     <div>
