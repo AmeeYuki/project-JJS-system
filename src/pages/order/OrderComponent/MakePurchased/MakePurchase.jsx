@@ -47,8 +47,8 @@ export default function MakePurchase() {
         return; // Exit the function if the order type is 'buy'
       }
 
-      console.log(orderData);
-      console.log(orderData.customer.id);
+      // console.log(orderData);
+      // console.log(orderData.customer.id);
       setOrder(orderData);
       setOrderData((prevData) => ({
         ...prevData,
@@ -64,8 +64,6 @@ export default function MakePurchase() {
       message.error("Failed to fetch order details.");
     }
   };
-
-  console.log(orderData);
 
   const addToCart = (product) => {
     const existingItem = cartItems.find(
@@ -93,7 +91,7 @@ export default function MakePurchase() {
   };
 
   const handleMakeOrder = async () => {
-    console.log(cartItems);
+    // console.log(cartItems);
     try {
       const orderRequests = cartItems.map((item) => ({
         quantity: item.quantity,
@@ -106,7 +104,6 @@ export default function MakePurchase() {
         orderRequests,
       };
 
-      console.log(finalOrderData);
       const result = await addOrder(finalOrderData).unwrap();
       message.success("Order successfully created!");
       setCartItems([]);

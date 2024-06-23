@@ -134,7 +134,7 @@ export default function ProductSpace({ onProductChange }) {
     price: calculatePrice(item),
     available_quantity: item.quantity,
   }));
-  console.log(filteredProducts);
+  // console.log(filteredProducts);
 
   const sendProductData = (updatedCartItems = cartItems) => {
     const productData = updatedCartItems.map((item) => ({

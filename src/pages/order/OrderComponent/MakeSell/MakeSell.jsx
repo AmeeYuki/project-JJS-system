@@ -76,7 +76,7 @@ export default function MakeSell({}) {
 
   const handleCustomerInfoChange = (customerInfo) => {
     // Cập nhật thông tin khách hàng vào state orderData
-    console.log("Customer info changed:", customerInfo?.id); // Log dữ liệu khi thông tin khách hàng thay đổi
+    // console.log("Customer info changed:", customerInfo?.id); // Log dữ liệu khi thông tin khách hàng thay đổi
     setOrderData((prevData) => ({
       ...prevData,
       orderDTO: {
