@@ -5,9 +5,9 @@ import ProductTable from "./ProductTable";
 import CartTable from "./CartTable";
 import CartSummary from "./CartSummary";
 import ProductSearch from "./ProductSearch";
-import PromotionModal from "./PromotionModal";
 import VoucherModal from "./VoucherModal";
-import SendRequestModal from "./SendRequestModal";
+import SendRequestCustomerPolicyModal from "./SendRequestCustomerPolicyModal";
+import PolicyModel from "./PolicyModel";
 
 export default function ProductSpace({ onProductChange }) {
   const { data: productsData, isError, isLoading } = useGetProductsQuery();
@@ -205,7 +205,7 @@ export default function ProductSpace({ onProductChange }) {
           setSendRequestModalVisible={setSendRequestModalVisible}
         />
       </div>
-      <PromotionModal
+      <PolicyModel
         isVisible={isPromotionModalVisible}
         onClose={() => setPromotionModalVisible(false)}
       />
@@ -213,7 +213,7 @@ export default function ProductSpace({ onProductChange }) {
         isVisible={isVoucherModalVisible}
         onClose={() => setVoucherModalVisible(false)}
       />
-      <SendRequestModal
+      <SendRequestCustomerPolicyModal
         isVisible={isSendRequestModalVisible}
         onClose={() => setSendRequestModalVisible(false)}
       />

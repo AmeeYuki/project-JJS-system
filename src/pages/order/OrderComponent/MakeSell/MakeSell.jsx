@@ -9,7 +9,7 @@ import { useSelector } from "react-redux";
 import { selectAuth } from "../../../../slices/auth.slice";
 import { useNavigate } from "react-router-dom";
 
-export default function MakeSell({}) {
+export default function MakeSell() {
   const [addOrder, { isLoading }] = useAddOrderMutation();
   const [customerData, setCustomerData] = useState(false);
   // const [loading, isLoading] = useState(false);

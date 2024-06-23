@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal, Button } from "antd";
 
-export default function PromotionModal({ isVisible, onClose }) {
+export default function PolicyModel({ isVisible, onClose }) {
   return (
     <Modal
       title="Promotion"

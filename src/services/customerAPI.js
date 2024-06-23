@@ -51,6 +51,15 @@ export const customerAPI = createApi({
           ? [{ type: "CustomerList", id: result.id }]
           : [{ type: "CustomerList", id: "LIST" }],
     }),
+
+    createCustomerPolicy: builder.mutation({
+      query: (body) => ({
+        url: `customer_policies/add_new_customer_policy`,
+        method: "POST",
+        body: body,
+      }),
+      invalidatesTags: ["CustomerList"],
+    }),
   }),
 });
 
@@ -60,4 +69,5 @@ export const {
   useUpdateCustomerMutation,
   useDeleteCustomerMutation,
   useLazyGetCustomerByPhoneQuery,
+  useCreateCustomerPolicyMutation,
 } = customerAPI;
