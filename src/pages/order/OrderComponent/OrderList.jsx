@@ -1,19 +1,25 @@
 import React from "react";
 import { Dropdown, Menu, Space, Table, Tag } from "antd";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
 export default function OrderList({ ordersData }) {
+  const navigate = useNavigate();
   const actionsMenu = (record) => (
     <Menu>
-      <Menu.Item key="viewDetail">
-        <span>View Detail</span>
+      <Menu.Item
+        key="edit"
+        className="submenu-usertable"
+        onClick={() => navigate(`/order/${record.orderId}`)}
+      >
+        <span>View Detail </span>
       </Menu.Item>
-      <Menu.Item key="edit">
+      {/* <Menu.Item key="edit">
         <span>Edit User</span>
-      </Menu.Item>
+      </Menu.Item> */}
     </Menu>
   );
-  console.log(ordersData);
 
   const columns = [
     {
@@ -43,31 +49,34 @@ export default function OrderList({ ordersData }) {
       title: "Date",
       dataIndex: "date",
       key: "date",
+      render: (date) => dayjs(date).format("DD/MM/YYYY"),
     },
     {
-      title: "Type",
+      title: <div style={{ textAlign: "center" }}>Type</div>,
       dataIndex: "type",
       key: "type",
       render: (type) => (
-        <Tag
-          color={
-            type === "sell"
-              ? "yellow"
+        <div style={{ textAlign: "center" }}>
+          <Tag
+            color={
+              type === "sell"
+                ? "yellow"
+                : type === "buy"
+                ? "green"
+                : type === "buy back"
+                ? "blue"
+                : "gray"
+            }
+          >
+            {type === "sell"
+              ? "SELL"
               : type === "buy"
-              ? "green"
+              ? "BUY"
               : type === "buy back"
-              ? "blue"
-              : "gray"
-          }
-        >
-          {type === "sell"
-            ? "SELL"
-            : type === "buy"
-            ? "BUY"
-            : type === "buy back"
-            ? "BUY BACK"
-            : "UNKNOWN"}
-        </Tag>
+              ? "BUY BACK"
+              : "UNKNOWN"}
+          </Tag>
+        </div>
       ),
     },
     // {
@@ -94,7 +103,11 @@ export default function OrderList({ ordersData }) {
 
   return (
     <div>
-      <Table dataSource={ordersData} columns={columns} />
+      <Table
+        dataSource={ordersData}
+        columns={columns}
+        pagination={{ pageSize: 5 }}
+      />
     </div>
   );
 }

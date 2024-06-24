@@ -1,6 +1,7 @@
 .d-flex-center {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .d-flex-text-center {
@@ -14,7 +15,7 @@
 }
 
 .make-sell-page .header {
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 .make-sell-page .header .title {
   font-family: "Playfair Display";

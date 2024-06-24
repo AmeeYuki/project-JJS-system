@@ -1,18 +1,18 @@
-.order-page {
+.policy-page {
   padding: 10px 20px;
 }
 
-.order-page .header {
+.policy-page .header {
   margin-bottom: 5px;
 }
-.order-page .title {
+.policy-page .title {
   font-family: "Playfair Display";
   font-size: 40px;
   font-weight: 500;
   /* margin-bottom: 20px; */
 }
 
-.order-page .action {
+.policy-page .action {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -20,19 +20,9 @@
   /* font-family: Inter; */
   margin-bottom: 20px;
 }
-.order-page .action .action-left {
+.policy-page .action .action-left {
   display: flex;
   justify-content: flex-start;
   align-items: center;
   gap: 20px;
-}
-.make-order-space {
-  display: flex;
-  justify-content: space-between;
-}
-.order-page .information {
-  /* margin-top: 5px; */
-  font-family: "Playfair Display";
-  font-size: 40px;
-  font-weight: 500;
 }

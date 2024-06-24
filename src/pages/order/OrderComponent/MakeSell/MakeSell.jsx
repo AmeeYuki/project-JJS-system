@@ -8,9 +8,15 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { selectAuth } from "../../../../slices/auth.slice";
 import { useNavigate } from "react-router-dom";
+import { useUsedPolicyMutation } from "../../../../services/customerAPI";
 
-export default function MakeSell({}) {
+export default function MakeSell() {
   const [addOrder, { isLoading }] = useAddOrderMutation();
+  const [customerData, setCustomerData] = useState(false);
+  const [customerId, setCustomerId] = useState();
+  const [policyId, setPolicyId] = useState();
+  const [usedPolicy] = useUsedPolicyMutation();
+
   // const [loading, isLoading] = useState(false);
   const auth = useSelector(selectAuth);
   const navigate = useNavigate();
@@ -33,40 +39,20 @@ export default function MakeSell({}) {
     },
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setOrderData((prevState) => ({
-      ...prevState,
-      orderDTO: {
-        ...prevState.orderDTO,
-        [name]: value,
-      },
-    }));
-  };
-
-  // const handleSubmit = async (e) => {
-  //   try {
-  //     console.log("Submitting order data:", orderData); // Log dữ liệu trước khi gọi mutation
-  //     const response = await addOrder(orderData); // Gọi mutation để thêm đơn hàng
-  //     console.log("Added order:", data);
-  //     notification.success({
-  //       message: "Maker Order Successfully",
-  //     });
-  //     notification;
-  //     navigate("/order");
-  //   } catch (error) {
-  //     console.error("Error adding order:", error);
-  //     notification.error({
-  //       message: "Maker Order Successfully",
-  //     });
-  //   }
-  // };
-
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission behavior
+    console.log(orderData);
+    console.log(policyId);
+
+    if (orderData.orderRequests.length <= 0) {
+      notification.error({
+        message: "Not product in cart",
+      });
+      return;
+    }
     try {
       const response = await addOrder(orderData); // Call the mutation to add the order and unwrap the response
-      console.log(response);
+      // console.log(response);
+      await usedPolicy({ id: policyId });
       if (response) {
         notification.success({
           message: "Order made successfully",
@@ -86,7 +72,8 @@ export default function MakeSell({}) {
 
   const handleCustomerInfoChange = (customerInfo) => {
     // Cập nhật thông tin khách hàng vào state orderData
-    console.log("Customer info changed:", customerInfo?.id); // Log dữ liệu khi thông tin khách hàng thay đổi
+    // console.log("Customer info changed:", customerInfo?.id); // Log dữ liệu khi thông tin khách hàng thay đổi
+    setCustomerId(customerInfo?.id);
     setOrderData((prevData) => ({
       ...prevData,
       orderDTO: {
@@ -97,21 +84,47 @@ export default function MakeSell({}) {
     }));
   };
 
-  const handleProductChange = (productData) => {
-    // Xử lý dữ liệu sản phẩm tại đây, ví dụ: cập nhật state, log, hoặc thực hiện các hành động khác
-    console.log("Product data changed:", productData);
-
-    // Tạo một mảng mới chứa order requests dựa trên productData
-    const newOrderRequests = productData.map((product) => ({
+  const handleProductChange = ({ products, discount }) => {
+    console.log(discount);
+    // Update orderRequests based on products
+    const newOrderRequests = products.map((product) => ({
       quantity: product.quantity,
       product_id: product.id,
-      unit_price: product.totalPrice / product.quantity,
+      unit_price: product.totalPrice,
     }));
 
-    // Cập nhật orderRequests trong orderData
+    // Update orderData with new order requests and discount
     setOrderData((prevData) => ({
       ...prevData,
       orderRequests: newOrderRequests,
+      // orderDTO: {
+      //   ...prevData.orderDTO,
+      //   discount: discount,
+      // },
+    }));
+  };
+
+  const handleOnDiscountData = (discountData) => {
+    // Cập nhật thông tin khách hàng vào state orderData
+    setPolicyId(discountData.id);
+  };
+
+  const handleGetCustomerInfo = () => {
+    setCustomerData(true);
+  };
+
+  const handleBackOrder = () => {
+    navigate("/order");
+  };
+  const handleDiscountChange = (discountData) => {
+    console.log(discountData);
+    setOrderData((prevData) => ({
+      ...prevData,
+      orderDTO: {
+        ...prevData.orderDTO,
+        discount: discountData,
+        // Adjust as per your orderData structure
+      },
     }));
   };
 
@@ -122,24 +135,50 @@ export default function MakeSell({}) {
       </div>
       <div className="body">
         <div className="customer-space">
-          <CustomerSpace onCustomerInfoChange={handleCustomerInfoChange} />
+          <CustomerSpace
+            onCustomerInfoChange={handleCustomerInfoChange}
+            handleGetCustomerInfo={handleGetCustomerInfo}
+          />
         </div>
-        <div className="product-space">
-          <ProductSpace onProductChange={handleProductChange} />
-        </div>
-        <div className="d-flex-center" style={{ marginTop: 20 }}>
-          <div></div>
-          <div>
-            <Button
-              type="primary"
-              size="large"
-              onClick={handleSubmit}
-              loading={isLoading}
-            >
-              Make Order
-            </Button>
+        {customerData == true ? (
+          <div className="product-space">
+            <ProductSpace
+              customerId={customerId}
+              onProductChange={handleProductChange}
+              discountChange={handleDiscountChange}
+              onDiscountData={handleOnDiscountData}
+            />
           </div>
-        </div>
+        ) : null}
+
+        {customerData == true ? (
+          <div className="d-flex-center" style={{ marginTop: 20 }}>
+            <div>
+              <Button type="primary" size="large" onClick={handleBackOrder}>
+                Back
+              </Button>
+            </div>
+            <div>
+              <Button
+                type="primary"
+                size="large"
+                onClick={handleSubmit}
+                loading={isLoading}
+              >
+                Make Order
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="d-flex-center" style={{ marginTop: 20 }}>
+            <div>
+              <Button type="primary" size="large" onClick={handleBackOrder}>
+                Back
+              </Button>
+            </div>
+            <div></div>
+          </div>
+        )}
       </div>
     </div>
   );

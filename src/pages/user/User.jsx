@@ -42,19 +42,17 @@ export default function User() {
     useInactiveUserMutation();
 
   const handleCreateUser = async (values) => {
-    // Kiểm tra số điện thoại có số đầu tiên là 0 không
     const phoneNumber = values.phone;
     if (phoneNumber.charAt(0) !== "0") {
       notification.error({
         message: "Phone number not valid",
       });
-      return; // Kết thúc hàm nếu số điện thoại không bắt đầu bằng số 0
+      return;
     }
-    const dob = values.dob; // Lấy timestamp của ngày sinh
-    const eighteenYearsAgo = dayjs().subtract(18, "years").unix(); // Lấy timestamp của ngày 18 năm trước
-    console.log(dob);
-    console.log(eighteenYearsAgo);
-    // Kiểm tra nếu ngày sinh dưới 18 tuổi
+    const dob = values.dob;
+    const eighteenYearsAgo = dayjs().subtract(18, "years").unix();
+    // console.log(dob);
+    // console.log(eighteenYearsAgo);
     if (dob > eighteenYearsAgo) {
       notification.error({
         message: "The user is under 18 years old.",
@@ -63,16 +61,25 @@ export default function User() {
     }
 
     try {
-      await createUser(values).unwrap();
-      setIsCreateModalVisible(false);
-      notification.success({
-        message: "Create user successfully",
-      });
-      refetch(); // Refetch the user data
+      const response = await createUser(values);
+      console.log(response.error.data);
+      if (response.error.originalStatus === 200) {
+        setIsCreateModalVisible(false);
+        notification.success({
+          message: "Create user successfully",
+        });
+        refetch(); // Refetch the user data
+      } else {
+        notification.error({
+          message: "Failed to create user",
+          description: response.error.data,
+        });
+      }
     } catch (error) {
       console.error("Error creating user: ", error);
       notification.error({
         message: "Failed to create user",
+        // description: error,
       });
     }
   };
@@ -90,6 +97,7 @@ export default function User() {
       console.error("Error creating user: ", error);
       notification.error({
         message: "Update user unsuccessfully",
+        description: error,
       });
     }
   };

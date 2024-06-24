@@ -19,13 +19,12 @@ export default function Order() {
     isLoading,
     refetch: refetchOrderData,
   } = useGetOrdersQuery();
-  console.log(orders);
 
   function convertData(orders) {
     return orders.orders.map((el) => {
       return {
         orderId: el?.id,
-        customerName: el?.customer_id,
+        customerName: el?.customer.fullName,
         createBy: el?.created_by,
         date: el?.date,
         type: el?.type,
@@ -54,7 +53,6 @@ export default function Order() {
     }
   }, [searchValue, orders]);
 
-  console.log(orderData);
   const showModal = () => {
     setIsModalOpen(true);
   };
@@ -70,7 +68,7 @@ export default function Order() {
 
   const handleMakePurchase = () => {
     setIsModalOpen(false);
-    console.log("Navigate to Make Purchase page");
+    navigate("/order/make-purchase");
   };
 
   const handleSearch = (value) => {
