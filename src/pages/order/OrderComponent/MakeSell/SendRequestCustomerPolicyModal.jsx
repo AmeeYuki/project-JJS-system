@@ -24,8 +24,6 @@ export default function SendRequestCustomerPolicyModal({
   const [createCustomerPolicy, { isLoading }] =
     useCreateCustomerPolicyMutation();
 
-  console.log(customerId);
-
   const handleOk = () => {
     form
       .validateFields()

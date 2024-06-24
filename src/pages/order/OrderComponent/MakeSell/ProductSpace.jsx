@@ -9,13 +9,18 @@ import VoucherModal from "./VoucherModal";
 import SendRequestCustomerPolicyModal from "./SendRequestCustomerPolicyModal";
 import PolicyModel from "./PolicyModel";
 
-export default function ProductSpace({ onProductChange, customerId }) {
+export default function ProductSpace({
+  onProductChange,
+  customerId,
+  discountChange,
+}) {
   const { data: productsData, isError, isLoading } = useGetProductsQuery();
   const [searchTerm, setSearchTerm] = useState("");
   const [cartItems, setCartItems] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
-  const [discountPercent, setDiscountPercent] = useState(10);
+  const [discountPercent, setDiscountPercent] = useState(0);
+  const [fixedDiscount, setFixedDiscount] = useState(0);
   const [isPromotionModalVisible, setPromotionModalVisible] = useState(false);
   const [isVoucherModalVisible, setVoucherModalVisible] = useState(false);
   const [isSendRequestModalVisible, setSendRequestModalVisible] =
@@ -40,7 +45,6 @@ export default function ProductSpace({ onProductChange, customerId }) {
     const existingItemIndex = cartItems.findIndex(
       (item) => item.id === product.id
     );
-
     const currentQuantityInCart =
       existingItemIndex >= 0 ? cartItems[existingItemIndex].quantity : 0;
 
@@ -77,7 +81,6 @@ export default function ProductSpace({ onProductChange, customerId }) {
     const existingItemIndex = cartItems.findIndex(
       (item) => item.id === product.id
     );
-
     const currentQuantityInCart =
       existingItemIndex >= 0 ? cartItems[existingItemIndex].quantity : 0;
 
@@ -115,7 +118,7 @@ export default function ProductSpace({ onProductChange, customerId }) {
     return acc + item.price * item.quantity;
   }, 0);
 
-  const discount = (subtotal * discountPercent) / 100;
+  const discount = (subtotal * discountPercent) / 100 + fixedDiscount;
 
   const totalBeforeDiscount = subtotal - discount;
 
@@ -134,13 +137,12 @@ export default function ProductSpace({ onProductChange, customerId }) {
     price: calculatePrice(item),
     available_quantity: item.quantity,
   }));
-  // console.log(filteredProducts);
 
   const sendProductData = (updatedCartItems = cartItems) => {
     const productData = updatedCartItems.map((item) => ({
       id: item.id,
       quantity: item.quantity,
-      totalPrice: item.price * item.quantity,
+      totalPrice: item.price,
     }));
 
     onProductChange(productData);
@@ -152,6 +154,12 @@ export default function ProductSpace({ onProductChange, customerId }) {
       value: discount,
     };
     onProductChange([], discountData);
+  };
+
+  const handleApplyDiscount = (discountData) => {
+    setDiscountPercent(discountData.discountRate);
+    setFixedDiscount(discountData.fixedDiscountAmount);
+    sendDiscount();
   };
 
   return (
@@ -207,7 +215,9 @@ export default function ProductSpace({ onProductChange, customerId }) {
       </div>
       <PolicyModel
         isVisible={isPromotionModalVisible}
+        customerId={customerId}
         onClose={() => setPromotionModalVisible(false)}
+        onApplyDiscount={handleApplyDiscount}
       />
       <VoucherModal
         isVisible={isVoucherModalVisible}

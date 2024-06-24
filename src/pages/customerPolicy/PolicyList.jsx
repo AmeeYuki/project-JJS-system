@@ -1,12 +1,22 @@
-import React from "react";
-import { Table, Button, Space, Dropdown, Menu, Popconfirm, Tag } from "antd";
+import React, { useState } from "react";
+import { Table, Space, Dropdown, Menu, Tag, Modal } from "antd";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import {
+  useAcceptPolicyMutation,
+  useRejectPolicyMutation,
+} from "../../services/customerAPI";
+import PolicyDetailModal from "./PolicyDetailModal";
 
-export default function PolicyList({ policyData, isLoading }) {
-  const dataWithNo = policyData?.map((item, index) => ({
-    ...item,
-    no: index + 1,
-  }));
+export default function PolicyList({ policyData, isLoading, handleRefetch }) {
+  const [acceptPolicy] = useAcceptPolicyMutation();
+  const [rejectPolicy] = useRejectPolicyMutation();
+  const [selectedPolicy, setSelectedPolicy] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [confirmAction, setConfirmAction] = useState({
+    visible: false,
+    actionType: null,
+    policyId: null,
+  });
 
   const getStatusTag = (status) => {
     let color;
@@ -24,11 +34,60 @@ export default function PolicyList({ policyData, isLoading }) {
         color = "red";
         text = "REJECTED";
         break;
+      case "used":
+        color = "green";
+        text = "USED";
+        break;
+
       default:
         color = "default";
         text = status.toUpperCase();
     }
     return <Tag color={color}>{text}</Tag>;
+  };
+
+  const showConfirmModal = (actionType, policyId) => {
+    setConfirmAction({
+      visible: true,
+      actionType,
+      policyId,
+    });
+  };
+
+  const handleAccept = (id) => {
+    showConfirmModal("accept", id);
+  };
+
+  const handleReject = (id) => {
+    showConfirmModal("reject", id);
+  };
+
+  const handleConfirm = async () => {
+    const { actionType, policyId } = confirmAction;
+    if (actionType === "accept") {
+      await acceptPolicy({ id: policyId });
+    } else if (actionType === "reject") {
+      await rejectPolicy({ id: policyId });
+    }
+    handleRefetch();
+    setConfirmAction({
+      visible: false,
+      actionType: null,
+      policyId: null,
+    });
+  };
+
+  const handleCancel = () => {
+    setConfirmAction({
+      visible: false,
+      actionType: null,
+      policyId: null,
+    });
+  };
+
+  const handleViewDetails = (record) => {
+    setSelectedPolicy(record);
+    setIsModalVisible(true);
   };
 
   const columns = [
@@ -51,7 +110,6 @@ export default function PolicyList({ policyData, isLoading }) {
       title: "Discount",
       key: "discount",
       align: "right",
-
       render: (_, record) => {
         const { discountRate, fixedDiscountAmount } = record;
         const discountText = [];
@@ -63,12 +121,10 @@ export default function PolicyList({ policyData, isLoading }) {
         return discountText.join(" / ") || "N/A";
       },
     },
-
     {
       title: "Valid",
       key: "valid",
       align: "center",
-
       render: (_, record) => {
         const validFrom = new Date(
           record.validFrom * 1000
@@ -101,24 +157,64 @@ export default function PolicyList({ policyData, isLoading }) {
     },
   ];
 
-  const actionsMenu = (record) => (
-    <Menu>
-      <Menu.Item
-        key="edit"
-        className="submenu-usertable"
-        onClick={() => onEditUser(record)}
-      >
-        <span>Edit User</span>
-      </Menu.Item>
-    </Menu>
-  );
+  const actionsMenu = (record) => {
+    const { publishingStatus } = record;
+    const isAccept =
+      publishingStatus === "accept" || publishingStatus === "pending";
+    const isReject =
+      publishingStatus === "reject" || publishingStatus === "pending";
+    const isUsed = publishingStatus === "used";
 
+    return (
+      <Menu>
+        {isReject && (
+          <Menu.Item key="accept" onClick={() => handleAccept(record.id)}>
+            Accept
+          </Menu.Item>
+        )}
+        {isAccept && (
+          <Menu.Item key="reject" onClick={() => handleReject(record.id)}>
+            Reject
+          </Menu.Item>
+        )}
+        {isUsed && null}
+        <Menu.Item key="viewDetails" onClick={() => handleViewDetails(record)}>
+          View Details
+        </Menu.Item>
+      </Menu>
+    );
+  };
+
+  const dataWithNo = policyData?.map((item, index) => ({
+    ...item,
+    no: index + 1,
+  }));
   return (
-    <Table
-      dataSource={dataWithNo}
-      columns={columns}
-      pagination={{ pageSize: 5 }}
-      loading={isLoading}
-    />
+    <>
+      <Table
+        dataSource={dataWithNo}
+        columns={columns}
+        pagination={{ pageSize: 5 }}
+        loading={isLoading}
+        rowKey="id"
+      />
+      <PolicyDetailModal
+        visible={isModalVisible}
+        policy={selectedPolicy}
+        onClose={() => setIsModalVisible(false)}
+      />
+      <Modal
+        title={`Confirm ${
+          confirmAction.actionType === "accept" ? "Accept" : "Reject"
+        } Policy`}
+        visible={confirmAction.visible}
+        onOk={handleConfirm}
+        onCancel={handleCancel}
+        okText="Confirm"
+        cancelText="Cancel"
+      >
+        <p>Are you sure you want to {confirmAction.actionType} this policy?</p>
+      </Modal>
+    </>
   );
 }
