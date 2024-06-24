@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Modal, Button, Input, Radio, Form } from "antd";
+import { Modal, Button, Input, Form, notification } from "antd";
 import PropTypes from "prop-types";
 
 const CustomerUpdateForm = ({
@@ -15,16 +15,44 @@ const CustomerUpdateForm = ({
     form.setFieldsValue(selectedCustomer);
   }, [selectedCustomer, form]);
 
+  const handleSave = () => {
+    // định dạng dữ liệu  phone
+    const phoneNumber = selectedCustomer.phone;
+    if (!/^\d+$/.test(phoneNumber)) {
+      notification.error({
+        message: "Error",
+        description: "Phone number should only contain numbers.",
+      });
+      return;
+    }
+
+    // định dạng dữ liệu  email
+    const email = selectedCustomer.email;
+    if (!email.endsWith("@gmail.com")) {
+      notification.error({
+        message: "Error",
+        description: "Email must end with @gmail.com.",
+      });
+      return;
+    }
+
+    handleSaveUpdate();
+  };
+
   return (
     <Modal
       title="Update Customer"
-      open={openUpdate}
+      visible={openUpdate}
       onCancel={handleCloseUpdate}
       footer={null}
     >
       {selectedCustomer && (
-        <Form form={form} layout="vertical" onFinish={handleSaveUpdate}>
-          <Form.Item label="Name" name="fullName">
+        <Form form={form} layout="vertical" onFinish={handleSave}>
+          <Form.Item
+            label="Name"
+            name="fullName"
+            rules={[{ required: true, message: "Please enter customer name" }]}
+          >
             <Input
               onChange={(e) =>
                 setSelectedCustomer({
@@ -34,7 +62,17 @@ const CustomerUpdateForm = ({
               }
             />
           </Form.Item>
-          <Form.Item label="Phone" name="phone">
+          <Form.Item
+            label="Phone"
+            name="phone"
+            rules={[
+              { required: true, message: "Please enter customer phone number" },
+              {
+                pattern: /^\d+$/,
+                message: "Phone number should only contain numbers",
+              },
+            ]}
+          >
             <Input
               onChange={(e) =>
                 setSelectedCustomer({
@@ -44,7 +82,17 @@ const CustomerUpdateForm = ({
               }
             />
           </Form.Item>
-          <Form.Item label="Email" name="email">
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[
+              { required: true, message: "Please enter customer email" },
+              {
+                pattern: /@gmail\.com$/,
+                message: "Email must end with @gmail.com",
+              },
+            ]}
+          >
             <Input
               onChange={(e) =>
                 setSelectedCustomer({
@@ -54,7 +102,13 @@ const CustomerUpdateForm = ({
               }
             />
           </Form.Item>
-          <Form.Item label="Address" name="address">
+          <Form.Item
+            label="Address"
+            name="address"
+            rules={[
+              { required: true, message: "Please enter customer address" },
+            ]}
+          >
             <Input
               onChange={(e) =>
                 setSelectedCustomer({
@@ -63,19 +117,6 @@ const CustomerUpdateForm = ({
                 })
               }
             />
-          </Form.Item>
-          <Form.Item label="Gender" name="gender">
-            <Radio.Group
-              onChange={(e) =>
-                setSelectedCustomer({
-                  ...selectedCustomer,
-                  gender: e.target.value,
-                })
-              }
-            >
-              <Radio value="male">Male</Radio>
-              <Radio value="female">Female</Radio>
-            </Radio.Group>
           </Form.Item>
           <Form.Item>
             <Button onClick={handleCloseUpdate} style={{ marginRight: 8 }}>

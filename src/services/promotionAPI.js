@@ -4,32 +4,29 @@ import { selectToken } from "../slices/auth.slice";
 
 export const promotionAPI = createApi({
   reducerPath: "promotionManagement",
-  tagTypes: ["PromotionList"],
   baseQuery: fetchBaseQuery({
     baseUrl: API_URL_BE,
     prepareHeaders: (headers, { getState }) => {
       const token = selectToken(getState());
       if (token) {
-        headers.append("Authorization", `Bearer ${token}`);
-      } else {
-        console.warn("No token found");
+        headers.set("Authorization", `Bearer ${token}`);
       }
-      headers.append("Content-Type", "application/json");
+      headers.set("Content-Type", "application/json");
       return headers;
     },
   }),
+  tagTypes: ["PromotionList"],
   endpoints: (builder) => ({
     getAllPromotions: builder.query({
-      query: () => `/promotions/get_all_promotions`,
+      query: () => "promotions/get_all_promotions",
       providesTags: (result) =>
         result
           ? result.map(({ id }) => ({ type: "PromotionList", id }))
           : [{ type: "PromotionList", id: "LIST" }],
     }),
-
     addPromotion: builder.mutation({
       query: (newPromotion) => ({
-        url: `/promotions/create`,
+        url: "promotions/create",
         method: "POST",
         body: newPromotion,
       }),
@@ -37,20 +34,18 @@ export const promotionAPI = createApi({
     }),
     updatePromotion: builder.mutation({
       query: ({ id, ...updatedPromotion }) => ({
-        url: `/promotions/use/${id}`,
+        url: `promotions/update/${id}`,
         method: "PUT",
         body: updatedPromotion,
       }),
-      invalidatesTags: (result, error, { id }) => [
-        { type: "PromotionList", id },
-      ],
+      invalidatesTags: ({ id }) => [{ type: "PromotionList", id }],
     }),
     deletePromotion: builder.mutation({
       query: (id) => ({
-        url: `/promotions/delete/${id}`,
+        url: `promotions/delete/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: (result, error, id) => [{ type: "PromotionList", id }],
+      invalidatesTags: ({ id }) => [{ type: "PromotionList", id }],
     }),
   }),
 });
