@@ -13,12 +13,18 @@ import {
 import dayjs from "dayjs";
 import { useCreateCustomerPolicyMutation } from "../../../../services/customerAPI";
 
-export default function SendRequestCustomerPolicyModal({ isVisible, onClose }) {
+export default function SendRequestCustomerPolicyModal({
+  isVisible,
+  onClose,
+  customerId,
+}) {
   const [form] = Form.useForm();
   const [discountType, setDiscountType] = useState("percentage");
   const [startDate, setStartDate] = useState(null);
   const [createCustomerPolicy, { isLoading }] =
     useCreateCustomerPolicyMutation();
+
+  console.log(customerId);
 
   const handleOk = () => {
     form
@@ -33,7 +39,7 @@ export default function SendRequestCustomerPolicyModal({ isVisible, onClose }) {
           valid_from: dayjs(values.valid_from).unix(),
           valid_to: dayjs(values.valid_to).unix(),
           approval_required: false,
-          customer_id: values.customer_id,
+          customer_id: customerId,
         };
 
         console.log("Request Data to be sent:", requestData);
@@ -163,13 +169,13 @@ export default function SendRequestCustomerPolicyModal({ isVisible, onClose }) {
         {/* <Form.Item name="approval_required" valuePropName="checked">
           <Checkbox>Approval Required</Checkbox>
         </Form.Item> */}
-        <Form.Item
+        {/* <Form.Item
           name="customer_id"
           label="Customer ID"
           rules={[{ required: true, message: "Please input the customer ID!" }]}
         >
           <InputNumber min={0} />
-        </Form.Item>
+        </Form.Item> */}
       </Form>
     </Modal>
   );

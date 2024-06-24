@@ -10,6 +10,7 @@ import {
   UsergroupDeleteOutlined,
   TagOutlined,
   PercentageOutlined,
+  TagsOutlined,
 } from "@ant-design/icons";
 
 import { selectAuth } from "../slices/auth.slice";
@@ -45,12 +46,26 @@ const useSider = () => {
         href: "order",
         roles: ["ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STAFF"],
       },
+      // {
+      //   label: "Customer",
+      //   icon: <UsergroupDeleteOutlined />,
+      //   href: "customer",
+      //   roles: ["ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STAFF"],
+      // },
+
       {
-        label: "Customer",
+        label: "Customer Manager",
         icon: <UsergroupDeleteOutlined />,
         href: "customer",
         roles: ["ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STAFF"],
       },
+      {
+        label: "Customer Policy",
+        icon: <TagsOutlined />,
+        href: "policy",
+        roles: ["ROLE_ADMIN", "ROLE_MANAGER"],
+      },
+
       {
         label: "User manager",
         icon: <UserOutlined />,

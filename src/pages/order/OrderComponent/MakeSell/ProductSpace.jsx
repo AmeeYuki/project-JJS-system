@@ -9,7 +9,7 @@ import VoucherModal from "./VoucherModal";
 import SendRequestCustomerPolicyModal from "./SendRequestCustomerPolicyModal";
 import PolicyModel from "./PolicyModel";
 
-export default function ProductSpace({ onProductChange }) {
+export default function ProductSpace({ onProductChange, customerId }) {
   const { data: productsData, isError, isLoading } = useGetProductsQuery();
   const [searchTerm, setSearchTerm] = useState("");
   const [cartItems, setCartItems] = useState([]);
@@ -216,6 +216,7 @@ export default function ProductSpace({ onProductChange }) {
       <SendRequestCustomerPolicyModal
         isVisible={isSendRequestModalVisible}
         onClose={() => setSendRequestModalVisible(false)}
+        customerId={customerId}
       />
     </div>
   );

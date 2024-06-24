@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 export default function MakeSell() {
   const [addOrder, { isLoading }] = useAddOrderMutation();
   const [customerData, setCustomerData] = useState(false);
+  const [customerId, setCustomerId] = useState();
   // const [loading, isLoading] = useState(false);
   const auth = useSelector(selectAuth);
   const navigate = useNavigate();
@@ -77,6 +78,7 @@ export default function MakeSell() {
   const handleCustomerInfoChange = (customerInfo) => {
     // Cập nhật thông tin khách hàng vào state orderData
     // console.log("Customer info changed:", customerInfo?.id); // Log dữ liệu khi thông tin khách hàng thay đổi
+    setCustomerId(customerInfo?.id);
     setOrderData((prevData) => ({
       ...prevData,
       orderDTO: {
@@ -129,7 +131,10 @@ export default function MakeSell() {
         </div>
         {customerData == true ? (
           <div className="product-space">
-            <ProductSpace onProductChange={handleProductChange} />
+            <ProductSpace
+              customerId={customerId}
+              onProductChange={handleProductChange}
+            />
           </div>
         ) : null}
 

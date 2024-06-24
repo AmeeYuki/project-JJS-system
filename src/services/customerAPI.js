@@ -60,6 +60,33 @@ export const customerAPI = createApi({
       }),
       invalidatesTags: ["CustomerList"],
     }),
+    approvePolicy: builder.mutation({
+      query: ({ id }) => ({
+        url: `customer_policies/approve_customer_policy/${id}`,
+        method: "PUT",
+        body: {
+          publishing_status: "active",
+        },
+      }),
+      invalidatesTags: ["CustomerList"],
+    }),
+    rejectPolicy: builder.mutation({
+      query: ({ id }) => ({
+        url: `customer_policies/approve_customer_policy/${id}`,
+        method: "PUT",
+        body: {
+          publishing_status: "active",
+        },
+      }),
+      invalidatesTags: ["CustomerList"],
+    }),
+    getAllPolicy: builder.query({
+      query: () => ({
+        url: `customer_policies/get_all_customer_policies`,
+        method: "GET",
+      }),
+      invalidatesTags: ["CustomerList"],
+    }),
   }),
 });
 
@@ -70,4 +97,5 @@ export const {
   useDeleteCustomerMutation,
   useLazyGetCustomerByPhoneQuery,
   useCreateCustomerPolicyMutation,
+  useGetAllPolicyQuery,
 } = customerAPI;
