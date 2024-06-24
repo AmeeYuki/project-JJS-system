@@ -27,6 +27,13 @@ export default function InformationCustomer({ order }) {
                 <p>Type:</p>
               </Col>
               <Col span={15}>{order?.type == "sell" ? "Sell" : "Buy"}</Col>
+              <Col span={8} offset={0}>
+                <p>Discount:</p>
+              </Col>
+              <Col span={15}>
+                {order?.discount.toLocaleString()}
+                VNĐ
+              </Col>
             </Row>
           </Col>
           <Col span={12}>

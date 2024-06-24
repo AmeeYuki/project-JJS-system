@@ -8,11 +8,15 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { selectAuth } from "../../../../slices/auth.slice";
 import { useNavigate } from "react-router-dom";
+import { useUsedPolicyMutation } from "../../../../services/customerAPI";
 
 export default function MakeSell() {
   const [addOrder, { isLoading }] = useAddOrderMutation();
   const [customerData, setCustomerData] = useState(false);
   const [customerId, setCustomerId] = useState();
+  const [policyId, setPolicyId] = useState();
+  const [usedPolicy] = useUsedPolicyMutation();
+
   // const [loading, isLoading] = useState(false);
   const auth = useSelector(selectAuth);
   const navigate = useNavigate();
@@ -35,44 +39,35 @@ export default function MakeSell() {
     },
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setOrderData((prevState) => ({
-      ...prevState,
-      orderDTO: {
-        ...prevState.orderDTO,
-        [name]: value,
-      },
-    }));
-  };
-
   const handleSubmit = async (e) => {
     console.log(orderData);
+    console.log(policyId);
 
-    // if (orderData.orderRequests.length <= 0) {
-    //   notification.error({
-    //     message: "Not product in cart",
-    //   });
-    //   return;
-    // }
-    // try {
-    //   const response = await addOrder(orderData); // Call the mutation to add the order and unwrap the response
-    //   console.log(response);
-    //   if (response) {
-    //     notification.success({
-    //       message: "Order made successfully",
-    //     });
-    //     navigate("/order");
-    //   } else {
-    //     throw new Error(`Unexpected status code: ${response.status}`);
-    //   }
-    // } catch (error) {
-    //   console.error("Error adding order:", error);
-    //   notification.error({
-    //     message: "Error making order",
-    //     description: error.message,
-    //   });
-    // }
+    if (orderData.orderRequests.length <= 0) {
+      notification.error({
+        message: "Not product in cart",
+      });
+      return;
+    }
+    try {
+      const response = await addOrder(orderData); // Call the mutation to add the order and unwrap the response
+      // console.log(response);
+      await usedPolicy({ id: policyId });
+      if (response) {
+        notification.success({
+          message: "Order made successfully",
+        });
+        navigate("/order");
+      } else {
+        throw new Error(`Unexpected status code: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Error adding order:", error);
+      notification.error({
+        message: "Error making order",
+        description: error.message,
+      });
+    }
   };
 
   const handleCustomerInfoChange = (customerInfo) => {
@@ -89,25 +84,29 @@ export default function MakeSell() {
     }));
   };
 
-  const handleProductChange = (productData) => {
-    // Xử lý dữ liệu sản phẩm tại đây, ví dụ: cập nhật state, log, hoặc thực hiện các hành động khác
-    // console.log("Product data changed:", productData);
-
-    console.log(productData);
-    // Tạo một mảng mới chứa order requests dựa trên productData
-    const newOrderRequests = productData.map((product) => ({
+  const handleProductChange = ({ products, discount }) => {
+    console.log(discount);
+    // Update orderRequests based on products
+    const newOrderRequests = products.map((product) => ({
       quantity: product.quantity,
       product_id: product.id,
       unit_price: product.totalPrice,
     }));
 
-    console.log("newOrderRequests:", newOrderRequests);
-
-    // Cập nhật orderRequests trong orderData
+    // Update orderData with new order requests and discount
     setOrderData((prevData) => ({
       ...prevData,
       orderRequests: newOrderRequests,
+      // orderDTO: {
+      //   ...prevData.orderDTO,
+      //   discount: discount,
+      // },
     }));
+  };
+
+  const handleOnDiscountData = (discountData) => {
+    // Cập nhật thông tin khách hàng vào state orderData
+    setPolicyId(discountData.id);
   };
 
   const handleGetCustomerInfo = () => {
@@ -116,6 +115,17 @@ export default function MakeSell() {
 
   const handleBackOrder = () => {
     navigate("/order");
+  };
+  const handleDiscountChange = (discountData) => {
+    console.log(discountData);
+    setOrderData((prevData) => ({
+      ...prevData,
+      orderDTO: {
+        ...prevData.orderDTO,
+        discount: discountData,
+        // Adjust as per your orderData structure
+      },
+    }));
   };
 
   return (
@@ -135,6 +145,8 @@ export default function MakeSell() {
             <ProductSpace
               customerId={customerId}
               onProductChange={handleProductChange}
+              discountChange={handleDiscountChange}
+              onDiscountData={handleOnDiscountData}
             />
           </div>
         ) : null}

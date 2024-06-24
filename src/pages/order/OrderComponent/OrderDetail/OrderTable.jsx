@@ -41,9 +41,15 @@ export default function OrderTable({ products }) {
     },
 
     {
+      title: "Price",
+      dataIndex: "price",
+      key: "total",
+      render: (price) => `${price.toLocaleString()} VNĐ`,
+    },
+    {
       title: "Total",
       dataIndex: "total_price",
-      key: "total",
+      key: "total_price",
       render: (total_price) => `${total_price.toLocaleString()} VNĐ`,
     },
   ];
@@ -55,7 +61,8 @@ export default function OrderTable({ products }) {
     product_barcode: item.product.barcode,
     product_type: item.product.type.type,
     quantity: item.quantity,
-    total_price: item.unitPrice,
+    price: item.unitPrice,
+    total_price: item.unitPrice * item.quantity,
   }));
 
   return (

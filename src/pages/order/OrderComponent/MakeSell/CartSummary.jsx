@@ -77,14 +77,14 @@ const CartSummary = ({
             <p>{discount.toLocaleString()} VNĐ</p>
           </div>
         )}
-        {discount === 0 && discountPercent === 0 ? null : (
-          <div className="d-flex-center">
-            <p style={{ fontSize: "25px", fontWeight: 500 }}>Total:</p>
-            <p style={{ color: "red", fontWeight: 500 }}>
-              {totalBeforeDiscount.toLocaleString()} VNĐ
-            </p>
-          </div>
-        )}
+        {/* {discount === 0 && discountPercent === 0 ? null : ( */}
+        <div className="d-flex-center">
+          <p style={{ fontSize: "25px", fontWeight: 500 }}>Total:</p>
+          <p style={{ color: "red", fontWeight: 500 }}>
+            {totalBeforeDiscount.toLocaleString()} VNĐ
+          </p>
+        </div>
+        {/* )} */}
       </div>
     </div>
   );

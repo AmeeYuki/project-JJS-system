@@ -26,6 +26,7 @@ export default function PolicyModel({
     const discountData = {
       discountRate: policy.discountRate,
       fixedDiscountAmount: policy.fixedDiscountAmount,
+      id: policy.id,
     };
     onApplyDiscount(discountData);
     onClose(); // Close the modal after applying the discount

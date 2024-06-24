@@ -128,7 +128,7 @@ export default function MakePurchase() {
   return (
     <div className="make-purchase-page">
       <div className="header">
-        <h1 className="title">Make Sell</h1>
+        <h1 className="title">Make Purchase</h1>
         {!order && (
           <div className="action">
             <div className="action-left">

@@ -13,6 +13,7 @@ export default function ProductSpace({
   onProductChange,
   customerId,
   discountChange,
+  onDiscountData,
 }) {
   const { data: productsData, isError, isLoading } = useGetProductsQuery();
   const [searchTerm, setSearchTerm] = useState("");
@@ -138,6 +139,22 @@ export default function ProductSpace({
     available_quantity: item.quantity,
   }));
 
+  // const sendProductData = (updatedCartItems = cartItems) => {
+  //   const productData = updatedCartItems.map((item) => ({
+  //     id: item.id,
+  //     quantity: item.quantity,
+  //     totalPrice: item.price,
+  //   }));
+
+  //   onProductChange(productData);
+  // };
+
+  // const handleApplyDiscount = (discountData) => {
+  //   setDiscountPercent(discountData.discountRate);
+  //   setFixedDiscount(discountData.fixedDiscountAmount);
+  //   discountChange(discountData); // Send discount data to parent component
+  // };
+
   const sendProductData = (updatedCartItems = cartItems) => {
     const productData = updatedCartItems.map((item) => ({
       id: item.id,
@@ -145,21 +162,32 @@ export default function ProductSpace({
       totalPrice: item.price,
     }));
 
-    onProductChange(productData);
-  };
+    // Calculate discount based on subtotal, discount percent, and fixed discount
+    const subtotal = updatedCartItems.reduce((acc, item) => {
+      return acc + item.price * item.quantity;
+    }, 0);
 
-  const sendDiscount = () => {
-    const discountData = {
-      percent: discountPercent,
-      value: discount,
-    };
-    onProductChange([], discountData);
+    const discount = (subtotal * discountPercent) / 100 + fixedDiscount;
+
+    // Pass product data and discount to parent component
+    onProductChange({
+      products: productData,
+      discount: discount,
+    });
   };
 
   const handleApplyDiscount = (discountData) => {
     setDiscountPercent(discountData.discountRate);
     setFixedDiscount(discountData.fixedDiscountAmount);
-    sendDiscount();
+    // Calculate and send discount information to parent component
+    const subtotal = cartItems.reduce((acc, item) => {
+      return acc + item.price * item.quantity;
+    }, 0);
+    const discount =
+      (subtotal * discountData.discountRate) / 100 +
+      discountData.fixedDiscountAmount;
+    discountChange(discount); // Send discount data to parent component
+    onDiscountData(discountData);
   };
 
   return (

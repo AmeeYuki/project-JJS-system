@@ -118,4 +118,5 @@ export const {
   useAcceptPolicyMutation,
   useRejectPolicyMutation,
   useGetPolicyCustomerAcceptQuery,
+  useUsedPolicyMutation,
 } = customerAPI;
