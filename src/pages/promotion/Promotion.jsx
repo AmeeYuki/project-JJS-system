@@ -1,20 +1,217 @@
-import {
-  Modal,
-  Form,
-  Input,
-  Button,
-  DatePicker,
-  Radio,
-  notification,
-} from "antd";
-import PropTypes from "prop-types";
-import moment from "moment";
+// import { useState, useEffect } from "react";
+// import { Button, Input, notification } from "antd";
+// import PromotionTable from "./PromotionTable";
+// import PromotionForm from "./PromotionForm";
+// import "./Promotion.css";
+// import moment from "moment";
+// import {
+//   useGetAllPromotionsQuery,
+//   useAddPromotionMutation,
+//   useUpdatePromotionMutation,
+//   useDeletePromotionMutation,
+// } from "../../services/promotionAPI";
 
-const PromotionForm = ({
-  open,
-  onCancel,
-  onFinish,
-  initialValues = {
+// export default function Promotion() {
+//   const [rows, setRows] = useState([]);
+//   const [filteredRows, setFilteredRows] = useState([]);
+//   const [searchTerm, setSearchTerm] = useState("");
+//   const [open, setOpen] = useState(false);
+//   const [openUpdate, setOpenUpdate] = useState(false);
+//   const [newPromotion, setNewPromotion] = useState({
+//     code: "",
+//     description: "",
+//     discountType: "percentage",
+//     discountPercentage: "",
+//     fixedDiscountAmount: "",
+//     startDate: null,
+//     endDate: null,
+//     status: false,
+//   });
+//   const { data: promotions, isLoading, refetch } = useGetAllPromotionsQuery();
+//   const [addPromotion] = useAddPromotionMutation();
+//   const [updatePromotion] = useUpdatePromotionMutation();
+//   const [deletePromotion] = useDeletePromotionMutation();
+
+//   useEffect(() => {
+//     if (promotions) {
+//       const indexedPromotions = promotions.map((promo, index) => ({
+//         ...promo,
+//         index: index + 1,
+//       }));
+//       setRows(indexedPromotions);
+//       setFilteredRows(indexedPromotions.slice().sort((a, b) => a.id - b.id));
+//     }
+//   }, [promotions]);
+
+//   useEffect(() => {
+//     const lowercasedFilter = searchTerm.toLowerCase();
+//     const filteredData = rows.filter((item) => {
+//       return (
+//         item.id.toString().includes(lowercasedFilter) ||
+//         item.name.toLowerCase().includes(lowercasedFilter)
+//       );
+//     });
+
+//     const sortedFilteredData = filteredData.sort((a, b) => a.id - b.id);
+//     setFilteredRows(sortedFilteredData);
+//   }, [searchTerm, rows]);
+
+//   const handleSearch = (event) => {
+//     setSearchTerm(event.target.value);
+//   };
+
+//   const handleOpen = () => {
+//     setNewPromotion({
+//       code: "",
+//       description: "",
+//       discountType: "percentage",
+//       discountPercentage: "",
+//       fixedDiscountAmount: "",
+//       startDate: null,
+//       endDate: null,
+//       status: false,
+//     });
+//     setOpen(true);
+//   };
+
+//   const handleClose = () => setOpen(false);
+//   const handleCloseUpdate = () => setOpenUpdate(false);
+
+//   const handleAddPromotion = async (values) => {
+//     try {
+//       await addPromotion(values).unwrap();
+//       refetch();
+//       handleClose();
+//       notification.success({
+//         message: "Success",
+//         description: "Promotion added successfully.",
+//       });
+//     } catch (error) {
+//       console.error("Error adding promotion: ", error);
+//       notification.error({
+//         message: "Error",
+//         description: `Error: ${error.status} - ${error.data}`,
+//       });
+//     }
+//   };
+
+//   const handleUpdatePromotion = (promotionId) => {
+//     const promotion = rows.find((row) => row.id === promotionId);
+//     setNewPromotion({
+//       ...promotion,
+//       startDate: promotion.startDate ? moment(promotion.startDate) : null,
+//       endDate: promotion.endDate ? moment(promotion.endDate) : null,
+//     });
+//     setOpenUpdate(true);
+//   };
+
+//   const handleSaveUpdate = async (values) => {
+//     if (!values || !values.id) {
+//       console.error("Promotion or its ID is undefined");
+//       return;
+//     }
+
+//     try {
+//       await updatePromotion({ id: values.id, ...values }).unwrap();
+//       refetch();
+//       handleCloseUpdate();
+//       notification.success({
+//         message: "Success",
+//         description: "Promotion updated successfully.",
+//       });
+//     } catch (error) {
+//       console.error("Error updating promotion: ", error);
+//       notification.error({
+//         message: "Error",
+//         description: `Error: ${error.message}`,
+//       });
+//     }
+//   };
+
+//   const handleDeletePromotion = async (promotionId) => {
+//     try {
+//       await deletePromotion(promotionId).unwrap();
+//       refetch();
+//       notification.success({
+//         message: "Success",
+//         description: "Promotion deleted successfully.",
+//       });
+//     } catch (error) {
+//       console.error("Error deleting promotion: ", error);
+//       notification.error({
+//         message: "Error",
+//         description: `Error: ${error.status} - ${error.data}`,
+//       });
+//     }
+//   };
+
+//   return (
+//     <div className="promotionWrapper">
+//       <div className="promotionTitle">
+//         <h1 className="titlePromotion">Promotion List</h1>
+//         <div className="controls">
+//           <div className="searchFilter">
+//             <Input
+//               type="text"
+//               className="searchInput"
+//               placeholder="Search by ID or name"
+//               value={searchTerm}
+//               onChange={handleSearch}
+//             />
+//             <Button className="filterButton">Filter</Button>
+//           </div>
+//           <Button className="addPromotionButton" onClick={handleOpen}>
+//             Add Promotion
+//           </Button>
+//         </div>
+//       </div>
+
+//       <div className="tb_promotion">
+//         <div style={{ height: 400, width: "100%" }}>
+//           <PromotionTable
+//             data={filteredRows}
+//             handleUpdatePromotion={handleUpdatePromotion}
+//             handleDeletePromotion={handleDeletePromotion}
+//           />
+//         </div>
+//       </div>
+
+//       <PromotionForm
+//         open={open}
+//         onCancel={handleClose}
+//         onFinish={handleAddPromotion}
+//       />
+
+//       <PromotionForm
+//         open={openUpdate}
+//         onCancel={handleCloseUpdate}
+//         onFinish={handleSaveUpdate}
+//         initialValues={newPromotion}
+//       />
+//     </div>
+//   );
+// }
+import { useState, useEffect } from "react";
+import { Button, Input, notification } from "antd";
+import PromotionTable from "./PromotionTable";
+import PromotionForm from "./PromotionForm";
+import PromotionUpdateForm from "./PromotionUpdateForm"; // Import PromotionUpdateForm
+import "./Promotion.css";
+import moment from "moment"; // Import moment
+import {
+  useGetAllPromotionsQuery,
+  useAddPromotionMutation,
+  useUpdatePromotionMutation,
+  useDeletePromotionMutation,
+} from "../../services/promotionAPI";
+
+export default function Promotion() {
+  const [rows, setRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [open, setOpen] = useState(false);
+  const [openUpdate, setOpenUpdate] = useState(false);
+  const [newPromotion, setNewPromotion] = useState({
     code: "",
     description: "",
     discountType: "percentage",
@@ -23,183 +220,191 @@ const PromotionForm = ({
     startDate: null,
     endDate: null,
     status: false,
-  },
-}) => {
-  const handleDiscountTypeChange = (e) => {
-    const discountType = e.target.value;
+  });
+  const { data: promotions, isLoading, refetch } = useGetAllPromotionsQuery();
+  const [addPromotion] = useAddPromotionMutation();
+  const [updatePromotion] = useUpdatePromotionMutation();
+  const [deletePromotion] = useDeletePromotionMutation();
 
-    // Reset discount fields based on selected discountType
-    const resetValues = {
-      discountType,
-      discountPercentage: discountType === "percentage" ? "" : null,
-      fixedDiscountAmount: discountType === "fixed" ? "" : null,
-    };
+  useEffect(() => {
+    if (promotions) {
+      const indexedPromotions = promotions.map((promo, index) => ({
+        ...promo,
+        index: index + 1,
+      }));
+      setRows(indexedPromotions);
+      setFilteredRows(indexedPromotions.slice().sort((a, b) => a.id - b.id));
+    }
+  }, [promotions]);
 
-    // Notify reset successful with a star notification
-    notification.success({
-      message: "Fields Reset",
-      description: "Discount fields reset successfully.",
-      icon: <i className="fas fa-star" style={{ color: "#108ee9" }}></i>, // You can replace with your star icon
+  useEffect(() => {
+    const lowercasedFilter = searchTerm.toLowerCase();
+    const filteredData = rows.filter((item) => {
+      const idMatch = item.id
+        ?.toString()
+        .toLowerCase()
+        .includes(lowercasedFilter);
+      const codeMatch = item.code?.toLowerCase().includes(lowercasedFilter);
+      return idMatch || codeMatch;
     });
 
-    onFinish({ ...initialValues, ...resetValues });
+    const sortedFilteredData = filteredData.sort((a, b) => a.id - b.id);
+    setFilteredRows(sortedFilteredData);
+  }, [searchTerm, rows]);
+
+  const handleSearch = (event) => {
+    const lowercasedFilter = event.target.value.toLowerCase();
+    setSearchTerm(lowercasedFilter);
+
+    const filteredData = rows.filter((item) => {
+      const idMatch = item.id
+        ?.toString()
+        .toLowerCase()
+        .includes(lowercasedFilter);
+      const codeMatch = item.code?.toLowerCase().includes(lowercasedFilter);
+      return idMatch || codeMatch;
+    });
+
+    const sortedFilteredData = filteredData.sort((a, b) => a.id - b.id);
+    setFilteredRows(sortedFilteredData);
+  };
+
+  const handleOpen = () => {
+    setNewPromotion({
+      code: "",
+      description: "",
+      discountType: "percentage",
+      discountPercentage: "",
+      fixedDiscountAmount: "",
+      startDate: null,
+      endDate: null,
+      status: false,
+    });
+    setOpen(true);
+  };
+
+  const handleClose = () => setOpen(false);
+  const handleCloseUpdate = () => setOpenUpdate(false);
+
+  const handleAddPromotion = async (values) => {
+    try {
+      await addPromotion(values).unwrap();
+      refetch();
+      handleClose();
+      notification.success({
+        message: "Success",
+        description: "Promotion added successfully.",
+      });
+    } catch (error) {
+      console.error("Error adding promotion: ", error);
+      notification.error({
+        message: "Error",
+        description: `Error: ${error.status} - ${error.data}`,
+      });
+    }
+  };
+
+  const handleUpdatePromotion = (promotionId) => {
+    const promotion = rows.find((row) => row.id === promotionId);
+    setNewPromotion({
+      ...promotion,
+      startDate: promotion.startDate ? moment(promotion.startDate) : null,
+      endDate: promotion.endDate ? moment(promotion.endDate) : null,
+    });
+    setOpenUpdate(true);
+  };
+
+  const handleSaveUpdate = async (values) => {
+    if (!values || !values.id) {
+      console.error("Promotion or its ID is undefined", values);
+      return;
+    }
+
+    console.log("Saving promotion with values:", values);
+
+    const formattedValues = {
+      ...values,
+      startDate: values.startDate ? values.startDate.valueOf() : 0,
+      endDate: values.endDate ? values.endDate.valueOf() : 0,
+    };
+
+    try {
+      await updatePromotion({ id: values.id, ...formattedValues }).unwrap();
+      refetch();
+      handleCloseUpdate();
+      notification.success({
+        message: "Success",
+        description: "Promotion updated successfully.",
+      });
+    } catch (error) {
+      console.error("Error updating promotion: ", error);
+      notification.error({
+        message: "Error",
+        description: `Error: ${error.message}`,
+      });
+    }
+  };
+
+  const handleDeletePromotion = async (promotionId) => {
+    try {
+      await deletePromotion(promotionId).unwrap();
+      refetch();
+      notification.success({
+        message: "Success",
+        description: "Promotion deleted successfully.",
+      });
+    } catch (error) {
+      console.error("Error deleting promotion: ", error);
+      notification.error({
+        message: "Error",
+        description: `Error: ${error.status} - ${error.data}`,
+      });
+    }
   };
 
   return (
-    <Modal
-      title={initialValues.id ? "Update Promotion" : "Add a new Promotion"}
-      visible={open}
-      onCancel={onCancel}
-      footer={null}
-    >
-      <Form
-        layout="vertical"
-        onFinish={onFinish}
-        initialValues={{
-          ...initialValues,
-          startDate: initialValues.startDate
-            ? moment(initialValues.startDate)
-            : null,
-          endDate: initialValues.endDate ? moment(initialValues.endDate) : null,
-        }}
-        validateTrigger="onBlur"
-      >
-        <Form.Item
-          label="Promotion Code"
-          name="code"
-          rules={[
-            { required: true, message: "Please input the promotion code!" },
-          ]}
-        >
-          <Input placeholder="Promotion Code..." />
-        </Form.Item>
-
-        <Form.Item
-          label="Select Discount Type"
-          name="discountType"
-          initialValue={initialValues.discountType}
-          rules={[{ required: true, message: "Please select discount type!" }]}
-        >
-          <Radio.Group onChange={handleDiscountTypeChange}>
-            <Radio.Button value="percentage">Percentage</Radio.Button>
-            <Radio.Button value="fixed">Fixed Amount</Radio.Button>
-          </Radio.Group>
-        </Form.Item>
-
-        {initialValues.discountType === "percentage" ? (
-          <Form.Item
-            label="Discount Percentage"
-            name="discountPercentage"
-            rules={[
-              {
-                required: true,
-                message: "Please input the discount percentage!",
-              },
-            ]}
-          >
-            <Input type="number" placeholder="Discount Percentage..." />
-          </Form.Item>
-        ) : (
-          <Form.Item
-            label="Fixed Discount Amount"
-            name="fixedDiscountAmount"
-            rules={[
-              {
-                required: true,
-                message: "Please input the fixed discount amount!",
-              },
-            ]}
-          >
-            <Input type="number" placeholder="Fixed Discount Amount..." />
-          </Form.Item>
-        )}
-
-        <Form.Item
-          label="Start Date"
-          name="startDate"
-          rules={[
-            { required: true, message: "Please select the start date!" },
-            {
-              validator: (_, value) => {
-                if (value && value >= moment().startOf("day")) {
-                  return Promise.resolve();
-                }
-                return Promise.reject(
-                  new Error("Start date must be in the future!")
-                );
-              },
-            },
-          ]}
-        >
-          <DatePicker
-            disabledDate={(current) =>
-              current && current < moment().startOf("day")
-            }
-          />
-        </Form.Item>
-
-        <Form.Item
-          label="End Date"
-          name="endDate"
-          rules={[
-            { required: true, message: "Please select the end date!" },
-            ({ getFieldValue }) => ({
-              validator(_, value) {
-                if (!value || getFieldValue("startDate") < value) {
-                  return Promise.resolve();
-                }
-                return Promise.reject(
-                  new Error("End date must be greater than start date!")
-                );
-              },
-            }),
-          ]}
-        >
-          <DatePicker
-            disabledDate={(current) =>
-              current && current < moment().startOf("day")
-            }
-          />
-        </Form.Item>
-
-        <Form.Item
-          label="Status"
-          name="status"
-          rules={[{ required: true, message: "Please select the status!" }]}
-        >
-          <Radio.Group>
-            <Radio value={true}>Active</Radio>
-            <Radio value={false}>Inactive</Radio>
-          </Radio.Group>
-        </Form.Item>
-
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            {initialValues.id ? "Save" : "Add"}
+    <div className="promotionWrapper">
+      <div className="promotionTitle">
+        <h1 className="titlePromotion">Promotion List</h1>
+        <div className="controls">
+          <div className="searchFilter">
+            <Input
+              type="text"
+              className="searchInput"
+              placeholder="Search by ID or code"
+              value={searchTerm}
+              onChange={handleSearch}
+            />
+            <Button className="filterButton">Filter</Button>
+          </div>
+          <Button className="addPromotionButton" onClick={handleOpen}>
+            Add Promotion
           </Button>
-          <Button onClick={onCancel} style={{ marginLeft: 8 }}>
-            Cancel
-          </Button>
-        </Form.Item>
-      </Form>
-    </Modal>
+        </div>
+      </div>
+
+      <div className="tb_promotion">
+        <div style={{ height: 400, width: "100%" }}>
+          <PromotionTable
+            data={filteredRows}
+            handleUpdatePromotion={handleUpdatePromotion}
+            handleDeletePromotion={handleDeletePromotion}
+          />
+        </div>
+      </div>
+
+      <PromotionForm
+        open={open}
+        onCancel={handleClose}
+        onFinish={handleAddPromotion}
+      />
+
+      <PromotionUpdateForm
+        open={openUpdate}
+        onCancel={handleCloseUpdate}
+        onFinish={handleSaveUpdate}
+        initialValues={newPromotion}
+      />
+    </div>
   );
-};
-
-PromotionForm.propTypes = {
-  open: PropTypes.bool.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  onFinish: PropTypes.func.isRequired,
-  initialValues: PropTypes.shape({
-    code: PropTypes.string,
-    description: PropTypes.string,
-    discountType: PropTypes.oneOf(["percentage", "fixed"]),
-    discountPercentage: PropTypes.number,
-    fixedDiscountAmount: PropTypes.number,
-    startDate: PropTypes.instanceOf(moment),
-    endDate: PropTypes.instanceOf(moment),
-    status: PropTypes.bool,
-  }),
-};
-
-export default PromotionForm;
+}

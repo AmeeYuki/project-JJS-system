@@ -10,20 +10,7 @@ import {
 import PropTypes from "prop-types";
 import moment from "moment";
 
-const PromotionForm = ({
-  open,
-  onCancel,
-  onFinish,
-  initialValues = {
-    description: "",
-    discountType: "percentage",
-    discountPercentage: "",
-    fixedDiscountAmount: "",
-    startDate: null,
-    endDate: null,
-    status: false,
-  },
-}) => {
+const PromotionUpdateForm = ({ open, onCancel, onFinish, initialValues }) => {
   const [form] = Form.useForm();
 
   const handleDiscountTypeChange = (e) => {
@@ -63,6 +50,16 @@ const PromotionForm = ({
         validateTrigger="onBlur"
       >
         <Form.Item
+          label="Promotion Code"
+          name="code"
+          rules={[
+            { required: true, message: "Please input the promotion code!" },
+          ]}
+        >
+          <Input placeholder="Promotion Code..." />
+        </Form.Item>
+
+        <Form.Item
           label="Select Discount Type"
           name="discountType"
           initialValue={initialValues.discountType}
@@ -74,7 +71,7 @@ const PromotionForm = ({
           </Radio.Group>
         </Form.Item>
 
-        {initialValues.discountType === "percentage" ? (
+        {form.getFieldValue("discountType") === "percentage" ? (
           <Form.Item
             label="Discount Percentage"
             name="discountPercentage"
@@ -174,11 +171,12 @@ const PromotionForm = ({
   );
 };
 
-PromotionForm.propTypes = {
+PromotionUpdateForm.propTypes = {
   open: PropTypes.bool.isRequired,
   onCancel: PropTypes.func.isRequired,
   onFinish: PropTypes.func.isRequired,
   initialValues: PropTypes.shape({
+    id: PropTypes.number,
     code: PropTypes.string,
     description: PropTypes.string,
     discountType: PropTypes.oneOf(["percentage", "fixed"]),
@@ -190,4 +188,4 @@ PromotionForm.propTypes = {
   }),
 };
 
-export default PromotionForm;
+export default PromotionUpdateForm;
