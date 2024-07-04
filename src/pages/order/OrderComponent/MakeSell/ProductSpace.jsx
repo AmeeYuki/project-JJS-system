@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { ConfigProvider, message } from "antd";
 import { useGetProductsQuery } from "../../../../services/productAPI";
 import ProductTable from "./ProductTable";
@@ -14,19 +14,23 @@ export default function ProductSpace({
   customerId,
   discountChange,
   onDiscountData,
+  customerPoint,
+  onPointDiscount,
+  onSubtotalOrder,
 }) {
   const { data: productsData, isError, isLoading } = useGetProductsQuery();
   const [searchTerm, setSearchTerm] = useState("");
   const [cartItems, setCartItems] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [pointCustomer, setPointCustomer] = useState(0);
   const [discountPercent, setDiscountPercent] = useState(0);
   const [fixedDiscount, setFixedDiscount] = useState(0);
   const [isPromotionModalVisible, setPromotionModalVisible] = useState(false);
   const [isVoucherModalVisible, setVoucherModalVisible] = useState(false);
   const [isSendRequestModalVisible, setSendRequestModalVisible] =
     useState(false);
-
+  const [promotion, setPromotion] = useState(null);
   useEffect(() => {
     if (isError) {
       console.error("Error fetching product data.");
@@ -115,13 +119,23 @@ export default function ProductSpace({
     sendProductData(updatedCartItems);
   };
 
-  const subtotal = cartItems.reduce((acc, item) => {
-    return acc + item.price * item.quantity;
-  }, 0);
+  const subtotal = useMemo(
+    () =>
+      cartItems.reduce((acc, item) => {
+        return acc + item.price * item.quantity;
+      }, 0),
+    [cartItems]
+  );
 
-  const discount = (subtotal * discountPercent) / 100 + fixedDiscount;
+  const discount = useMemo(
+    () => (subtotal * discountPercent) / 100 + fixedDiscount,
+    [subtotal, discountPercent, fixedDiscount]
+  );
 
-  const totalBeforeDiscount = subtotal - discount;
+  const totalBeforeDiscount = useMemo(() => {
+    const total = subtotal - discount - pointCustomer * 1000;
+    return Math.max(total, 0); // Ensure total is not negative
+  }, [subtotal, discount, pointCustomer]);
 
   const filteredProducts =
     productsData?.products.filter((item) =>
@@ -139,22 +153,6 @@ export default function ProductSpace({
     available_quantity: item.quantity,
   }));
 
-  // const sendProductData = (updatedCartItems = cartItems) => {
-  //   const productData = updatedCartItems.map((item) => ({
-  //     id: item.id,
-  //     quantity: item.quantity,
-  //     totalPrice: item.price,
-  //   }));
-
-  //   onProductChange(productData);
-  // };
-
-  // const handleApplyDiscount = (discountData) => {
-  //   setDiscountPercent(discountData.discountRate);
-  //   setFixedDiscount(discountData.fixedDiscountAmount);
-  //   discountChange(discountData); // Send discount data to parent component
-  // };
-
   const sendProductData = (updatedCartItems = cartItems) => {
     const productData = updatedCartItems.map((item) => ({
       id: item.id,
@@ -162,14 +160,13 @@ export default function ProductSpace({
       totalPrice: item.price,
     }));
 
-    // Calculate discount based on subtotal, discount percent, and fixed discount
     const subtotal = updatedCartItems.reduce((acc, item) => {
       return acc + item.price * item.quantity;
     }, 0);
 
     const discount = (subtotal * discountPercent) / 100 + fixedDiscount;
 
-    // Pass product data and discount to parent component
+    onSubtotalOrder(subtotal);
     onProductChange({
       products: productData,
       discount: discount,
@@ -179,82 +176,80 @@ export default function ProductSpace({
   const handleApplyDiscount = (discountData) => {
     setDiscountPercent(discountData.discountRate);
     setFixedDiscount(discountData.fixedDiscountAmount);
-    // Calculate and send discount information to parent component
+
     const subtotal = cartItems.reduce((acc, item) => {
       return acc + item.price * item.quantity;
     }, 0);
-    const discount =
+    const discountSend =
       (subtotal * discountData.discountRate) / 100 +
-      discountData.fixedDiscountAmount;
-    discountChange(discount); // Send discount data to parent component
+      discountData.fixedDiscountAmount +
+      pointCustomer * 1000;
+    discountChange(discountSend);
     onDiscountData(discountData);
+  };
+
+  const handleApplyPromotion = (promotion) => {
+    setPromotion(promotion);
+    const discountData = {
+      discountRate: promotion.discountPercentage,
+      fixedDiscountAmount: promotion.fixedDiscountAmount,
+    };
+    handleApplyDiscount(discountData);
+  };
+
+  const handlePointChange = (point) => {
+    setPointCustomer(point);
+    onPointDiscount(point);
+    const discountSend =
+      (subtotal * discountPercent) / 100 + fixedDiscount + point * 1000;
+    discountChange(discountSend);
   };
 
   return (
     <div className="product-space">
       <div className="product-select">
-        <h1 className="title">Product: </h1>
-        <ProductSearch setSearchTerm={setSearchTerm} />
-
-        <div className="product-show">
-          {isLoading ? (
-            <p>Loading...</p>
-          ) : productsData && productsData.products ? (
-            <ProductTable products={productData} addToCart={addToCart} />
-          ) : (
-            <p>
-              {isLoading ? (
-                "Loading..."
-              ) : (
-                <div className="info-item" style={{ height: 150 }}>
-                  No products available
-                </div>
-              )}
-            </p>
-          )}
-        </div>
-      </div>
-      <div className="product-cart">
-        <h1 className="title">Cart Information: </h1>
-        <ConfigProvider
-          theme={{
-            token: {
-              colorBgContainer: "#f1f1f1",
-            },
-          }}
-        >
-          <CartTable
-            cartItems={cartItems}
-            increaseQuantity={increaseQuantity}
-            decreaseQuantity={decreaseQuantity}
-            removeFromCart={removeFromCart}
+        <h1 className="select-title">Product Selection</h1>
+        <ProductSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        <ConfigProvider renderEmpty={() => <div>No products found</div>}>
+          <ProductTable
+            products={productData}
+            addToCart={addToCart}
+            isLoading={isLoading}
           />
         </ConfigProvider>
-        <br />
-        <CartSummary
-          subtotal={subtotal}
-          discount={discount}
-          discountPercent={discountPercent}
-          totalBeforeDiscount={totalBeforeDiscount}
-          setVoucherModalVisible={setVoucherModalVisible}
-          setPromotionModalVisible={setPromotionModalVisible}
-          setSendRequestModalVisible={setSendRequestModalVisible}
-        />
       </div>
-      <PolicyModel
-        isVisible={isPromotionModalVisible}
-        customerId={customerId}
-        onClose={() => setPromotionModalVisible(false)}
-        onApplyDiscount={handleApplyDiscount}
+      <CartTable
+        cartItems={cartItems}
+        removeFromCart={removeFromCart}
+        increaseQuantity={increaseQuantity}
+        decreaseQuantity={decreaseQuantity}
+      />
+      <CartSummary
+        customerPoint={customerPoint}
+        subtotal={subtotal}
+        discount={discount}
+        discountPercent={discountPercent}
+        totalBeforeDiscount={totalBeforeDiscount}
+        setVoucherModalVisible={setVoucherModalVisible}
+        setPromotionModalVisible={setPromotionModalVisible}
+        setSendRequestModalVisible={setSendRequestModalVisible}
+        onPointChange={handlePointChange}
       />
       <VoucherModal
         isVisible={isVoucherModalVisible}
         onClose={() => setVoucherModalVisible(false)}
+        onApplyPromotion={handleApplyPromotion}
       />
       <SendRequestCustomerPolicyModal
         isVisible={isSendRequestModalVisible}
         onClose={() => setSendRequestModalVisible(false)}
         customerId={customerId}
+      />
+      <PolicyModel
+        isVisible={isPromotionModalVisible}
+        onClose={() => setPromotionModalVisible(false)}
+        customerId={customerId}
+        onApplyDiscount={handleApplyDiscount}
       />
     </div>
   );

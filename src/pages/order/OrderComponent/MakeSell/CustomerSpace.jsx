@@ -8,6 +8,7 @@ import { selectAuth } from "../../../../slices/auth.slice";
 export default function CustomerSpace({
   onCustomerInfoChange,
   handleGetCustomerInfo,
+  onCustomerData,
 }) {
   const [phone, setPhone] = useState("");
   const [customer, setCustomer] = useState(null);
@@ -19,6 +20,7 @@ export default function CustomerSpace({
     getCustomerByPhone(value)
       .then((result) => {
         if (result.data) {
+          onCustomerData(result.data);
           setCustomer(result.data);
           onCustomerInfoChange(result.data); // Truyền thông tin khách hàng ra ngoài
           notification.success({

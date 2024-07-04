@@ -58,6 +58,7 @@ const ProductTable = ({ products, addToCart }) => {
 
   return (
     <Table
+      style={{ marginTop: "20px" }}
       columns={productColumns}
       dataSource={products}
       pagination={{ pageSize: 4 }}
