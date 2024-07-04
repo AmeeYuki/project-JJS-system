@@ -9,6 +9,13 @@
   align-items: center;
   gap: 20px;
 }
+
+.d-flex-space {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .make-sell-page {
   padding: 10px 20px;
   margin-bottom: 40px;
@@ -84,11 +91,13 @@
   font-weight: bold;
 }
 .make-sell-page .body .product-space .cart-total {
-  background-color: #f1f1f1;
+  background-color: #fafafa;
+  border: 1px #b3b3b38d solid;
   box-shadow: 1px 1px 0px 0px rgba(0, 0, 0, 0.3);
   padding: 0 10px;
   font-size: 20px;
   font-weight: 400;
+  margin-top: 20px;
 }
 .make-sell-page .body .product-space .cart-total .voucher,
 .make-sell-page .body .product-space .cart-total .policy {

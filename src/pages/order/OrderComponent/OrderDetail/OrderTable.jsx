@@ -1,8 +1,7 @@
 import React from "react";
-import { Table } from "antd";
+import { Flex, Table } from "antd";
 
-export default function OrderTable({ products }) {
-  console.log(products);
+export default function OrderTable({ products, order }) {
   const columns = [
     {
       title: "No.",
@@ -39,11 +38,10 @@ export default function OrderTable({ products }) {
       dataIndex: "quantity",
       key: "quantity",
     },
-
     {
       title: "Price",
       dataIndex: "price",
-      key: "total",
+      key: "price",
       render: (price) => `${price.toLocaleString()} VNĐ`,
     },
     {
@@ -65,11 +63,32 @@ export default function OrderTable({ products }) {
     total_price: item.unitPrice * item.quantity,
   }));
 
+  const subtotal = data.reduce((sum, item) => sum + item.total_price, 0);
+  let total = subtotal - order.discount;
+  if (total < 0) {
+    total = 0;
+  }
+
   return (
     <div style={{ marginTop: 10 }}>
       <h3 style={{ fontWeight: 400 }}>Product</h3>
       <hr />
       <Table columns={columns} dataSource={data} pagination={false} />
+      <br />
+      <div className="border-total-detail">
+        <Flex align="center" justify="space-between">
+          <div>Sub total:</div>
+          <div>{subtotal.toLocaleString()} VNĐ</div>
+        </Flex>
+        <Flex align="center" justify="space-between">
+          <div>Discount: </div>
+          <div>{order.discount.toLocaleString()} VNĐ</div>
+        </Flex>
+        <Flex style={{ color: "red" }} align="center" justify="space-between">
+          <div>Total:</div>
+          <div>{total.toLocaleString()} VNĐ</div>
+        </Flex>
+      </div>
     </div>
   );
 }

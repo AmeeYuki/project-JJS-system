@@ -44,7 +44,7 @@ export default function OrderDetail() {
         <InformationCustomer order={order} />
       </div>
       <div className="order-space">
-        <OrderTable products={products} />
+        <OrderTable order={order} products={products} />
       </div>
 
       <div className="d-flex-center" style={{ marginTop: 20 }}>

@@ -12,13 +12,15 @@ export default function PolicyModel({
     data: policies,
     isLoading,
     refetch,
-  } = useGetPolicyCustomerAcceptQuery(customerId, {
-    skip: !customerId, // Skip query if customerId is not provided
-  });
+  } = useGetPolicyCustomerAcceptQuery(customerId);
 
   useEffect(() => {
     if (customerId && isVisible) {
-      refetch();
+      const intervalId = setInterval(() => {
+        refetch();
+      }, 5000); // Refetch data every 5 seconds
+
+      return () => clearInterval(intervalId); // Clear interval on component unmount or when dependencies change
     }
   }, [customerId, isVisible, refetch]);
 
@@ -34,7 +36,7 @@ export default function PolicyModel({
 
   return (
     <Modal
-      title="Promotion"
+      title="Customer policy"
       visible={isVisible}
       onCancel={onClose}
       footer={null} // Remove the default footer

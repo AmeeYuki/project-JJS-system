@@ -24,6 +24,7 @@ export const promotionAPI = createApi({
           ? result.map(({ id }) => ({ type: "PromotionList", id }))
           : [{ type: "PromotionList", id: "LIST" }],
     }),
+
     addPromotion: builder.mutation({
       query: (newPromotion) => ({
         url: "promotions/create",
@@ -47,6 +48,14 @@ export const promotionAPI = createApi({
       }),
       invalidatesTags: ({ id }) => [{ type: "PromotionList", id }],
     }),
+
+    usePromotion: builder.mutation({
+      query: (code) => ({
+        url: `promotions/use/${code} `,
+        method: "POST",
+      }),
+      invalidatesTags: [{ type: "PromotionList", id: "LIST" }],
+    }),
   }),
 });
 
@@ -55,4 +64,5 @@ export const {
   useAddPromotionMutation,
   useUpdatePromotionMutation,
   useDeletePromotionMutation,
+  useUsePromotionMutation,
 } = promotionAPI;

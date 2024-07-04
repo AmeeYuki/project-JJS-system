@@ -104,6 +104,28 @@ export const customerAPI = createApi({
       }),
       invalidatesTags: ["CustomerList"],
     }),
+    usePoint: builder.mutation({
+      query: ({ customerId, point }) => ({
+        url: `customers/apply_accumulated_point/${customerId}?accumulated_point=${point}`,
+        method: "PUT",
+      }),
+      invalidatesTags: ["CustomerList"],
+    }),
+
+    addPoint: builder.mutation({
+      query: ({ data, point }) => ({
+        url: `customers/update/${data.id}`,
+        method: "PUT",
+        body: {
+          fullName: "Ame ",
+          email: data.email,
+          phone: data.phone,
+          address: data.address,
+          accumulated_point: point,
+        },
+      }),
+      invalidatesTags: ["CustomerList"],
+    }),
   }),
 });
 
@@ -119,4 +141,6 @@ export const {
   useRejectPolicyMutation,
   useGetPolicyCustomerAcceptQuery,
   useUsedPolicyMutation,
+  useUsePointMutation,
+  useAddPointMutation,
 } = customerAPI;

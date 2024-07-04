@@ -18,7 +18,7 @@ import { useSelector } from "react-redux";
 
 const useSider = () => {
   const auth = useSelector(selectAuth);
-  const role = auth?.roles[0]; // Assuming role is the first element in the roles array
+  const role = auth?.roles?.[0] || null; // Check if roles array exists and has at least one element
 
   const siderList = useMemo(() => {
     const list = [

@@ -8,14 +8,24 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { selectAuth } from "../../../../slices/auth.slice";
 import { useNavigate } from "react-router-dom";
-import { useUsedPolicyMutation } from "../../../../services/customerAPI";
+import {
+  useAddPointMutation,
+  useUsedPolicyMutation,
+  useUsePointMutation,
+} from "../../../../services/customerAPI";
 
 export default function MakeSell() {
   const [addOrder, { isLoading }] = useAddOrderMutation();
   const [customerData, setCustomerData] = useState(false);
   const [customerId, setCustomerId] = useState();
+  const [customerPoint, setCustomerPoint] = useState();
+  const [customerDataUpdate, setCustomerDataUpdate] = useState();
+  const [pointUpdate, setPointUpdate] = useState();
   const [policyId, setPolicyId] = useState();
+  const [pointDiscount, setPointDiscount] = useState(0);
   const [usedPolicy] = useUsedPolicyMutation();
+  const [applyPoints, { isLoading: isApplyingPoints }] = useUsePointMutation(); // Use the usePoint mutation
+  const [addPoint] = useAddPointMutation(); // Use the usePoint mutation
 
   // const [loading, isLoading] = useState(false);
   const auth = useSelector(selectAuth);
@@ -41,7 +51,6 @@ export default function MakeSell() {
 
   const handleSubmit = async (e) => {
     console.log(orderData);
-    console.log(policyId);
 
     if (orderData.orderRequests.length <= 0) {
       notification.error({
@@ -51,15 +60,35 @@ export default function MakeSell() {
     }
     try {
       const response = await addOrder(orderData); // Call the mutation to add the order and unwrap the response
-      // console.log(response);
-      await usedPolicy({ id: policyId });
-      if (response) {
-        notification.success({
-          message: "Order made successfully",
-        });
-        navigate("/order");
+      console.log(response);
+      if (response.data) {
+        await addPoint({
+          data: customerDataUpdate,
+          point: pointUpdate,
+        }); // Call the mutation to add the order and unwrap the response
+
+        if (pointDiscount !== 0) {
+          await applyPoints({
+            customerId: customerId,
+            point: pointDiscount,
+          });
+        }
+
+        if (policyId) {
+          await usedPolicy({ id: policyId });
+        }
+        if (response) {
+          notification.success({
+            message: "Order made successfully",
+          });
+          navigate("/order");
+        } else {
+          throw new Error(`Unexpected status code: ${response.status}`);
+        }
       } else {
-        throw new Error(`Unexpected status code: ${response.status}`);
+        notification.error({
+          message: "Error making order",
+        });
       }
     } catch (error) {
       console.error("Error adding order:", error);
@@ -74,6 +103,7 @@ export default function MakeSell() {
     // Cập nhật thông tin khách hàng vào state orderData
     // console.log("Customer info changed:", customerInfo?.id); // Log dữ liệu khi thông tin khách hàng thay đổi
     setCustomerId(customerInfo?.id);
+    setCustomerPoint(customerInfo?.accumulated_point);
     setOrderData((prevData) => ({
       ...prevData,
       orderDTO: {
@@ -85,8 +115,6 @@ export default function MakeSell() {
   };
 
   const handleProductChange = ({ products, discount }) => {
-    console.log(discount);
-    // Update orderRequests based on products
     const newOrderRequests = products.map((product) => ({
       quantity: product.quantity,
       product_id: product.id,
@@ -97,10 +125,6 @@ export default function MakeSell() {
     setOrderData((prevData) => ({
       ...prevData,
       orderRequests: newOrderRequests,
-      // orderDTO: {
-      //   ...prevData.orderDTO,
-      //   discount: discount,
-      // },
     }));
   };
 
@@ -128,6 +152,21 @@ export default function MakeSell() {
     }));
   };
 
+  const handlePointDiscount = (point) => {
+    setPointDiscount(point);
+  };
+
+  const handleCustomerData = (values) => {
+    setCustomerDataUpdate(values);
+  };
+  const handleSubtotal = (values) => {
+    const pointValue = 100000;
+    const points = Math.floor(values / pointValue);
+    const pointUpdate = points + customerPoint;
+
+    setPointUpdate(pointUpdate);
+  };
+
   return (
     <div className="make-sell-page">
       <div className="header">
@@ -138,15 +177,19 @@ export default function MakeSell() {
           <CustomerSpace
             onCustomerInfoChange={handleCustomerInfoChange}
             handleGetCustomerInfo={handleGetCustomerInfo}
+            onCustomerData={handleCustomerData}
           />
         </div>
         {customerData == true ? (
           <div className="product-space">
             <ProductSpace
               customerId={customerId}
+              customerPoint={customerPoint}
               onProductChange={handleProductChange}
               discountChange={handleDiscountChange}
               onDiscountData={handleOnDiscountData}
+              onPointDiscount={handlePointDiscount}
+              onSubtotalOrder={handleSubtotal}
             />
           </div>
         ) : null}
