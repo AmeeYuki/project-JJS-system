@@ -2,6 +2,7 @@
 // import { Button, Input, notification } from "antd";
 // import PromotionTable from "./PromotionTable";
 // import PromotionForm from "./PromotionForm";
+// import PromotionUpdateForm from "./PromotionUpdateForm";
 // import "./Promotion.css";
 // import moment from "moment";
 // import {
@@ -9,6 +10,7 @@
 //   useAddPromotionMutation,
 //   useUpdatePromotionMutation,
 //   useDeletePromotionMutation,
+//   useDeleteExpiredPromotionsMutation, // Import the new mutation hook
 // } from "../../services/promotionAPI";
 
 // export default function Promotion() {
@@ -31,8 +33,22 @@
 //   const [addPromotion] = useAddPromotionMutation();
 //   const [updatePromotion] = useUpdatePromotionMutation();
 //   const [deletePromotion] = useDeletePromotionMutation();
+//   const [deleteExpiredPromotions] = useDeleteExpiredPromotionsMutation(); // Initialize the new mutation hook
 
 //   useEffect(() => {
+//     // Function to delete expired promotions on page load
+//     const deleteExpiredPromos = async () => {
+//       try {
+//         await deleteExpiredPromotions().unwrap();
+//         console.log("Expired promotions deleted successfully.");
+//       } catch (error) {
+//         console.error("Error deleting expired promotions: ", error);
+//       }
+//     };
+
+//     deleteExpiredPromos(); // Call the function when the component mounts
+
+//     // Fetch all promotions
 //     if (promotions) {
 //       const indexedPromotions = promotions.map((promo, index) => ({
 //         ...promo,
@@ -41,15 +57,17 @@
 //       setRows(indexedPromotions);
 //       setFilteredRows(indexedPromotions.slice().sort((a, b) => a.id - b.id));
 //     }
-//   }, [promotions]);
+//   }, [promotions, deleteExpiredPromotions]); // Include deleteExpiredPromotions in dependencies array
 
 //   useEffect(() => {
 //     const lowercasedFilter = searchTerm.toLowerCase();
 //     const filteredData = rows.filter((item) => {
-//       return (
-//         item.id.toString().includes(lowercasedFilter) ||
-//         item.name.toLowerCase().includes(lowercasedFilter)
-//       );
+//       const idMatch = item.id
+//         ?.toString()
+//         .toLowerCase()
+//         .includes(lowercasedFilter);
+//       const codeMatch = item.code?.toLowerCase().includes(lowercasedFilter);
+//       return idMatch || codeMatch;
 //     });
 
 //     const sortedFilteredData = filteredData.sort((a, b) => a.id - b.id);
@@ -57,7 +75,20 @@
 //   }, [searchTerm, rows]);
 
 //   const handleSearch = (event) => {
-//     setSearchTerm(event.target.value);
+//     const lowercasedFilter = event.target.value.toLowerCase();
+//     setSearchTerm(lowercasedFilter);
+
+//     const filteredData = rows.filter((item) => {
+//       const idMatch = item.id
+//         ?.toString()
+//         .toLowerCase()
+//         .includes(lowercasedFilter);
+//       const codeMatch = item.code?.toLowerCase().includes(lowercasedFilter);
+//       return idMatch || codeMatch;
+//     });
+
+//     const sortedFilteredData = filteredData.sort((a, b) => a.id - b.id);
+//     setFilteredRows(sortedFilteredData);
 //   };
 
 //   const handleOpen = () => {
@@ -107,12 +138,20 @@
 
 //   const handleSaveUpdate = async (values) => {
 //     if (!values || !values.id) {
-//       console.error("Promotion or its ID is undefined");
+//       console.error("Promotion or its ID is undefined", values);
 //       return;
 //     }
 
+//     console.log("Saving promotion with values:", values);
+
+//     const formattedValues = {
+//       ...values,
+//       startDate: values.startDate ? values.startDate.valueOf() : 0,
+//       endDate: values.endDate ? values.endDate.valueOf() : 0,
+//     };
+
 //     try {
-//       await updatePromotion({ id: values.id, ...values }).unwrap();
+//       await updatePromotion({ id: values.id, ...formattedValues }).unwrap();
 //       refetch();
 //       handleCloseUpdate();
 //       notification.success({
@@ -154,7 +193,7 @@
 //             <Input
 //               type="text"
 //               className="searchInput"
-//               placeholder="Search by ID or name"
+//               placeholder="Search by ID or code"
 //               value={searchTerm}
 //               onChange={handleSearch}
 //             />
@@ -182,7 +221,7 @@
 //         onFinish={handleAddPromotion}
 //       />
 
-//       <PromotionForm
+//       <PromotionUpdateForm
 //         open={openUpdate}
 //         onCancel={handleCloseUpdate}
 //         onFinish={handleSaveUpdate}
@@ -195,14 +234,13 @@ import { useState, useEffect } from "react";
 import { Button, Input, notification } from "antd";
 import PromotionTable from "./PromotionTable";
 import PromotionForm from "./PromotionForm";
-import PromotionUpdateForm from "./PromotionUpdateForm"; // Import PromotionUpdateForm
 import "./Promotion.css";
-import moment from "moment"; // Import moment
+import moment from "moment";
 import {
   useGetAllPromotionsQuery,
   useAddPromotionMutation,
-  useUpdatePromotionMutation,
   useDeletePromotionMutation,
+  useDeleteExpiredPromotionsMutation,
 } from "../../services/promotionAPI";
 
 export default function Promotion() {
@@ -210,23 +248,33 @@ export default function Promotion() {
   const [filteredRows, setFilteredRows] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [open, setOpen] = useState(false);
-  const [openUpdate, setOpenUpdate] = useState(false);
   const [newPromotion, setNewPromotion] = useState({
     code: "",
     description: "",
     discountType: "percentage",
     discountPercentage: "",
     fixedDiscountAmount: "",
-    startDate: null,
-    endDate: null,
+    startDate: moment().toISOString(),
+    endDate: moment().add(1, "days").toISOString(),
     status: false,
   });
   const { data: promotions, isLoading, refetch } = useGetAllPromotionsQuery();
   const [addPromotion] = useAddPromotionMutation();
-  const [updatePromotion] = useUpdatePromotionMutation();
   const [deletePromotion] = useDeletePromotionMutation();
+  const [deleteExpiredPromotions] = useDeleteExpiredPromotionsMutation();
 
   useEffect(() => {
+    const deleteExpiredPromos = async () => {
+      try {
+        await deleteExpiredPromotions().unwrap();
+        console.log("Expired promotions deleted successfully.");
+      } catch (error) {
+        console.error("Error deleting expired promotions: ", error);
+      }
+    };
+
+    deleteExpiredPromos();
+
     if (promotions) {
       const indexedPromotions = promotions.map((promo, index) => ({
         ...promo,
@@ -235,7 +283,7 @@ export default function Promotion() {
       setRows(indexedPromotions);
       setFilteredRows(indexedPromotions.slice().sort((a, b) => a.id - b.id));
     }
-  }, [promotions]);
+  }, [promotions, deleteExpiredPromotions]);
 
   useEffect(() => {
     const lowercasedFilter = searchTerm.toLowerCase();
@@ -276,19 +324,26 @@ export default function Promotion() {
       discountType: "percentage",
       discountPercentage: "",
       fixedDiscountAmount: "",
-      startDate: null,
-      endDate: null,
+      startDate: moment().toISOString(),
+      endDate: moment().add(1, "days").toISOString(),
       status: false,
     });
     setOpen(true);
   };
 
   const handleClose = () => setOpen(false);
-  const handleCloseUpdate = () => setOpenUpdate(false);
 
   const handleAddPromotion = async (values) => {
     try {
-      await addPromotion(values).unwrap();
+      const formattedValues = {
+        ...values,
+        startDate: values.startDate
+          ? moment(values.startDate).toISOString()
+          : null,
+        endDate: values.endDate ? moment(values.endDate).toISOString() : null,
+      };
+
+      await addPromotion(formattedValues).unwrap();
       refetch();
       handleClose();
       notification.success({
@@ -300,47 +355,6 @@ export default function Promotion() {
       notification.error({
         message: "Error",
         description: `Error: ${error.status} - ${error.data}`,
-      });
-    }
-  };
-
-  const handleUpdatePromotion = (promotionId) => {
-    const promotion = rows.find((row) => row.id === promotionId);
-    setNewPromotion({
-      ...promotion,
-      startDate: promotion.startDate ? moment(promotion.startDate) : null,
-      endDate: promotion.endDate ? moment(promotion.endDate) : null,
-    });
-    setOpenUpdate(true);
-  };
-
-  const handleSaveUpdate = async (values) => {
-    if (!values || !values.id) {
-      console.error("Promotion or its ID is undefined", values);
-      return;
-    }
-
-    console.log("Saving promotion with values:", values);
-
-    const formattedValues = {
-      ...values,
-      startDate: values.startDate ? values.startDate.valueOf() : 0,
-      endDate: values.endDate ? values.endDate.valueOf() : 0,
-    };
-
-    try {
-      await updatePromotion({ id: values.id, ...formattedValues }).unwrap();
-      refetch();
-      handleCloseUpdate();
-      notification.success({
-        message: "Success",
-        description: "Promotion updated successfully.",
-      });
-    } catch (error) {
-      console.error("Error updating promotion: ", error);
-      notification.error({
-        message: "Error",
-        description: `Error: ${error.message}`,
       });
     }
   };
@@ -357,7 +371,7 @@ export default function Promotion() {
       console.error("Error deleting promotion: ", error);
       notification.error({
         message: "Error",
-        description: `Error: ${error.status} - ${error.data}`,
+        description: `Error deleting promotion: ${error.message}`,
       });
     }
   };
@@ -387,7 +401,6 @@ export default function Promotion() {
         <div style={{ height: 400, width: "100%" }}>
           <PromotionTable
             data={filteredRows}
-            handleUpdatePromotion={handleUpdatePromotion}
             handleDeletePromotion={handleDeletePromotion}
           />
         </div>
@@ -397,12 +410,6 @@ export default function Promotion() {
         open={open}
         onCancel={handleClose}
         onFinish={handleAddPromotion}
-      />
-
-      <PromotionUpdateForm
-        open={openUpdate}
-        onCancel={handleCloseUpdate}
-        onFinish={handleSaveUpdate}
         initialValues={newPromotion}
       />
     </div>

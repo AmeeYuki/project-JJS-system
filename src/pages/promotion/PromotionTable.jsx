@@ -12,10 +12,17 @@ const PromotionTable = ({
     { title: "No.", dataIndex: "id", key: "id", width: 60, fixed: "left" },
     { title: "Promotion Code", dataIndex: "code", key: "code", width: 150 },
     {
-      title: "Discount Percentage",
-      dataIndex: "discountPercentage",
-      key: "discountPercentage",
-      width: 150,
+      title: "Discount",
+      key: "discount",
+      width: 200,
+      render: (record) => {
+        if (record.discountType === "percentage") {
+          return `${record.discountPercentage}%`;
+        } else if (record.discountType === "fixed") {
+          return `VND ${record.fixedDiscountAmount}`;
+        }
+        return null;
+      },
     },
     {
       title: "Start Date",

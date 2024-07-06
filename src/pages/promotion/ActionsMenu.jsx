@@ -5,7 +5,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 const ActionsMenu = ({
   promotionId,
-  handleUpdatePromotion,
+  // handleUpdatePromotion,
   handleDeletePromotion,
 }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -21,9 +21,9 @@ const ActionsMenu = ({
   const handleMenuItemClick = (action) => {
     handleClose();
     switch (action) {
-      case "update":
-        handleUpdatePromotion(promotionId);
-        break;
+      // case "update":
+      //   handleUpdatePromotion(promotionId);
+      //   break;
       case "delete":
         handleDeletePromotion(promotionId);
         break;
@@ -38,9 +38,9 @@ const ActionsMenu = ({
         <MoreVertIcon />
       </IconButton>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-        <MenuItem onClick={() => handleMenuItemClick("update")}>
+        {/* <MenuItem onClick={() => handleMenuItemClick("update")}>
           Update
-        </MenuItem>
+        </MenuItem> */}
         <MenuItem onClick={() => handleMenuItemClick("delete")}>
           Delete
         </MenuItem>

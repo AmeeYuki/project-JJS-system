@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   Modal,
   Form,
@@ -19,27 +20,74 @@ const PromotionForm = ({
     discountType: "percentage",
     discountPercentage: "",
     fixedDiscountAmount: "",
-    startDate: null,
-    endDate: null,
+    startDate: moment().startOf("day"),
+    endDate: moment().endOf("day"),
     status: false,
   },
 }) => {
   const [form] = Form.useForm();
 
+  useEffect(() => {
+    form.setFieldsValue({
+      ...initialValues,
+      startDate: moment(initialValues.startDate),
+      endDate: moment(initialValues.endDate),
+      discountPercentage:
+        initialValues.discountType === "percentage"
+          ? initialValues.discountPercentage
+          : 0,
+      fixedDiscountAmount:
+        initialValues.discountType === "fixed"
+          ? initialValues.fixedDiscountAmount
+          : 0,
+    });
+  }, [form, initialValues]);
+
   const handleDiscountTypeChange = (e) => {
     const discountType = e.target.value;
+    let defaultValues = {};
 
-    form.setFieldsValue({
-      discountType,
-      discountPercentage: discountType === "percentage" ? "" : null,
-      fixedDiscountAmount: discountType === "fixed" ? "" : null,
-    });
+    if (discountType === "percentage") {
+      defaultValues = {
+        discountType,
+        discountPercentage: initialValues.discountPercentage || 0,
+        fixedDiscountAmount: 0,
+      };
+    } else if (discountType === "fixed") {
+      defaultValues = {
+        discountType,
+        discountPercentage: 0,
+        fixedDiscountAmount: initialValues.fixedDiscountAmount || 0,
+      };
+    }
+
+    form.setFieldsValue(defaultValues);
 
     notification.success({
       message: "Fields Reset",
       description: "Discount fields reset successfully.",
       icon: <i className="fas fa-star" style={{ color: "#108ee9" }}></i>,
     });
+  };
+
+  const handleFinish = (values) => {
+    const formattedValues = {
+      ...values,
+      startDate: values.startDate ? values.startDate.toISOString() : null,
+      endDate: values.endDate ? values.endDate.toISOString() : null,
+    };
+
+    onFinish(formattedValues);
+  };
+
+  const validateEndDate = (_, value) => {
+    const startDateValue = form.getFieldValue("startDate");
+    if (startDateValue && value && moment(value).isBefore(startDateValue)) {
+      return Promise.reject(
+        new Error("End date must be valid and greater than start date!")
+      );
+    }
+    return Promise.resolve();
   };
 
   return (
@@ -52,13 +100,17 @@ const PromotionForm = ({
       <Form
         form={form}
         layout="vertical"
-        onFinish={onFinish}
+        onFinish={handleFinish}
         initialValues={{
           ...initialValues,
-          startDate: initialValues.startDate
-            ? moment(initialValues.startDate)
-            : null,
-          endDate: initialValues.endDate ? moment(initialValues.endDate) : null,
+          discountPercentage:
+            initialValues.discountType === "percentage"
+              ? initialValues.discountPercentage
+              : 0,
+          fixedDiscountAmount:
+            initialValues.discountType === "fixed"
+              ? initialValues.fixedDiscountAmount
+              : 0,
         }}
         validateTrigger="onBlur"
       >
@@ -109,17 +161,19 @@ const PromotionForm = ({
             { required: true, message: "Please select the start date!" },
             {
               validator: (_, value) => {
-                if (value && value >= moment().startOf("day")) {
-                  return Promise.resolve();
+                if (!value || !moment(value).isValid()) {
+                  return Promise.reject(
+                    new Error("Please select a valid start date!")
+                  );
                 }
-                return Promise.reject(
-                  new Error("Start date must be in the future!")
-                );
+                return Promise.resolve();
               },
             },
           ]}
         >
           <DatePicker
+            showTime
+            format="YYYY-MM-DD HH:mm:ss"
             disabledDate={(current) =>
               current && current < moment().startOf("day")
             }
@@ -131,19 +185,12 @@ const PromotionForm = ({
           name="endDate"
           rules={[
             { required: true, message: "Please select the end date!" },
-            ({ getFieldValue }) => ({
-              validator(_, value) {
-                if (!value || getFieldValue("startDate") < value) {
-                  return Promise.resolve();
-                }
-                return Promise.reject(
-                  new Error("End date must be greater than start date!")
-                );
-              },
-            }),
+            { validator: validateEndDate },
           ]}
         >
           <DatePicker
+            showTime
+            format="YYYY-MM-DD HH:mm:ss"
             disabledDate={(current) =>
               current && current < moment().startOf("day")
             }
@@ -179,13 +226,18 @@ PromotionForm.propTypes = {
   onCancel: PropTypes.func.isRequired,
   onFinish: PropTypes.func.isRequired,
   initialValues: PropTypes.shape({
-    code: PropTypes.string,
     description: PropTypes.string,
     discountType: PropTypes.oneOf(["percentage", "fixed"]),
     discountPercentage: PropTypes.number,
     fixedDiscountAmount: PropTypes.number,
-    startDate: PropTypes.instanceOf(moment),
-    endDate: PropTypes.instanceOf(moment),
+    startDate: PropTypes.oneOfType([
+      PropTypes.instanceOf(moment),
+      PropTypes.string,
+    ]),
+    endDate: PropTypes.oneOfType([
+      PropTypes.instanceOf(moment),
+      PropTypes.string,
+    ]),
     status: PropTypes.bool,
   }),
 };
