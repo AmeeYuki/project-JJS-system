@@ -230,38 +230,30 @@
 //     </div>
 //   );
 // }
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Input, notification } from "antd";
 import PromotionTable from "./PromotionTable";
 import PromotionForm from "./PromotionForm";
 import "./Promotion.css";
-import moment from "moment";
+import dayjs from "dayjs";
 import {
   useGetAllPromotionsQuery,
   useAddPromotionMutation,
   useDeletePromotionMutation,
   useDeleteExpiredPromotionsMutation,
 } from "../../services/promotionAPI";
+import CustomButton from "../../components/CustomButton/CustomButton";
+import { RiAddLine } from "@remixicon/react";
 
 export default function Promotion() {
   const [rows, setRows] = useState([]);
   const [filteredRows, setFilteredRows] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [open, setOpen] = useState(false);
-  const [newPromotion, setNewPromotion] = useState({
-    code: "",
-    description: "",
-    discountType: "percentage",
-    discountPercentage: "",
-    fixedDiscountAmount: "",
-    startDate: moment().toISOString(),
-    endDate: moment().add(1, "days").toISOString(),
-    status: false,
-  });
   const { data: promotions, isLoading, refetch } = useGetAllPromotionsQuery();
-  const [addPromotion] = useAddPromotionMutation();
   const [deletePromotion] = useDeletePromotionMutation();
   const [deleteExpiredPromotions] = useDeleteExpiredPromotionsMutation();
+  const [addPromotion] = useAddPromotionMutation();
 
   useEffect(() => {
     const deleteExpiredPromos = async () => {
@@ -318,45 +310,14 @@ export default function Promotion() {
   };
 
   const handleOpen = () => {
-    setNewPromotion({
-      code: "",
-      description: "",
-      discountType: "percentage",
-      discountPercentage: "",
-      fixedDiscountAmount: "",
-      startDate: moment().toISOString(),
-      endDate: moment().add(1, "days").toISOString(),
-      status: false,
-    });
     setOpen(true);
   };
 
   const handleClose = () => setOpen(false);
 
-  const handleAddPromotion = async (values) => {
-    try {
-      const formattedValues = {
-        ...values,
-        startDate: values.startDate
-          ? moment(values.startDate).toISOString()
-          : null,
-        endDate: values.endDate ? moment(values.endDate).toISOString() : null,
-      };
-
-      await addPromotion(formattedValues).unwrap();
-      refetch();
-      handleClose();
-      notification.success({
-        message: "Success",
-        description: "Promotion added successfully.",
-      });
-    } catch (error) {
-      console.error("Error adding promotion: ", error);
-      notification.error({
-        message: "Error",
-        description: `Error: ${error.status} - ${error.data}`,
-      });
-    }
+  const handleAddPromotion = async (promotionData) => {
+    refetch();
+    setOpen(false);
   };
 
   const handleDeletePromotion = async (promotionId) => {
@@ -383,17 +344,31 @@ export default function Promotion() {
         <div className="controls">
           <div className="searchFilter">
             <Input
+              style={{ width: 400 }}
               type="text"
               className="searchInput"
               placeholder="Search by ID or code"
               value={searchTerm}
               onChange={handleSearch}
             />
-            <Button className="filterButton">Filter</Button>
           </div>
-          <Button className="addPromotionButton" onClick={handleOpen}>
-            Add Promotion
-          </Button>
+          <CustomButton
+            icon={RiAddLine}
+            text="Create Promotion"
+            iconSize="20px"
+            iconColor="white"
+            textColor="white"
+            containerStyle={{
+              backgroundColor: "#000000",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+            }}
+            iconPosition="left"
+            fontSize="16px"
+            padding="10px 10px"
+            onClick={handleOpen}
+          />
         </div>
       </div>
 
@@ -410,7 +385,6 @@ export default function Promotion() {
         open={open}
         onCancel={handleClose}
         onFinish={handleAddPromotion}
-        initialValues={newPromotion}
       />
     </div>
   );

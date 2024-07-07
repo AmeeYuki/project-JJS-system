@@ -1,135 +1,110 @@
-import { useEffect } from "react";
+import React, { useState } from "react";
 import {
   Modal,
+  Button,
   Form,
   Input,
-  Button,
   DatePicker,
+  InputNumber,
   Radio,
   notification,
 } from "antd";
-import PropTypes from "prop-types";
-import moment from "moment";
+import dayjs from "dayjs";
+import { useAddPromotionMutation } from "../../services/promotionAPI";
 
-const PromotionForm = ({
-  open,
-  onCancel,
-  onFinish,
-  initialValues = {
-    description: "",
-    discountType: "percentage",
-    discountPercentage: "",
-    fixedDiscountAmount: "",
-    startDate: moment().startOf("day"),
-    endDate: moment().endOf("day"),
-    status: false,
-  },
-}) => {
+const PromotionForm = ({ open, onCancel, onFinish }) => {
   const [form] = Form.useForm();
+  const [discountType, setDiscountType] = useState("percentage");
+  const [startDate, setStartDate] = useState(null);
+  const [addPromotion] = useAddPromotionMutation();
 
-  useEffect(() => {
-    form.setFieldsValue({
-      ...initialValues,
-      startDate: moment(initialValues.startDate),
-      endDate: moment(initialValues.endDate),
-      discountPercentage:
-        initialValues.discountType === "percentage"
-          ? initialValues.discountPercentage
-          : 0,
-      fixedDiscountAmount:
-        initialValues.discountType === "fixed"
-          ? initialValues.fixedDiscountAmount
-          : 0,
-    });
-  }, [form, initialValues]);
+  const handleOk = () => {
+    form
+      .validateFields()
+      .then((values) => {
+        const requestData = {
+          description: values.description,
+          discount_percentage:
+            discountType === "percentage" ? values.discountPercentage : 0,
+          fixed_discount_amount:
+            discountType === "fixed" ? values.fixedDiscountAmount : 0,
+          start_date: dayjs(values.start_date).toISOString(),
+          end_date: dayjs(values.end_date).toISOString(),
+        };
+
+        console.log("Request Data to be sent:", requestData);
+
+        // Send request data to the backend
+        addPromotion(requestData)
+          .unwrap()
+          .then((response) => {
+            console.log("Response Data:", response);
+            notification.success({
+              message: "Request Sent",
+              description: "Your request has been sent successfully.",
+            });
+
+            form.resetFields();
+            onFinish();
+          })
+          .catch((error) => {
+            console.error("Error sending request:", error);
+            notification.error({
+              message: "Request Failed",
+              description: "There was an issue sending your request.",
+            });
+          });
+      })
+      .catch((info) => {
+        console.log("Validate Failed:", info);
+      });
+  };
 
   const handleDiscountTypeChange = (e) => {
-    const discountType = e.target.value;
-    let defaultValues = {};
-
-    if (discountType === "percentage") {
-      defaultValues = {
-        discountType,
-        discountPercentage: initialValues.discountPercentage || 0,
-        fixedDiscountAmount: 0,
-      };
-    } else if (discountType === "fixed") {
-      defaultValues = {
-        discountType,
-        discountPercentage: 0,
-        fixedDiscountAmount: initialValues.fixedDiscountAmount || 0,
-      };
-    }
-
-    form.setFieldsValue(defaultValues);
-
-    notification.success({
-      message: "Fields Reset",
-      description: "Discount fields reset successfully.",
-      icon: <i className="fas fa-star" style={{ color: "#108ee9" }}></i>,
+    setDiscountType(e.target.value);
+    form.setFieldsValue({
+      discountPercentage: 0,
+      fixedDiscountAmount: 0,
     });
   };
 
-  const handleFinish = (values) => {
-    const formattedValues = {
-      ...values,
-      startDate: values.startDate ? values.startDate.toISOString() : null,
-      endDate: values.endDate ? values.endDate.toISOString() : null,
-    };
-
-    onFinish(formattedValues);
+  const handleStartDateChange = (date) => {
+    setStartDate(date);
+    form.setFieldsValue({ end_date: null }); // Reset end date if start date changes
   };
 
-  const validateEndDate = (_, value) => {
-    const startDateValue = form.getFieldValue("startDate");
-    if (startDateValue && value && moment(value).isBefore(startDateValue)) {
-      return Promise.reject(
-        new Error("End date must be valid and greater than start date!")
-      );
+  const disabledEndDate = (endValue) => {
+    if (!endValue || !startDate) {
+      return false;
     }
-    return Promise.resolve();
+    return endValue.isBefore(startDate, "day");
   };
 
   return (
     <Modal
-      title={initialValues.id ? "Update Promotion" : "Add a new Promotion"}
+      title="Add Promotion"
       visible={open}
       onCancel={onCancel}
-      footer={null}
+      footer={[
+        <Button key="back" onClick={onCancel}>
+          Cancel
+        </Button>,
+        <Button key="submit" type="primary" onClick={handleOk}>
+          Submit
+        </Button>,
+      ]}
     >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleFinish}
-        initialValues={{
-          ...initialValues,
-          discountPercentage:
-            initialValues.discountType === "percentage"
-              ? initialValues.discountPercentage
-              : 0,
-          fixedDiscountAmount:
-            initialValues.discountType === "fixed"
-              ? initialValues.fixedDiscountAmount
-              : 0,
-        }}
-        validateTrigger="onBlur"
-      >
-        <Form.Item
-          label="Select Discount Type"
-          name="discountType"
-          initialValue={initialValues.discountType}
-          rules={[{ required: true, message: "Please select discount type!" }]}
-        >
-          <Radio.Group onChange={handleDiscountTypeChange}>
-            <Radio.Button value="percentage">Percentage</Radio.Button>
-            <Radio.Button value="fixed">Fixed Amount</Radio.Button>
+      <Form form={form} layout="vertical">
+        <Form.Item label="Discount Type" required>
+          <Radio.Group onChange={handleDiscountTypeChange} value={discountType}>
+            <Radio value="percentage">Percentage Discount</Radio>
+            <Radio value="fixed">Fixed Discount Amount</Radio>
           </Radio.Group>
         </Form.Item>
-
-        {initialValues.discountType === "percentage" ? (
+        {discountType === "percentage" && (
           <Form.Item
-            label="Discount Percentage"
             name="discountPercentage"
+            label="Discount Percentage"
             rules={[
               {
                 required: true,
@@ -137,12 +112,13 @@ const PromotionForm = ({
               },
             ]}
           >
-            <Input type="number" placeholder="Discount Percentage..." />
+            <InputNumber min={0} max={100} formatter={(value) => `${value}%`} />
           </Form.Item>
-        ) : (
+        )}
+        {discountType === "fixed" && (
           <Form.Item
-            label="Fixed Discount Amount"
             name="fixedDiscountAmount"
+            label="Fixed Discount Amount"
             rules={[
               {
                 required: true,
@@ -150,96 +126,31 @@ const PromotionForm = ({
               },
             ]}
           >
-            <Input type="number" placeholder="Fixed Discount Amount..." />
+            <InputNumber min={0} formatter={(value) => `${value}`} />
           </Form.Item>
         )}
-
         <Form.Item
-          label="Start Date"
-          name="startDate"
+          name="start_date"
+          label="Valid From"
           rules={[
-            { required: true, message: "Please select the start date!" },
             {
-              validator: (_, value) => {
-                if (!value || !moment(value).isValid()) {
-                  return Promise.reject(
-                    new Error("Please select a valid start date!")
-                  );
-                }
-                return Promise.resolve();
-              },
+              required: true,
+              message: "Please select the start date!",
             },
           ]}
         >
-          <DatePicker
-            showTime
-            format="YYYY-MM-DD HH:mm:ss"
-            disabledDate={(current) =>
-              current && current < moment().startOf("day")
-            }
-          />
+          <DatePicker onChange={handleStartDateChange} />
         </Form.Item>
-
         <Form.Item
-          label="End Date"
-          name="endDate"
-          rules={[
-            { required: true, message: "Please select the end date!" },
-            { validator: validateEndDate },
-          ]}
+          name="end_date"
+          label="Valid To"
+          rules={[{ required: true, message: "Please select the end date!" }]}
         >
-          <DatePicker
-            showTime
-            format="YYYY-MM-DD HH:mm:ss"
-            disabledDate={(current) =>
-              current && current < moment().startOf("day")
-            }
-          />
-        </Form.Item>
-
-        <Form.Item
-          label="Status"
-          name="status"
-          rules={[{ required: true, message: "Please select the status!" }]}
-        >
-          <Radio.Group>
-            <Radio value={true}>Active</Radio>
-            <Radio value={false}>Inactive</Radio>
-          </Radio.Group>
-        </Form.Item>
-
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            {initialValues.id ? "Save" : "Add"}
-          </Button>
-          <Button onClick={onCancel} style={{ marginLeft: 8 }}>
-            Cancel
-          </Button>
+          <DatePicker disabledDate={disabledEndDate} />
         </Form.Item>
       </Form>
     </Modal>
   );
-};
-
-PromotionForm.propTypes = {
-  open: PropTypes.bool.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  onFinish: PropTypes.func.isRequired,
-  initialValues: PropTypes.shape({
-    description: PropTypes.string,
-    discountType: PropTypes.oneOf(["percentage", "fixed"]),
-    discountPercentage: PropTypes.number,
-    fixedDiscountAmount: PropTypes.number,
-    startDate: PropTypes.oneOfType([
-      PropTypes.instanceOf(moment),
-      PropTypes.string,
-    ]),
-    endDate: PropTypes.oneOfType([
-      PropTypes.instanceOf(moment),
-      PropTypes.string,
-    ]),
-    status: PropTypes.bool,
-  }),
 };
 
 export default PromotionForm;
