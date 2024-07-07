@@ -26,8 +26,6 @@ export default function Customer() {
     email: "",
     phone: "",
     address: "",
-    gender: "",
-    accumulated_point: 0,
   });
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const { data: customers, isLoading, refetch } = useGetAllCustomerQuery();
@@ -43,7 +41,7 @@ export default function Customer() {
         index: index + 1,
       }));
       setRows(indexedUsers);
-      setFilteredRows(indexedUsers);
+      setFilteredRows(indexedUsers.slice().sort((a, b) => a.id - b.id));
     }
   }, [customers]);
 
@@ -55,7 +53,11 @@ export default function Customer() {
         item.phone.toLowerCase().includes(lowercasedFilter)
       );
     });
-    setFilteredRows(filteredData);
+
+    // Sort filteredData by id in ascending order
+    const sortedFilteredData = filteredData.sort((a, b) => a.id - b.id);
+
+    setFilteredRows(sortedFilteredData);
   }, [searchTerm, rows]);
 
   const handleSearch = (event) => {
@@ -146,6 +148,7 @@ export default function Customer() {
     }
   };
 
+<<<<<<< HEAD
   // const handleDeleteCustomer = async (customerId) => {
   //   try {
   //     await deleteCustomer(customerId).unwrap();
@@ -155,6 +158,18 @@ export default function Customer() {
   //     alert(`Error: ${error.status} - ${error.data}`);
   //   }
   // };
+=======
+  const handleDeleteCustomer = async (customerId) => {
+    try {
+      await deleteCustomer(customerId).unwrap();
+      refetch();
+    } catch (error) {
+      console.error("Error deleting customer: ", error);
+      alert(`Error: ${error.status} - ${error.data}`);
+    }
+  };
+
+>>>>>>> main
   const handleCreatePromotion = (customerId) => {
     const customer = rows.find((row) => row.id === customerId);
     setSelectedCustomer(customer);

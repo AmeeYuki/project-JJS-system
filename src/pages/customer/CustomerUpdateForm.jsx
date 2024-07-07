@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 import { Modal, Button, Input, Radio, Form, message } from "antd";
+=======
+import { useEffect } from "react";
+import { Modal, Button, Input, Form, notification } from "antd";
+>>>>>>> main
 import PropTypes from "prop-types";
 import { useEffect } from "react";
 
@@ -16,6 +21,7 @@ const CustomerUpdateForm = ({
     }
   }, [selectedCustomer, form]);
 
+<<<<<<< HEAD
   const handlePhoneChange = (_, value) => {
     if (value && !/^\d+$/.test(value)) {
       return Promise.reject("Phone number should contain only digits!");
@@ -26,6 +32,30 @@ const CustomerUpdateForm = ({
   const onFinish = (values) => {
     handleSaveUpdate(values);
     handleCloseUpdate();
+=======
+  const handleSave = () => {
+    // định dạng dữ liệu  phone
+    const phoneNumber = selectedCustomer.phone;
+    if (!/^\d+$/.test(phoneNumber)) {
+      notification.error({
+        message: "Error",
+        description: "Phone number should only contain numbers.",
+      });
+      return;
+    }
+
+    // định dạng dữ liệu  email
+    const email = selectedCustomer.email;
+    if (!email.endsWith("@gmail.com")) {
+      notification.error({
+        message: "Error",
+        description: "Email must end with @gmail.com.",
+      });
+      return;
+    }
+
+    handleSaveUpdate();
+>>>>>>> main
   };
 
   return (
@@ -35,6 +65,7 @@ const CustomerUpdateForm = ({
       onCancel={handleCloseUpdate}
       footer={null}
     >
+<<<<<<< HEAD
       <Form form={form} layout="vertical" onFinish={onFinish}>
         <Form.Item
           label="Name"
@@ -98,6 +129,90 @@ const CustomerUpdateForm = ({
           </Button>
         </Form.Item>
       </Form>
+=======
+      {selectedCustomer && (
+        <Form form={form} layout="vertical" onFinish={handleSave}>
+          <Form.Item
+            label="Name"
+            name="fullName"
+            rules={[{ required: true, message: "Please enter customer name" }]}
+          >
+            <Input
+              onChange={(e) =>
+                setSelectedCustomer({
+                  ...selectedCustomer,
+                  fullName: e.target.value,
+                })
+              }
+            />
+          </Form.Item>
+          <Form.Item
+            label="Phone"
+            name="phone"
+            rules={[
+              { required: true, message: "Please enter customer phone number" },
+              {
+                pattern: /^\d+$/,
+                message: "Phone number should only contain numbers",
+              },
+            ]}
+          >
+            <Input
+              onChange={(e) =>
+                setSelectedCustomer({
+                  ...selectedCustomer,
+                  phone: e.target.value,
+                })
+              }
+            />
+          </Form.Item>
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[
+              { required: true, message: "Please enter customer email" },
+              {
+                pattern: /@gmail\.com$/,
+                message: "Email must end with @gmail.com",
+              },
+            ]}
+          >
+            <Input
+              onChange={(e) =>
+                setSelectedCustomer({
+                  ...selectedCustomer,
+                  email: e.target.value,
+                })
+              }
+            />
+          </Form.Item>
+          <Form.Item
+            label="Address"
+            name="address"
+            rules={[
+              { required: true, message: "Please enter customer address" },
+            ]}
+          >
+            <Input
+              onChange={(e) =>
+                setSelectedCustomer({
+                  ...selectedCustomer,
+                  address: e.target.value,
+                })
+              }
+            />
+          </Form.Item>
+          <Form.Item>
+            <Button onClick={handleCloseUpdate} style={{ marginRight: 8 }}>
+              Cancel
+            </Button>
+            <Button type="primary" htmlType="submit">
+              Save
+            </Button>
+          </Form.Item>
+        </Form>
+      )}
+>>>>>>> main
     </Modal>
   );
 };

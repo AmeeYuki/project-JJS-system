@@ -1,6 +1,7 @@
 import { Table, Space, Tag } from "antd";
 import PropTypes from "prop-types";
 import ActionsMenu from "./ActionsMenu";
+import moment from "moment";
 
 const PromotionTable = ({
   data,
@@ -8,22 +9,28 @@ const PromotionTable = ({
   handleDeletePromotion,
 }) => {
   const columns = [
-    { title: "No.", dataIndex: "id", key: "id", width: 60 },
+    { title: "No.", dataIndex: "id", key: "id", width: 60, fixed: "left" },
     { title: "Promotion Code", dataIndex: "code", key: "code", width: 150 },
     {
       title: "Discount Percentage",
+<<<<<<< HEAD
       dataIndex: "discount_percentage",
       key: "discount_percentage",
+=======
+      dataIndex: "discountPercentage",
+      key: "discountPercentage",
+>>>>>>> main
       width: 150,
     },
     {
       title: "Start Date",
-      dataIndex: "start_date",
-      key: "start_date",
+      dataIndex: "startDate",
+      key: "startDate",
       width: 150,
+      render: (startDate) => moment(startDate).format("YYYY-MM-DD"),
     },
-    { title: "End Date", dataIndex: "end_date", key: "end_date", width: 150 },
     {
+<<<<<<< HEAD
       title: "Status",
       dataIndex: "is_used",
       key: "is_used",
@@ -33,10 +40,26 @@ const PromotionTable = ({
           {is_used ? "Active" : "Inactive"}
         </Tag>
       ),
+=======
+      title: "End Date",
+      dataIndex: "endDate",
+      key: "endDate",
+      width: 150,
+      render: (endDate) => moment(endDate).format("YYYY-MM-DD"),
+    },
+    {
+      title: "Status",
+      dataIndex: "used",
+      key: "used",
+      width: 100,
+      render: (used) => (used ? "Yes" : "No"),
+>>>>>>> main
     },
     {
       title: "Actions",
       key: "action",
+      fixed: "right",
+      width: 120,
       render: (_, record) => (
         <Space size="middle">
           <ActionsMenu
@@ -55,7 +78,7 @@ const PromotionTable = ({
       dataSource={data}
       rowKey="id"
       pagination={{ pageSize: 10 }}
-      scroll={{ y: 330 }}
+      scroll={{ x: "100%" }}
     />
   );
 };

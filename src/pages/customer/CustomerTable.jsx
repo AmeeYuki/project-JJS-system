@@ -6,7 +6,10 @@ const CustomerTable = ({
   data,
   handleViewDetail,
   handleUpdateCustomer,
+<<<<<<< HEAD
   // handleDeleteCustomer,
+=======
+>>>>>>> main
   handleCreatePromotion,
 }) => {
   const columns = [
@@ -28,7 +31,10 @@ const CustomerTable = ({
           customerId={record.id}
           handleViewDetail={handleViewDetail}
           handleUpdateCustomer={handleUpdateCustomer}
+<<<<<<< HEAD
           // handleDeleteCustomer={handleDeleteCustomer}
+=======
+>>>>>>> main
           handleCreatePromotion={handleCreatePromotion}
         />
       ),
@@ -42,7 +48,10 @@ CustomerTable.propTypes = {
   data: PropTypes.array.isRequired,
   handleViewDetail: PropTypes.func.isRequired,
   handleUpdateCustomer: PropTypes.func.isRequired,
+<<<<<<< HEAD
   // handleDeleteCustomer: PropTypes.func.isRequired,
+=======
+>>>>>>> main
   handleCreatePromotion: PropTypes.func.isRequired,
 };
 
