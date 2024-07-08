@@ -1,42 +1,29 @@
 // import { useState, useEffect } from "react";
-// import { Button, Input, notification } from "antd";
+// import { Input, notification } from "antd";
 // import PromotionTable from "./PromotionTable";
 // import PromotionForm from "./PromotionForm";
-// import PromotionUpdateForm from "./PromotionUpdateForm";
 // import "./Promotion.css";
-// import moment from "moment";
+// import dayjs from "dayjs";
 // import {
 //   useGetAllPromotionsQuery,
 //   useAddPromotionMutation,
-//   useUpdatePromotionMutation,
 //   useDeletePromotionMutation,
-//   useDeleteExpiredPromotionsMutation, // Import the new mutation hook
+//   useDeleteExpiredPromotionsMutation,
 // } from "../../services/promotionAPI";
+// import CustomButton from "../../components/CustomButton/CustomButton";
+// import { RiAddLine } from "@remixicon/react";
 
 // export default function Promotion() {
 //   const [rows, setRows] = useState([]);
 //   const [filteredRows, setFilteredRows] = useState([]);
 //   const [searchTerm, setSearchTerm] = useState("");
 //   const [open, setOpen] = useState(false);
-//   const [openUpdate, setOpenUpdate] = useState(false);
-//   const [newPromotion, setNewPromotion] = useState({
-//     code: "",
-//     description: "",
-//     discountType: "percentage",
-//     discountPercentage: "",
-//     fixedDiscountAmount: "",
-//     startDate: null,
-//     endDate: null,
-//     status: false,
-//   });
 //   const { data: promotions, isLoading, refetch } = useGetAllPromotionsQuery();
-//   const [addPromotion] = useAddPromotionMutation();
-//   const [updatePromotion] = useUpdatePromotionMutation();
 //   const [deletePromotion] = useDeletePromotionMutation();
-//   const [deleteExpiredPromotions] = useDeleteExpiredPromotionsMutation(); // Initialize the new mutation hook
+//   const [deleteExpiredPromotions] = useDeleteExpiredPromotionsMutation();
+//   const [addPromotion] = useAddPromotionMutation();
 
 //   useEffect(() => {
-//     // Function to delete expired promotions on page load
 //     const deleteExpiredPromos = async () => {
 //       try {
 //         await deleteExpiredPromotions().unwrap();
@@ -46,9 +33,8 @@
 //       }
 //     };
 
-//     deleteExpiredPromos(); // Call the function when the component mounts
+//     deleteExpiredPromos();
 
-//     // Fetch all promotions
 //     if (promotions) {
 //       const indexedPromotions = promotions.map((promo, index) => ({
 //         ...promo,
@@ -57,7 +43,7 @@
 //       setRows(indexedPromotions);
 //       setFilteredRows(indexedPromotions.slice().sort((a, b) => a.id - b.id));
 //     }
-//   }, [promotions, deleteExpiredPromotions]); // Include deleteExpiredPromotions in dependencies array
+//   }, [promotions, deleteExpiredPromotions]);
 
 //   useEffect(() => {
 //     const lowercasedFilter = searchTerm.toLowerCase();
@@ -92,79 +78,14 @@
 //   };
 
 //   const handleOpen = () => {
-//     setNewPromotion({
-//       code: "",
-//       description: "",
-//       discountType: "percentage",
-//       discountPercentage: "",
-//       fixedDiscountAmount: "",
-//       startDate: null,
-//       endDate: null,
-//       status: false,
-//     });
 //     setOpen(true);
 //   };
 
 //   const handleClose = () => setOpen(false);
-//   const handleCloseUpdate = () => setOpenUpdate(false);
 
-//   const handleAddPromotion = async (values) => {
-//     try {
-//       await addPromotion(values).unwrap();
-//       refetch();
-//       handleClose();
-//       notification.success({
-//         message: "Success",
-//         description: "Promotion added successfully.",
-//       });
-//     } catch (error) {
-//       console.error("Error adding promotion: ", error);
-//       notification.error({
-//         message: "Error",
-//         description: `Error: ${error.status} - ${error.data}`,
-//       });
-//     }
-//   };
-
-//   const handleUpdatePromotion = (promotionId) => {
-//     const promotion = rows.find((row) => row.id === promotionId);
-//     setNewPromotion({
-//       ...promotion,
-//       startDate: promotion.startDate ? moment(promotion.startDate) : null,
-//       endDate: promotion.endDate ? moment(promotion.endDate) : null,
-//     });
-//     setOpenUpdate(true);
-//   };
-
-//   const handleSaveUpdate = async (values) => {
-//     if (!values || !values.id) {
-//       console.error("Promotion or its ID is undefined", values);
-//       return;
-//     }
-
-//     console.log("Saving promotion with values:", values);
-
-//     const formattedValues = {
-//       ...values,
-//       startDate: values.startDate ? values.startDate.valueOf() : 0,
-//       endDate: values.endDate ? values.endDate.valueOf() : 0,
-//     };
-
-//     try {
-//       await updatePromotion({ id: values.id, ...formattedValues }).unwrap();
-//       refetch();
-//       handleCloseUpdate();
-//       notification.success({
-//         message: "Success",
-//         description: "Promotion updated successfully.",
-//       });
-//     } catch (error) {
-//       console.error("Error updating promotion: ", error);
-//       notification.error({
-//         message: "Error",
-//         description: `Error: ${error.message}`,
-//       });
-//     }
+//   const handleAddPromotion = async (promotionData) => {
+//     refetch();
+//     setOpen(false);
 //   };
 
 //   const handleDeletePromotion = async (promotionId) => {
@@ -179,7 +100,7 @@
 //       console.error("Error deleting promotion: ", error);
 //       notification.error({
 //         message: "Error",
-//         description: `Error: ${error.status} - ${error.data}`,
+//         description: `Error deleting promotion: ${error.message}`,
 //       });
 //     }
 //   };
@@ -191,17 +112,31 @@
 //         <div className="controls">
 //           <div className="searchFilter">
 //             <Input
+//               style={{ width: 400 }}
 //               type="text"
 //               className="searchInput"
 //               placeholder="Search by ID or code"
 //               value={searchTerm}
 //               onChange={handleSearch}
 //             />
-//             <Button className="filterButton">Filter</Button>
 //           </div>
-//           <Button className="addPromotionButton" onClick={handleOpen}>
-//             Add Promotion
-//           </Button>
+//           <CustomButton
+//             icon={RiAddLine}
+//             text="Create Promotion"
+//             iconSize="20px"
+//             iconColor="white"
+//             textColor="white"
+//             containerStyle={{
+//               backgroundColor: "#000000",
+//               border: "none",
+//               borderRadius: "6px",
+//               cursor: "pointer",
+//             }}
+//             iconPosition="left"
+//             fontSize="16px"
+//             padding="10px 10px"
+//             onClick={handleOpen}
+//           />
 //         </div>
 //       </div>
 
@@ -209,7 +144,6 @@
 //         <div style={{ height: 400, width: "100%" }}>
 //           <PromotionTable
 //             data={filteredRows}
-//             handleUpdatePromotion={handleUpdatePromotion}
 //             handleDeletePromotion={handleDeletePromotion}
 //           />
 //         </div>
@@ -220,18 +154,11 @@
 //         onCancel={handleClose}
 //         onFinish={handleAddPromotion}
 //       />
-
-//       <PromotionUpdateForm
-//         open={openUpdate}
-//         onCancel={handleCloseUpdate}
-//         onFinish={handleSaveUpdate}
-//         initialValues={newPromotion}
-//       />
 //     </div>
 //   );
 // }
-import React, { useState, useEffect } from "react";
-import { Button, Input, notification } from "antd";
+import { useState, useEffect } from "react";
+import { Input, notification } from "antd";
 import PromotionTable from "./PromotionTable";
 import PromotionForm from "./PromotionForm";
 import "./Promotion.css";
@@ -244,13 +171,13 @@ import {
 } from "../../services/promotionAPI";
 import CustomButton from "../../components/CustomButton/CustomButton";
 import { RiAddLine } from "@remixicon/react";
+import debounce from "lodash/debounce";
 
 export default function Promotion() {
   const [rows, setRows] = useState([]);
-  const [filteredRows, setFilteredRows] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [open, setOpen] = useState(false);
-  const { data: promotions, isLoading, refetch } = useGetAllPromotionsQuery();
+  const { data: promotions, isLoading } = useGetAllPromotionsQuery();
   const [deletePromotion] = useDeletePromotionMutation();
   const [deleteExpiredPromotions] = useDeleteExpiredPromotionsMutation();
   const [addPromotion] = useAddPromotionMutation();
@@ -273,41 +200,24 @@ export default function Promotion() {
         index: index + 1,
       }));
       setRows(indexedPromotions);
-      setFilteredRows(indexedPromotions.slice().sort((a, b) => a.id - b.id));
     }
   }, [promotions, deleteExpiredPromotions]);
 
-  useEffect(() => {
-    const lowercasedFilter = searchTerm.toLowerCase();
-    const filteredData = rows.filter((item) => {
+  const filteredRows = rows
+    .filter((item) => {
+      const lowercasedFilter = searchTerm.toLowerCase();
       const idMatch = item.id
         ?.toString()
         .toLowerCase()
         .includes(lowercasedFilter);
       const codeMatch = item.code?.toLowerCase().includes(lowercasedFilter);
       return idMatch || codeMatch;
-    });
+    })
+    .sort((a, b) => a.id - b.id);
 
-    const sortedFilteredData = filteredData.sort((a, b) => a.id - b.id);
-    setFilteredRows(sortedFilteredData);
-  }, [searchTerm, rows]);
-
-  const handleSearch = (event) => {
-    const lowercasedFilter = event.target.value.toLowerCase();
-    setSearchTerm(lowercasedFilter);
-
-    const filteredData = rows.filter((item) => {
-      const idMatch = item.id
-        ?.toString()
-        .toLowerCase()
-        .includes(lowercasedFilter);
-      const codeMatch = item.code?.toLowerCase().includes(lowercasedFilter);
-      return idMatch || codeMatch;
-    });
-
-    const sortedFilteredData = filteredData.sort((a, b) => a.id - b.id);
-    setFilteredRows(sortedFilteredData);
-  };
+  const handleSearch = debounce((event) => {
+    setSearchTerm(event.target.value);
+  }, 300);
 
   const handleOpen = () => {
     setOpen(true);
@@ -316,14 +226,25 @@ export default function Promotion() {
   const handleClose = () => setOpen(false);
 
   const handleAddPromotion = async (promotionData) => {
-    refetch();
-    setOpen(false);
+    try {
+      await addPromotion(promotionData).unwrap();
+      notification.success({
+        message: "Success",
+        description: "Promotion added successfully.",
+      });
+      setOpen(false);
+    } catch (error) {
+      console.error("Error adding promotion: ", error);
+      notification.error({
+        message: "Error",
+        description: `Error adding promotion: ${error.message}`,
+      });
+    }
   };
 
   const handleDeletePromotion = async (promotionId) => {
     try {
       await deletePromotion(promotionId).unwrap();
-      refetch();
       notification.success({
         message: "Success",
         description: "Promotion deleted successfully.",
@@ -348,7 +269,6 @@ export default function Promotion() {
               type="text"
               className="searchInput"
               placeholder="Search by ID or code"
-              value={searchTerm}
               onChange={handleSearch}
             />
           </div>
