@@ -5,50 +5,6 @@ import PromotionForm from "./PromotionForm";
 import "./Promotion.css";
 import dayjs from "dayjs";
 import {
-  Modal,
-  Form,
-  Input,
-  Button,
-  DatePicker,
-  Radio,
-  notification,
-} from "antd";
-import PropTypes from "prop-types";
-import moment from "moment";
-
-const PromotionForm = ({
-  open,
-  onCancel,
-  onFinish,
-  initialValues = {
-    code: "",
-    description: "",
-    discountType: "percentage",
-    discountPercentage: "",
-    fixedDiscountAmount: "",
-    startDate: null,
-    endDate: null,
-    status: false,
-  },
-}) => {
-  const handleDiscountTypeChange = (e) => {
-    const discountType = e.target.value;
-
-    // Reset discount fields based on selected discountType
-    const resetValues = {
-      discountType,
-      discountPercentage: discountType === "percentage" ? "" : null,
-      fixedDiscountAmount: discountType === "fixed" ? "" : null,
-    };
-
-    // Notify reset successful with a star notification
-    notification.success({
-      message: "Fields Reset",
-      description: "Discount fields reset successfully.",
-      icon: <i className="fas fa-star" style={{ color: "#108ee9" }}></i>, // You can replace with your star icon
-    });
-
-    onFinish({ ...initialValues, ...resetValues });
   useGetAllPromotionsQuery,
   useAddPromotionMutation,
   useDeletePromotionMutation,

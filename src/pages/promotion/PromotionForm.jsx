@@ -163,31 +163,18 @@
 import { useState } from "react";
 import {
   Modal,
+  Button,
   Form,
   Input,
-  Button,
   DatePicker,
+  InputNumber,
   Radio,
   notification,
 } from "antd";
-import PropTypes from "prop-types";
-import moment from "moment";
+import dayjs from "dayjs";
+import { useAddPromotionMutation } from "../../services/promotionAPI";
 
-const PromotionForm = ({
-  open,
-  onCancel,
-  onFinish,
-  initialValues = {
-    code: "",
-    description: "",
-    discountType: "percentage",
-    discountPercentage: "",
-    fixedDiscountAmount: "",
-    startDate: null,
-    endDate: null,
-    status: false,
-  },
-}) => {
+const PromotionForm = ({ open, onCancel, onFinish }) => {
   const [form] = Form.useForm();
   const [discountType, setDiscountType] = useState("percentage");
   const [startDate, setStartDate] = useState(null);
@@ -235,18 +222,10 @@ const PromotionForm = ({
   };
 
   const handleDiscountTypeChange = (e) => {
-    const discountType = e.target.value;
-
+    setDiscountType(e.target.value);
     form.setFieldsValue({
-      discountType,
-      discountPercentage: discountType === "percentage" ? "" : null,
-      fixedDiscountAmount: discountType === "fixed" ? "" : null,
-    });
-
-    notification.success({
-      message: "Fields Reset",
-      description: "Discount fields reset successfully.",
-      icon: <i className="fas fa-star" style={{ color: "#108ee9" }}></i>,
+      discountPercentage: 0,
+      fixedDiscountAmount: 0,
     });
   };
 
@@ -268,50 +247,29 @@ const PromotionForm = ({
 
   return (
     <Modal
-      title={initialValues.id ? "Update Promotion" : "Add a new Promotion"}
+      title="Add Promotion"
       visible={open}
       onCancel={onCancel}
-      footer={null}
+      footer={[
+        <Button key="back" onClick={onCancel}>
+          Cancel
+        </Button>,
+        <Button key="submit" type="primary" onClick={handleOk}>
+          Submit
+        </Button>,
+      ]}
     >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={onFinish}
-        initialValues={{
-          ...initialValues,
-          startDate: initialValues.startDate
-            ? moment(initialValues.startDate)
-            : null,
-          endDate: initialValues.endDate ? moment(initialValues.endDate) : null,
-        }}
-        validateTrigger="onBlur"
-      >
-        <Form.Item
-          label="Promotion Code"
-          name="code"
-          rules={[
-            { required: true, message: "Please input the promotion code!" },
-          ]}
-        >
-          <Input placeholder="Promotion Code..." />
-        </Form.Item>
-
-        <Form.Item
-          label="Select Discount Type"
-          name="discountType"
-          initialValue={initialValues.discountType}
-          rules={[{ required: true, message: "Please select discount type!" }]}
-        >
-          <Radio.Group onChange={handleDiscountTypeChange}>
-            <Radio.Button value="percentage">Percentage</Radio.Button>
-            <Radio.Button value="fixed">Fixed Amount</Radio.Button>
+      <Form form={form} layout="vertical">
+        <Form.Item label="Discount Type" required>
+          <Radio.Group onChange={handleDiscountTypeChange} value={discountType}>
+            <Radio value="percentage">Percentage Discount</Radio>
+            <Radio value="fixed">Fixed Discount Amount</Radio>
           </Radio.Group>
         </Form.Item>
-
-        {initialValues.discountType === "percentage" ? (
+        {discountType === "percentage" && (
           <Form.Item
-            label="Discount Percentage"
             name="discountPercentage"
+            label="Discount Percentage"
             rules={[
               {
                 required: true,
@@ -319,12 +277,13 @@ const PromotionForm = ({
               },
             ]}
           >
-            <Input type="number" placeholder="Discount Percentage..." />
+            <InputNumber min={0} max={100} formatter={(value) => `${value}%`} />
           </Form.Item>
-        ) : (
+        )}
+        {discountType === "fixed" && (
           <Form.Item
-            label="Fixed Discount Amount"
             name="fixedDiscountAmount"
+            label="Fixed Discount Amount"
             rules={[
               {
                 required: true,
@@ -332,13 +291,12 @@ const PromotionForm = ({
               },
             ]}
           >
-            <Input type="number" placeholder="Fixed Discount Amount..." />
+            <InputNumber min={0} formatter={(value) => `${value}`} />
           </Form.Item>
         )}
-
         <Form.Item
-          label="Start Date"
-          name="startDate"
+          name="start_date"
+          label="Valid From"
           rules={[
             {
               required: true,
@@ -352,7 +310,6 @@ const PromotionForm = ({
             disabledDate={disabledStartDate}
           />
         </Form.Item>
-
         <Form.Item
           name="end_date"
           label="Valid To"
@@ -365,22 +322,6 @@ const PromotionForm = ({
       </Form>
     </Modal>
   );
-};
-
-PromotionForm.propTypes = {
-  open: PropTypes.bool.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  onFinish: PropTypes.func.isRequired,
-  initialValues: PropTypes.shape({
-    code: PropTypes.string,
-    description: PropTypes.string,
-    discountType: PropTypes.oneOf(["percentage", "fixed"]),
-    discountPercentage: PropTypes.number,
-    fixedDiscountAmount: PropTypes.number,
-    startDate: PropTypes.instanceOf(moment),
-    endDate: PropTypes.instanceOf(moment),
-    status: PropTypes.bool,
-  }),
 };
 
 export default PromotionForm;
