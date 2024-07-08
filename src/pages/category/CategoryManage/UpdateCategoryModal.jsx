@@ -25,6 +25,10 @@ const UpdateCategoryModal = ({
     setPriceChanged(true);
   };
 
+  const disabledDate = (current) => {
+    return current && current < moment().startOf("day");
+  };
+
   return (
     <Modal
       visible={visible}
@@ -129,7 +133,7 @@ const UpdateCategoryModal = ({
             },
           ]}
         >
-          <DatePicker style={{ width: "100%" }} />
+          <DatePicker style={{ width: "100%" }} disabledDate={disabledDate} />
         </Form.Item>
       </Form>
     </Modal>

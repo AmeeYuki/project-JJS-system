@@ -196,6 +196,26 @@ export default function Product() {
         <div className="action-right">
           <CustomButton
             icon={RiAddLine}
+            text="Import file"
+            iconSize="16px"
+            iconColor="white"
+            textColor="white"
+            containerStyle={{
+              backgroundColor: "#333333",
+              marginBottom: "10px",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+            hoverStyle={{
+              opacity: 0.6,
+            }}
+            iconPosition="left"
+            fontSize="16px"
+            padding="10px 20px"
+          />
+          <CustomButton
+            icon={RiAddLine}
             text="Add Product"
             iconSize="16px"
             iconColor="white"
