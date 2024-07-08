@@ -18,7 +18,7 @@ export default function Promotion() {
   const [rows, setRows] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [open, setOpen] = useState(false);
-  const { data: promotions, isLoading } = useGetAllPromotionsQuery();
+  const { data: promotions, isLoading, refetch } = useGetAllPromotionsQuery();
   const [deletePromotion] = useDeletePromotionMutation();
   const [deleteExpiredPromotions] = useDeleteExpiredPromotionsMutation();
   const [addPromotion] = useAddPromotionMutation();
@@ -66,21 +66,10 @@ export default function Promotion() {
 
   const handleClose = () => setOpen(false);
 
+  //
   const handleAddPromotion = async (promotionData) => {
-    try {
-      await addPromotion(promotionData).unwrap();
-      notification.success({
-        message: "Success",
-        description: "Promotion added successfully.",
-      });
-      setOpen(false);
-    } catch (error) {
-      console.error("Error adding promotion: ", error);
-      notification.error({
-        message: "Error",
-        description: `Error adding promotion: ${error.message}`,
-      });
-    }
+    refetch();
+    setOpen(false);
   };
 
   const handleDeletePromotion = async (promotionId) => {
