@@ -1,205 +1,141 @@
+import { useState, useEffect } from "react";
+import { Input, notification } from "antd";
+import PromotionTable from "./PromotionTable";
+import PromotionForm from "./PromotionForm";
+import "./Promotion.css";
+import dayjs from "dayjs";
 import {
-  Modal,
-  Form,
-  Input,
-  Button,
-  DatePicker,
-  Radio,
-  notification,
-} from "antd";
-import PropTypes from "prop-types";
-import moment from "moment";
+  useGetAllPromotionsQuery,
+  useAddPromotionMutation,
+  useDeletePromotionMutation,
+  useDeleteExpiredPromotionsMutation,
+} from "../../services/promotionAPI";
+import CustomButton from "../../components/CustomButton/CustomButton";
+import { RiAddLine } from "@remixicon/react";
+import { debounce } from "lodash";
 
-const PromotionForm = ({
-  open,
-  onCancel,
-  onFinish,
-  initialValues = {
-    code: "",
-    description: "",
-    discountType: "percentage",
-    discountPercentage: "",
-    fixedDiscountAmount: "",
-    startDate: null,
-    endDate: null,
-    status: false,
-  },
-}) => {
-  const handleDiscountTypeChange = (e) => {
-    const discountType = e.target.value;
+export default function Promotion() {
+  const [rows, setRows] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [open, setOpen] = useState(false);
+  const { data: promotions, isLoading, refetch } = useGetAllPromotionsQuery();
+  const [deletePromotion] = useDeletePromotionMutation();
+  const [deleteExpiredPromotions] = useDeleteExpiredPromotionsMutation();
+  const [addPromotion] = useAddPromotionMutation();
 
-    // Reset discount fields based on selected discountType
-    const resetValues = {
-      discountType,
-      discountPercentage: discountType === "percentage" ? "" : null,
-      fixedDiscountAmount: discountType === "fixed" ? "" : null,
+  useEffect(() => {
+    const deleteExpiredPromos = async () => {
+      try {
+        await deleteExpiredPromotions().unwrap();
+        console.log("Expired promotions deleted successfully.");
+      } catch (error) {
+        console.error("Error deleting expired promotions: ", error);
+      }
     };
 
-    // Notify reset successful with a star notification
-    notification.success({
-      message: "Fields Reset",
-      description: "Discount fields reset successfully.",
-      icon: <i className="fas fa-star" style={{ color: "#108ee9" }}></i>, // You can replace with your star icon
-    });
+    deleteExpiredPromos();
 
-    onFinish({ ...initialValues, ...resetValues });
+    if (promotions) {
+      const indexedPromotions = promotions.map((promo, index) => ({
+        ...promo,
+        index: index + 1,
+      }));
+      setRows(indexedPromotions);
+    }
+  }, [promotions, deleteExpiredPromotions]);
+
+  const filteredRows = rows
+    .filter((item) => {
+      const lowercasedFilter = searchTerm.toLowerCase();
+      const idMatch = item.id
+        ?.toString()
+        .toLowerCase()
+        .includes(lowercasedFilter);
+      const codeMatch = item.code?.toLowerCase().includes(lowercasedFilter);
+      return idMatch || codeMatch;
+    })
+    .sort((a, b) => a.id - b.id);
+
+  const handleSearch = debounce((event) => {
+    setSearchTerm(event.target.value);
+  }, 300);
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => setOpen(false);
+
+  //
+  const handleAddPromotion = async (promotionData) => {
+    refetch();
+    setOpen(false);
+  };
+
+  const handleDeletePromotion = async (promotionId) => {
+    try {
+      await deletePromotion(promotionId).unwrap();
+      notification.success({
+        message: "Success",
+        description: "Promotion deleted successfully.",
+      });
+    } catch (error) {
+      console.error("Error deleting promotion: ", error);
+      notification.error({
+        message: "Error",
+        description: `Error deleting promotion: ${error.message}`,
+      });
+    }
   };
 
   return (
-    <Modal
-      title={initialValues.id ? "Update Promotion" : "Add a new Promotion"}
-      visible={open}
-      onCancel={onCancel}
-      footer={null}
-    >
-      <Form
-        layout="vertical"
-        onFinish={onFinish}
-        initialValues={{
-          ...initialValues,
-          startDate: initialValues.startDate
-            ? moment(initialValues.startDate)
-            : null,
-          endDate: initialValues.endDate ? moment(initialValues.endDate) : null,
-        }}
-        validateTrigger="onBlur"
-      >
-        <Form.Item
-          label="Promotion Code"
-          name="code"
-          rules={[
-            { required: true, message: "Please input the promotion code!" },
-          ]}
-        >
-          <Input placeholder="Promotion Code..." />
-        </Form.Item>
-
-        <Form.Item
-          label="Select Discount Type"
-          name="discountType"
-          initialValue={initialValues.discountType}
-          rules={[{ required: true, message: "Please select discount type!" }]}
-        >
-          <Radio.Group onChange={handleDiscountTypeChange}>
-            <Radio.Button value="percentage">Percentage</Radio.Button>
-            <Radio.Button value="fixed">Fixed Amount</Radio.Button>
-          </Radio.Group>
-        </Form.Item>
-
-        {initialValues.discountType === "percentage" ? (
-          <Form.Item
-            label="Discount Percentage"
-            name="discountPercentage"
-            rules={[
-              {
-                required: true,
-                message: "Please input the discount percentage!",
-              },
-            ]}
-          >
-            <Input type="number" placeholder="Discount Percentage..." />
-          </Form.Item>
-        ) : (
-          <Form.Item
-            label="Fixed Discount Amount"
-            name="fixedDiscountAmount"
-            rules={[
-              {
-                required: true,
-                message: "Please input the fixed discount amount!",
-              },
-            ]}
-          >
-            <Input type="number" placeholder="Fixed Discount Amount..." />
-          </Form.Item>
-        )}
-
-        <Form.Item
-          label="Start Date"
-          name="startDate"
-          rules={[
-            { required: true, message: "Please select the start date!" },
-            {
-              validator: (_, value) => {
-                if (value && value >= moment().startOf("day")) {
-                  return Promise.resolve();
-                }
-                return Promise.reject(
-                  new Error("Start date must be in the future!")
-                );
-              },
-            },
-          ]}
-        >
-          <DatePicker
-            disabledDate={(current) =>
-              current && current < moment().startOf("day")
-            }
+    <div className="promotionWrapper">
+      <div className="promotionTitle">
+        <h1 className="titlePromotion">Promotion List</h1>
+        <div className="controls">
+          <div className="searchFilter">
+            <Input
+              style={{ width: 400 }}
+              type="text"
+              className="searchInput"
+              placeholder="Search by ID or code"
+              onChange={handleSearch}
+            />
+          </div>
+          <CustomButton
+            icon={RiAddLine}
+            text="Create Promotion"
+            iconSize="20px"
+            iconColor="white"
+            textColor="white"
+            containerStyle={{
+              backgroundColor: "#000000",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+            }}
+            iconPosition="left"
+            fontSize="16px"
+            padding="10px 10px"
+            onClick={handleOpen}
           />
-        </Form.Item>
+        </div>
+      </div>
 
-        <Form.Item
-          label="End Date"
-          name="endDate"
-          rules={[
-            { required: true, message: "Please select the end date!" },
-            ({ getFieldValue }) => ({
-              validator(_, value) {
-                if (!value || getFieldValue("startDate") < value) {
-                  return Promise.resolve();
-                }
-                return Promise.reject(
-                  new Error("End date must be greater than start date!")
-                );
-              },
-            }),
-          ]}
-        >
-          <DatePicker
-            disabledDate={(current) =>
-              current && current < moment().startOf("day")
-            }
+      <div className="tb_promotion">
+        <div style={{ height: 400, width: "100%" }}>
+          <PromotionTable
+            data={filteredRows}
+            handleDeletePromotion={handleDeletePromotion}
           />
-        </Form.Item>
+        </div>
+      </div>
 
-        <Form.Item
-          label="Status"
-          name="status"
-          rules={[{ required: true, message: "Please select the status!" }]}
-        >
-          <Radio.Group>
-            <Radio value={true}>Active</Radio>
-            <Radio value={false}>Inactive</Radio>
-          </Radio.Group>
-        </Form.Item>
-
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            {initialValues.id ? "Save" : "Add"}
-          </Button>
-          <Button onClick={onCancel} style={{ marginLeft: 8 }}>
-            Cancel
-          </Button>
-        </Form.Item>
-      </Form>
-    </Modal>
+      <PromotionForm
+        open={open}
+        onCancel={handleClose}
+        onFinish={handleAddPromotion}
+      />
+    </div>
   );
-};
-
-PromotionForm.propTypes = {
-  open: PropTypes.bool.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  onFinish: PropTypes.func.isRequired,
-  initialValues: PropTypes.shape({
-    code: PropTypes.string,
-    description: PropTypes.string,
-    discountType: PropTypes.oneOf(["percentage", "fixed"]),
-    discountPercentage: PropTypes.number,
-    fixedDiscountAmount: PropTypes.number,
-    startDate: PropTypes.instanceOf(moment),
-    endDate: PropTypes.instanceOf(moment),
-    status: PropTypes.bool,
-  }),
-};
-
-export default PromotionForm;
+}
