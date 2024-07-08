@@ -18,7 +18,7 @@ export const typeAPI = createApi({
   }),
   endpoints: (builder) => ({
     getTypes: builder.query({
-      query: () => `typeprice/typeprices`,
+      query: () => `typeprice/get_all_type_prices`,
       providesTags: ["TypeList"],
     }),
     addType: builder.mutation({

@@ -19,22 +19,12 @@ export const userAPI = createApi({
   endpoints: (builder) => ({
     getAllUser: builder.query({
       query: () => `users/get_all_users?page=0&limit=10000 `,
-      // `providesTags` determines which 'tag' is attached to the
-      // cached data returned by the query.
       providesTags: (result) =>
         result
           ? result.users.map(({ id }) => ({ type: "UserList", id }))
-          : [{ type: "UserList", id: " LIST " }],
+          : [{ type: "UserList", id: "LIST" }],
     }),
 
-    // addUser: builder.mutation({
-    //   query: (body) => ({
-    //     method: "POST",
-    //     url: `userManager`,
-    //     body,
-    //   }),
-    //   invalidatesTags: [{ type: "UserList", id: "LIST" }],
-    // }),
     createUser: builder.mutation({
       query: (body) => {
         const users = {
@@ -51,7 +41,7 @@ export const userAPI = createApi({
           body: users,
         };
       },
-      invalidatesTags: [{ type: "UserList", id: " LIST " }],
+      invalidatesTags: [{ type: "UserList", id: "LIST" }],
     }),
 
     editUser: builder.mutation({
@@ -72,6 +62,7 @@ export const userAPI = createApi({
       },
       invalidatesTags: (result, error, { id }) => [{ type: "UserList", id }],
     }),
+
     deleteUser: builder.mutation({
       query: (id) => ({
         url: `users/delete_user/${id}`,
@@ -79,6 +70,7 @@ export const userAPI = createApi({
       }),
       invalidatesTags: [{ type: "UserList", id: "LIST" }],
     }),
+
     inactiveUser: builder.mutation({
       query: (userId) => ({
         url: `users/block/${userId}/0`,
@@ -98,9 +90,10 @@ export const userAPI = createApi({
         { type: "UserList", id: userId },
       ],
     }),
+
     getUsersByRoleAndCounter: builder.query({
-      query: (counterId) =>
-        `users/get_user_by_role_and_counter?roleId=3&counterId=${counterId}`,
+      query: ({ roleId, counterId }) =>
+        `users/get_user_by_role_and_counter?roleId=${roleId}&counterId=${counterId}`,
       providesTags: (result) =>
         result
           ? [

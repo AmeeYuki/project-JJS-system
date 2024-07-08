@@ -5,7 +5,11 @@ import { useLazyGetCustomerByPhoneQuery } from "../../../../services/customerAPI
 import { useSelector } from "react-redux";
 import { selectAuth } from "../../../../slices/auth.slice";
 
-export default function CustomerSpace({ onCustomerInfoChange }) {
+export default function CustomerSpace({
+  onCustomerInfoChange,
+  handleGetCustomerInfo,
+  onCustomerData,
+}) {
   const [phone, setPhone] = useState("");
   const [customer, setCustomer] = useState(null);
   const auth = useSelector(selectAuth);
@@ -16,12 +20,14 @@ export default function CustomerSpace({ onCustomerInfoChange }) {
     getCustomerByPhone(value)
       .then((result) => {
         if (result.data) {
+          onCustomerData(result.data);
           setCustomer(result.data);
           onCustomerInfoChange(result.data); // Truyền thông tin khách hàng ra ngoài
           notification.success({
             message: "Success",
             description: "Customer found successfully!",
           });
+          handleGetCustomerInfo();
         } else {
           setCustomer(null);
           notification.error({
@@ -71,47 +77,55 @@ export default function CustomerSpace({ onCustomerInfoChange }) {
           <Spin size="large" />
         ) : (
           <Row>
-            <Col span={8} offset={0}>
-              <p>Customer Name:</p>
+            <Col span={12}>
+              <Row>
+                <Col span={8} offset={0}>
+                  <p>Customer Name:</p>
+                </Col>
+                <Col span={15}>
+                  <p>{customer ? customer.fullName : null}</p>
+                </Col>
+                <Col span={8} offset={0}>
+                  <p>Email:</p>
+                </Col>
+                <Col span={15}>
+                  <p>{customer ? customer.email : null}</p>
+                </Col>
+                <Col span={8} offset={0}>
+                  <p>Phone:</p>
+                </Col>
+                <Col span={15}>
+                  <p>{customer ? customer.phone : null}</p>
+                </Col>
+                <Col span={8} offset={0}>
+                  <p>Address:</p>
+                </Col>
+                <Col span={15}>
+                  <p>{customer ? customer.address : null}</p>
+                </Col>
+                <Col span={8} offset={0}>
+                  <p>Point:</p>
+                </Col>
+                <Col span={15}>
+                  <p>{customer ? customer.accumulated_point : null}</p>
+                </Col>
+              </Row>
             </Col>
-            <Col span={15}>
-              <p>{customer ? customer.fullName : null}</p>
-            </Col>
-            <Col span={8} offset={0}>
-              <p>Email:</p>
-            </Col>
-            <Col span={15}>
-              <p>{customer ? customer.email : null}</p>
-            </Col>
-            <Col span={8} offset={0}>
-              <p>Phone:</p>
-            </Col>
-            <Col span={15}>
-              <p>{customer ? customer.phone : null}</p>
-            </Col>
-            <Col span={8} offset={0}>
-              <p>Address:</p>
-            </Col>
-            <Col span={15}>
-              <p>{customer ? customer.address : null}</p>
-            </Col>
-            <Col span={8} offset={0}>
-              <p>Point:</p>
-            </Col>
-            <Col span={15}>
-              <p>{customer ? customer.accumulated_point : null}</p>
-            </Col>
-            <Col span={8} offset={0}>
-              <p>Create by:</p>
-            </Col>
-            <Col span={15}>
-              <p>{auth.name}</p>
-            </Col>
-            <Col span={8} offset={0}>
-              <p>Create Date:</p>
-            </Col>
-            <Col span={15}>
-              <p>{getCurrentDate()}</p>
+            <Col span={12}>
+              <Row>
+                <Col span={8} offset={0}>
+                  <p>Create by:</p>
+                </Col>
+                <Col span={15}>
+                  <p>{auth.name}</p>
+                </Col>
+                <Col span={8} offset={0}>
+                  <p>Create Date:</p>
+                </Col>
+                <Col span={15}>
+                  <p>{getCurrentDate()}</p>
+                </Col>
+              </Row>
             </Col>
           </Row>
         )}

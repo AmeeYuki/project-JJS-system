@@ -1,35 +1,36 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { ConfigProvider, Tabs, notification } from "antd";
 import { useLocation, useParams } from "react-router-dom";
 import ProductListCounter from "../product/ProductManage/ProductListCounter";
+import UserListByCounterAndRole from "./CounterManage/UserListByCounterAndRole";
+import UpdateProductModal from "../product/ProductManage/UpdateProductModal";
+import ViewDetailProductModal from "../product/ProductManage/ViewDetailProductModal";
+import UpdateUserModal from "../user/UserManage/UpdateUserModal";
 import {
   useGetProductsByCounterIdQuery,
   useEditProductMutation,
   useDeleteProductMutation,
 } from "../../services/productAPI";
-import UpdateProductModal from "../product/ProductManage/UpdateProductModal";
-import ViewDetailProductModal from "../product/ProductManage/ViewDetailProductModal";
-import UserList from "../user/UserManage/UserList";
 import {
   useEditUserMutation,
   useDeleteUserMutation,
+  useActiveUserMutation,
+  useInactiveUserMutation,
   useGetUsersByRoleAndCounterQuery,
 } from "../../services/userAPI";
-import UpdateUserModal from "../user/UserManage/UpdateUserModal";
 import "./CounterDetail.css";
 
 const { TabPane } = Tabs;
 
-export default function CounterDetail() {
+const CounterDetail = () => {
   const { id } = useParams();
   const location = useLocation();
   const { counterName, location: counterLocation } = location.state || {};
 
   const { data: products, refetch: refetchProducts } =
     useGetProductsByCounterIdQuery(id);
-
   const { data: users, refetch: refetchUsers } =
-    useGetUsersByRoleAndCounterQuery(id);
+    useGetUsersByRoleAndCounterQuery({ roleId: 3, counterId: id });
 
   const [productData, setProductData] = useState([]);
   const [userData, setUserData] = useState([]);
@@ -38,8 +39,6 @@ export default function CounterDetail() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedProductDetail, setSelectedProductDetail] = useState(null);
 
-  const [isUpdateUserModalVisible, setIsUpdateUserModalVisible] =
-    useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
   const [editProductMutation, { isLoading: isLoadingEditProduct }] =
@@ -47,12 +46,12 @@ export default function CounterDetail() {
   const [deleteProductMutation, { isLoading: isLoadingDeleteProduct }] =
     useDeleteProductMutation();
 
-  const [editUserMutation, { isLoading: isLoadingEditUser }] =
-    useEditUserMutation();
-  const [deleteUserMutation, { isLoading: isLoadingDeleteUser }] =
-    useDeleteUserMutation();
+  const [activeUserMutation, { isLoading: isLoadingActiveUser }] =
+    useActiveUserMutation();
+  const [inactiveUserMutation, { isLoading: isLoadingInactiveUser }] =
+    useInactiveUserMutation();
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (Array.isArray(products)) {
       const indexedProducts = products.map((product, index) => ({
         ...product,
@@ -62,15 +61,13 @@ export default function CounterDetail() {
     }
   }, [products]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (Array.isArray(users)) {
       const indexedUsers = users.map((user, index) => ({
         ...user,
         index: index + 1,
       }));
       setUserData(indexedUsers);
-    } else {
-      console.error("Expected users to be an array, but got:", users);
     }
   }, [users]);
 
@@ -111,30 +108,24 @@ export default function CounterDetail() {
     setSelectedProductDetail(product);
   };
 
-  const handleUpdateUser = (values) => {
-    editUserMutation(values)
-      .unwrap()
-      .then(() => {
-        setIsUpdateUserModalVisible(false);
-        refetchUsers();
-        notification.success({ message: "Update user successfully" });
-      })
-      .catch((error) => console.error("Error updating user: ", error));
-  };
-
-  const handleDeleteUser = async (userId) => {
+  const handleActiveUser = async (userId) => {
     try {
-      await deleteUserMutation(userId).unwrap();
+      await activeUserMutation(userId);
       refetchUsers();
-      notification.success({ message: "Delete user successfully" });
+      notification.success({ message: "User activated successfully" });
     } catch (error) {
       console.error(error);
     }
   };
 
-  const handleEditUser = (user) => {
-    setSelectedUser(user);
-    setIsUpdateUserModalVisible(true);
+  const handleInactiveUser = async (userId) => {
+    try {
+      await inactiveUserMutation(userId);
+      refetchUsers();
+      notification.success({ message: "User inactivated successfully" });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -181,25 +172,19 @@ export default function CounterDetail() {
             )}
           </TabPane>
           <TabPane tab={<span className="tab-title">Staff</span>} key="2">
-            <UserList
-              userData={userData.filter(
-                (user) => user.role.id === 3 && user.counter.id === parseInt(id)
-              )}
-              onEditUser={handleEditUser}
-              handleDeleteUser={handleDeleteUser}
+            <UserListByCounterAndRole
+              userData={userData}
+              roleId={3}
+              counterId={id}
+              handleActiveUser={handleActiveUser}
+              handleInactiveUser={handleInactiveUser}
             />
-            {selectedUser && (
-              <UpdateUserModal
-                visible={isUpdateUserModalVisible}
-                onUpdate={handleUpdateUser}
-                onCancel={() => setIsUpdateUserModalVisible(false)}
-                loading={isLoadingEditUser}
-                user={selectedUser}
-              />
-            )}
+
           </TabPane>
         </Tabs>
       </ConfigProvider>
     </div>
   );
-}
+};
+
+export default CounterDetail;

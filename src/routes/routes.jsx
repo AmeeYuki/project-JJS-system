@@ -21,6 +21,9 @@ const Customer = Loadable({
   loader: () => import("../pages/customer/Customer"),
 });
 const Order = Loadable({ loader: () => import("../pages/order/Order") });
+const OrderDetail = Loadable({
+  loader: () => import("../pages/order/OrderComponent/OrderDetail/OrderDetail"),
+});
 const MakeSell = Loadable({
   loader: () => import("../pages/order/OrderComponent/MakeSell/MakeSell"),
 });
@@ -39,83 +42,111 @@ const Category = Loadable({
 const CounterDetail = Loadable({
   loader: () => import("../pages/counter/CounterDetail"),
 });
+const Policy = Loadable({
+  loader: () => import("../pages/customerPolicy/Policy"),
+});
+
+const MakePurchase = Loadable({
+  loader: () =>
+    import("../pages/order/OrderComponent/MakePurchased/MakePurchase"),
+});
+
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <AuthGuard />,
-
     children: [
       {
         element: <MainLayout />,
         children: [
           {
             index: true,
-            // path: "",
             element: Home,
           },
           {
-            path: "dashboard",
-            element: Dashboard,
-          },
-
-          {
-            path: "counter",
-            element: Counter,
-          },
-          {
-            path: "customer",
-            element: Customer,
-          },
-          {
-            path: "order",
-            element: Order,
+            path: "/",
+            element: <AuthGuard allowedRoles={["ROLE_ADMIN"]} />,
+            children: [
+              {
+                path: "dashboard",
+                element: Dashboard,
+              },
+              {
+                path: "user",
+                element: User,
+              },
+            ],
           },
           {
-            path: "order",
-            element: Order,
+            path: "/",
+            element: (
+              <AuthGuard allowedRoles={["ROLE_ADMIN", "ROLE_MANAGER"]} />
+            ),
+            children: [
+              {
+                path: "counter",
+                element: Counter,
+              },
+              {
+                path: "promotion",
+                element: Promotion,
+              },
+              {
+                path: "category",
+                element: Category,
+              },
+              {
+                path: "counter/:id",
+                element: CounterDetail,
+              },
+            ],
           },
           {
-            path: "order/make-sell",
-            element: MakeSell,
-          },
-          {
-            path: "product",
-            element: Product,
-          },
-          {
-            path: "promotion",
-            element: Promotion,
-          },
-          {
-            path: "user",
-            element: User,
-          },
-          {
-            path: "category",
-            element: Category,
-          },
-          {
-            path: "counter/:id",
-            element: CounterDetail,
+            path: "/",
+            element: (
+              <AuthGuard
+                allowedRoles={["ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STAFF"]}
+              />
+            ),
+            children: [
+              {
+                path: "customer",
+                element: Customer,
+              },
+              {
+                path: "order",
+                element: Order,
+              },
+              {
+                path: "order/make-sell",
+                element: MakeSell,
+              },
+              {
+                path: "order/make-purchase",
+                element: MakePurchase,
+              },
+              {
+                path: "product",
+                element: Product,
+              },
+              {
+                path: "order/:id",
+                element: OrderDetail,
+              },
+              {
+                path: "policy",
+                element: Policy,
+              },
+            ],
           },
         ],
       },
-      // {
-      //   path: "login-first-time",
-      //   element: LoginFirstTime,
-      // },
     ],
   },
   {
     path: "/",
     element: <GuestGuard />,
-
     children: [
-      {
-        index: true,
-        // path: "",
-        element: Home,
-      },
       {
         path: "login",
         element: Login,
@@ -126,14 +157,6 @@ export const router = createBrowserRouter([
       },
     ],
   },
-  // {
-  //   path: "login",
-  //   element: Login,
-  // },
-  // {
-  //   path: "forget-password",
-  //   element: ForgetPassword,
-  // },
   {
     path: "login-first-time",
     element: LoginFirstTime,

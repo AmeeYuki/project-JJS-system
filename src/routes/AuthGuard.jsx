@@ -1,22 +1,23 @@
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { selectAuth, selectToken } from "../slices/auth.slice";
 
-const AuthGuard = ({ allowedRoles, children }) => {
+const AuthGuard = ({ allowedRoles }) => {
   const token = useSelector(selectToken);
   const auth = useSelector(selectAuth);
   const location = useLocation();
-  const navigate = useNavigate();
-  // If no token exists, redirect to login page
+
   if (auth?.first_login !== null && auth?.first_login === true) {
     return <Navigate to="/login-first-time" />;
   }
   if (!token) {
     return <Navigate to="/login" replace />;
   }
+  if (allowedRoles && !allowedRoles.some((role) => auth.roles.includes(role))) {
+    return <Navigate to="/unauthorised" replace />;
+  }
 
-  // If token exists and user is not trying to access restricted routes, allow access
   return <Outlet />;
 };
 
