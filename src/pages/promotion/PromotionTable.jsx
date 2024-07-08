@@ -1,7 +1,7 @@
-import { Table, Space, Tag } from "antd";
+import { Table, Space } from "antd";
 import PropTypes from "prop-types";
 import ActionsMenu from "./ActionsMenu";
-import dayjs from "dayjs";
+import moment from "moment";
 
 const PromotionTable = ({
   data,
@@ -9,56 +9,40 @@ const PromotionTable = ({
   handleDeletePromotion,
 }) => {
   const columns = [
+    { title: "No.", dataIndex: "id", key: "id", width: 60, fixed: "left" },
+    { title: "Promotion Code", dataIndex: "code", key: "code", width: 150 },
     {
-      title: "No.",
-      dataIndex: "id",
-      key: "id",
-      fixed: "left",
-      render: (text, record, index) => index + 1,
-    },
-    { title: "Promotion Code", dataIndex: "code", key: "code" },
-    {
-      title: "Discount",
-      align: "end",
-      key: "discount",
-      render: (record) => {
-        if (record.discountPercentage) {
-          return `${record.discountPercentage}%`;
-        } else if (record.fixedDiscountAmount) {
-          return `${record.fixedDiscountAmount} VND`;
-        }
-        return null;
-      },
+      title: "Discount Percentage",
+      dataIndex: "discountPercentage",
+      key: "discountPercentage",
+      width: 150,
     },
     {
       title: "Start Date",
       dataIndex: "startDate",
-      align: "center",
       key: "startDate",
-      render: (startDate) => dayjs(startDate).format("DD-MM-YYYY"),
+      width: 150,
+      render: (startDate) => moment(startDate).format("YYYY-MM-DD"),
     },
     {
       title: "End Date",
       dataIndex: "endDate",
-      align: "center",
       key: "endDate",
-      render: (endDate) => dayjs(endDate).format("DD-MM-YYYY"),
+      width: 150,
+      render: (endDate) => moment(endDate).format("YYYY-MM-DD"),
     },
     {
       title: "Status",
       dataIndex: "used",
-      align: "center",
       key: "used",
-      render: (is_used) => (
-        <Tag color={is_used ? "green" : "volcano"}>
-          {is_used ? "Used" : "Not use"}
-        </Tag>
-      ),
+      width: 100,
+      render: (used) => (used ? "Yes" : "No"),
     },
     {
       title: "Actions",
       key: "action",
       fixed: "right",
+      width: 120,
       render: (_, record) => (
         <Space size="middle">
           <ActionsMenu
@@ -80,6 +64,12 @@ const PromotionTable = ({
       scroll={{ x: "100%" }}
     />
   );
+};
+
+PromotionTable.propTypes = {
+  data: PropTypes.array.isRequired,
+  handleUpdatePromotion: PropTypes.func.isRequired,
+  handleDeletePromotion: PropTypes.func.isRequired,
 };
 
 export default PromotionTable;
