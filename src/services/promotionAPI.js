@@ -42,6 +42,14 @@ export const promotionAPI = createApi({
       }),
       invalidatesTags: ["PromotionList"],
     }),
+    updatePromotion: builder.mutation({
+      query: ({ id, ...updatedPromotion }) => ({
+        url: `promotions/update/${id}`,
+        method: "PUT",
+        body: updatedPromotion,
+      }),
+      invalidatesTags: ({ id }) => [{ type: "PromotionList", id }],
+    }),
     deletePromotion: builder.mutation({
       query: (id) => ({
         url: `promotions/delete/${id}`,
@@ -69,7 +77,7 @@ export const promotionAPI = createApi({
 export const {
   useGetAllPromotionsQuery,
   useAddPromotionMutation,
+  useUpdatePromotionMutation,
   useDeletePromotionMutation,
-  useDeleteExpiredPromotionsMutation,
   useUsePromotionMutation,
 } = promotionAPI;
