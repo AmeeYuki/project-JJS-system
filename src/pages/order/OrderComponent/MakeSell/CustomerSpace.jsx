@@ -1,9 +1,18 @@
-import { Col, ConfigProvider, Row, Spin, notification } from "antd";
+import {
+  Button,
+  Col,
+  ConfigProvider,
+  Flex,
+  Row,
+  Spin,
+  notification,
+} from "antd";
 import Search from "antd/es/input/Search";
 import React, { useState } from "react";
 import { useLazyGetCustomerByPhoneQuery } from "../../../../services/customerAPI";
 import { useSelector } from "react-redux";
 import { selectAuth } from "../../../../slices/auth.slice";
+import CreateCustomerModal from "./CreateCustomerModal"; // Import modal component
 
 export default function CustomerSpace({
   onCustomerInfoChange,
@@ -12,6 +21,7 @@ export default function CustomerSpace({
 }) {
   const [phone, setPhone] = useState("");
   const [customer, setCustomer] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false); // State to manage modal visibility
   const auth = useSelector(selectAuth);
   const [getCustomerByPhone, { isLoading }] = useLazyGetCustomerByPhoneQuery();
 
@@ -22,7 +32,7 @@ export default function CustomerSpace({
         if (result.data) {
           onCustomerData(result.data);
           setCustomer(result.data);
-          onCustomerInfoChange(result.data); // Truyền thông tin khách hàng ra ngoài
+          onCustomerInfoChange(result.data);
           notification.success({
             message: "Success",
             description: "Customer found successfully!",
@@ -55,9 +65,44 @@ export default function CustomerSpace({
     return `${day}/${month}/${year}`;
   };
 
+  const handleOpenModelCustomer = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleCustomerCreated = (newCustomer) => {
+    setCustomer(newCustomer);
+    onCustomerData(newCustomer);
+    onCustomerInfoChange(newCustomer);
+    handleGetCustomerInfo();
+    notification.success({
+      message: "Success",
+      description: "Customer created and updated successfully!",
+    });
+  };
+
   return (
     <div>
-      <h1 className="title">Information:</h1>
+      <Flex align="center" justify="space-between">
+        <h1 className="title">Information:</h1>
+        {!customer ? (
+          <>
+            <Button
+              style={{ backgroundColor: "#333", fontWeight: "bold" }}
+              type="primary"
+              className="action-button"
+              onClick={handleOpenModelCustomer}
+            >
+              Create Customer
+            </Button>
+          </>
+        ) : (
+          <></>
+        )}
+      </Flex>
       <ConfigProvider
         theme={{
           token: {
@@ -130,6 +175,11 @@ export default function CustomerSpace({
           </Row>
         )}
       </div>
+      <CreateCustomerModal
+        visible={isModalVisible}
+        onClose={handleCloseModal}
+        onCustomerCreated={handleCustomerCreated}
+      />
     </div>
   );
 }

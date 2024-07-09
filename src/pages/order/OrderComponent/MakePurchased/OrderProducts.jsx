@@ -30,7 +30,7 @@ const OrderProducts = ({ products, addToCart }) => {
       key: "barcode",
     },
     {
-      title: "Price",
+      title: "Price to Sell",
       dataIndex: "totalPriceSell",
       key: "price",
       render: (totalPriceSell) => `${totalPriceSell.toLocaleString()} VNĐ`,
@@ -77,7 +77,7 @@ const OrderProducts = ({ products, addToCart }) => {
     weight,
     sellPricePerGram
   ) => {
-    return priceProcessing + priceStone + weight * sellPricePerGram;
+    return weight * sellPricePerGram;
   };
   const orderData = products.map((item, index) => ({
     key: index,

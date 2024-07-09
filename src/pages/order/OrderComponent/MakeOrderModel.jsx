@@ -24,7 +24,7 @@ const MakeOrderModal = ({ open, onMakeSell, onMakePurchase, onCancel }) => {
           block
           onClick={onMakePurchase}
         >
-          Make Purchase
+          Make Repurchase
         </Button>
       </div>
     </Modal>
