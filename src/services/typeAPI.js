@@ -24,7 +24,7 @@ export const typeAPI = createApi({
     addType: builder.mutation({
       query: (body) => ({
         method: "POST",
-        url: `typeprice/typeprices`,
+        url: `typeprice/create_type_prices`,
         body,
       }),
       invalidatesTags: ["TypeList"],
@@ -32,7 +32,7 @@ export const typeAPI = createApi({
     editType: builder.mutation({
       query: ({ id, ...body }) => ({
         method: "PUT",
-        url: `typeprice/typeprices/${id}`,
+        url: `typeprice/update_type_prices/${id}`,
         body,
       }),
       invalidatesTags: ["TypeList"],
@@ -40,12 +40,12 @@ export const typeAPI = createApi({
     deleteType: builder.mutation({
       query: (id) => ({
         method: "DELETE",
-        url: `typeprice/typeprices/${id}`,
+        url: `typeprice/delete_type_prices/${id}`,
       }),
       invalidatesTags: ["TypeList"],
     }),
     getTypeById: builder.query({
-      query: (id) => `typeprice/typeprices/${id}`,
+      query: (id) => `typeprice/get_by_id/${id}`,
     }),
   }),
 });
