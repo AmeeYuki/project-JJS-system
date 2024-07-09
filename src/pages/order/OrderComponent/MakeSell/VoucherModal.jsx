@@ -10,9 +10,16 @@ const VoucherModal = ({ isVisible, onClose, onApplyPromotion }) => {
   const handleApplyPromotion = async () => {
     try {
       const promotion = await usePromotion(code).unwrap();
-      onApplyPromotion(promotion);
-      setPromotionDetails(promotion); // Store promotion details
-      message.success("Promotion applied successfully!");
+      console.log(promotion);
+      if (promotion) {
+        onApplyPromotion(promotion);
+        setPromotionDetails(promotion); // Store promotion details
+        message.success("Voucher applied successfully!");
+      } else {
+        message.error("Voucher applied fail!");
+        onApplyPromotion(null);
+        setPromotionDetails(null); // Store promotion details
+      }
     } catch (error) {
       console.error("Failed to apply promotion:", error);
       message.error("Failed to apply promotion. Please try again.");
@@ -27,9 +34,9 @@ const VoucherModal = ({ isVisible, onClose, onApplyPromotion }) => {
         <p>
           <strong>Code:</strong> {promotionDetails.code}
         </p>
-        <p>
+        {/* <p>
           <strong>Description:</strong> {promotionDetails.description || "N/A"}
-        </p>
+        </p> */}
         <p>
           <strong>Discount Percentage:</strong>{" "}
           {promotionDetails.discountPercentage}%

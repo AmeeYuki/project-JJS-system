@@ -131,7 +131,7 @@ export default function UserList({
       render: (counter_id) => (
         <div style={{ textAlign: "center" }}>
           <Tag color={counter_id ? "cyan" : "#333333"}>
-            {counter_id ? counter_id : "NaN"}
+            {counter_id ? counter_id : "No Counter"}
           </Tag>
         </div>
       ),
