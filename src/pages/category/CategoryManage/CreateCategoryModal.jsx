@@ -1,8 +1,28 @@
 import React from "react";
 import { Modal, Form, Input, DatePicker, InputNumber } from "antd";
+import moment from "moment";
 
 const CreateCategoryModal = ({ visible, onCreate, onCancel, loading }) => {
   const [form] = Form.useForm();
+
+  const disablePastDates = (current) => {
+    return current && current < moment().startOf("day");
+  };
+
+  const handleCreate = () => {
+    form
+      .validateFields()
+      .then((values) => {
+        if (values.date) {
+          values.date = values.date.format("YYYY-MM-DD");
+        }
+        onCreate(values);
+        form.resetFields();
+      })
+      .catch((info) => {
+        console.log("Validate Failed:", info);
+      });
+  };
 
   return (
     <Modal
@@ -12,19 +32,7 @@ const CreateCategoryModal = ({ visible, onCreate, onCancel, loading }) => {
       cancelText="Cancel"
       onCancel={onCancel}
       okButtonProps={{ loading }}
-      onOk={() => {
-        form
-          .validateFields()
-          .then((values) => {
-            if (values.date) {
-              values.date = values.date.format("YYYY-MM-DD");
-            }
-            onCreate(values);
-          })
-          .catch((info) => {
-            console.log("Validate Failed:", info);
-          });
-      }}
+      onOk={handleCreate}
     >
       <Form form={form} layout="vertical" name="form_in_modal">
         <Form.Item
@@ -91,7 +99,10 @@ const CreateCategoryModal = ({ visible, onCreate, onCancel, loading }) => {
             },
           ]}
         >
-          <DatePicker style={{ width: "100%" }} />
+          <DatePicker
+            style={{ width: "100%" }}
+            disabledDate={disablePastDates}
+          />
         </Form.Item>
       </Form>
     </Modal>
