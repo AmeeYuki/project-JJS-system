@@ -124,6 +124,7 @@ export default function Product() {
       console.error(error);
     }
   };
+
   const handleEditProduct = (product) => {
     setSelectedProduct(product);
     setIsUpdateModalVisible(true);
@@ -153,6 +154,58 @@ export default function Product() {
 
   const handleViewProductDetail = (product) => {
     setSelectedProductDetail(product);
+  };
+
+  const handleExportFile = () => {
+    if (!productsData || !productsData.products) {
+      console.error("Products data is null or undefined:", productsData);
+      return;
+    }
+
+    const columns = [
+      "Product Name",
+      "Barcode",
+      "Quantity",
+      "Processing Price",
+      "Stone Price",
+      "Weight",
+      "Weight Unit",
+      "Description",
+      "Buy Price per Gram",
+      "Sell Price per Gram",
+      "Type",
+      "Image URL",
+    ];
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [columns.join(",")]
+        .concat(
+          productsData.products.map((product) =>
+            [
+              product.product_name,
+              product.barcode,
+              product.quantity,
+              product.price_processing,
+              product.price_stone,
+              product.weight,
+              product.weight_unit,
+              product.description,
+              product.type.buy_price_per_gram,
+              product.type.sell_price_per_gram,
+              product.type.type,
+              product.image_url,
+            ].join(",")
+          )
+        )
+        .join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "products.csv");
+    document.body.appendChild(link);
+    link.click();
   };
 
   return (
@@ -234,6 +287,28 @@ export default function Product() {
             fontSize="16px"
             padding="10px 20px"
             onClick={() => setIsCreateModalVisible(true)}
+          />
+
+          <CustomButton
+            icon={RiAddLine}
+            text="Export file"
+            iconSize="16px"
+            iconColor="white"
+            textColor="white"
+            containerStyle={{
+              backgroundColor: "#333333",
+              marginBottom: "10px",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+            hoverStyle={{
+              opacity: 0.6,
+            }}
+            iconPosition="left"
+            fontSize="16px"
+            padding="10px 20px"
+            onClick={handleExportFile}
           />
 
           <CustomButton
