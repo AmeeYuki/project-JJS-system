@@ -12,6 +12,9 @@ const ForgetPassword = Loadable({
 const LoginFirstTime = Loadable({
   loader: () => import("../pages/login/LoginFirstTime"),
 });
+const UpdatePassword = Loadable({
+  loader: () => import("../pages/login/UpdatePassword"),
+});
 
 const Counter = Loadable({
   loader: () => import("../pages/counter/Counter"),
@@ -32,9 +35,8 @@ const Promotion = Loadable({
   loader: () => import("../pages/promotion/Promotion"),
 });
 const User = Loadable({ loader: () => import("../pages/user/User") });
-const Home = Loadable({ loader: () => import("../pages/home/Home") });
 const Dashboard = Loadable({
-  loader: () => import("../pages/dashboard/Dashboard"),
+  loader: () => import("../pages/dashboard/DashboardPage"),
 });
 const Category = Loadable({
   loader: () => import("../pages/category/Category"),
@@ -61,16 +63,13 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: Home,
+            // path: "dashboard",
+            element: Dashboard,
           },
           {
             path: "/",
             element: <AuthGuard allowedRoles={["ROLE_ADMIN"]} />,
             children: [
-              {
-                path: "dashboard",
-                element: Dashboard,
-              },
               {
                 path: "user",
                 element: User,
@@ -112,6 +111,10 @@ export const router = createBrowserRouter([
               {
                 path: "customer",
                 element: Customer,
+              },
+              {
+                path: "update-password",
+                element: UpdatePassword,
               },
               {
                 path: "order",

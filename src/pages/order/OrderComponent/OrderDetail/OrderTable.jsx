@@ -2,7 +2,7 @@ import React from "react";
 import { Flex, Table } from "antd";
 
 export default function OrderTable({ products, order }) {
-  const calculateTotalPrice = (
+  const calculateTotalSellPrice = (
     priceProcessing,
     priceStone,
     weight,
@@ -11,26 +11,19 @@ export default function OrderTable({ products, order }) {
     return priceProcessing + priceStone + weight * sellPricePerGram;
   };
 
-  const calculateTotalBuyPrice = (
-    priceProcessing,
-    priceStone,
-    weight,
-    buyPricePerGram
-  ) => {
+  const calculateTotalBuyPrice = (weight, buyPricePerGram) => {
     return weight * buyPricePerGram;
   };
 
   const data = products.map((item, index) => {
-    const totalPriceSell = calculateTotalPrice(
-      // item.product.priceProcessing,
-      // item.product.priceStone,
+    const totalPriceSell = calculateTotalSellPrice(
+      item.product.priceProcessing,
+      item.product.priceStone,
       item.product.weight,
       item.product.type.sell_price_per_gram
     );
 
     const totalPriceBuy = calculateTotalBuyPrice(
-      item.product.priceProcessing,
-      item.product.priceStone,
       item.product.weight,
       item.product.type.buy_price_per_gram
     );

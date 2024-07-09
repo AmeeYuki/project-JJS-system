@@ -117,7 +117,7 @@ export const customerAPI = createApi({
         url: `customers/update/${data.id}`,
         method: "PUT",
         body: {
-          fullName: "Ame ",
+          fullName: data.fullName,
           email: data.email,
           phone: data.phone,
           address: data.address,
