@@ -34,6 +34,19 @@ export default function PolicyModel({
     onClose(); // Close the modal after applying the discount
   };
 
+  const renderPolicyDescription = (policy) => {
+    const startDate = new Date(policy.validFrom * 1000).toLocaleDateString(
+      "en-GB"
+    );
+    const endDate = new Date(policy.validTo * 1000).toLocaleDateString("en-GB");
+    return `${startDate} - ${endDate}`;
+  };
+
+  const isWithinDateRange = (policy) => {
+    const currentTime = Date.now() / 1000; // Convert current time to seconds
+    return currentTime >= policy.validFrom && currentTime <= policy.validTo;
+  };
+
   return (
     <Modal
       title="Customer policy"
@@ -59,18 +72,23 @@ export default function PolicyModel({
             const discountText = [discountRateText, fixedDiscountText]
               .filter((text) => text)
               .join(" / ");
+            const isAvailable = isWithinDateRange(policy);
 
             return (
               <List.Item
                 actions={[
-                  <Button type="primary" onClick={() => handleApply(policy)}>
+                  <Button
+                    type="primary"
+                    onClick={() => handleApply(policy)}
+                    disabled={!isAvailable}
+                  >
                     Apply
                   </Button>,
                 ]}
               >
                 <List.Item.Meta
                   title={discountText}
-                  description={policy.description}
+                  description={renderPolicyDescription(policy)}
                 />
               </List.Item>
             );

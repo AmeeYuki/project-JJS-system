@@ -19,7 +19,7 @@ export default function ProductList({
       <Menu.Item key="edit" onClick={() => onEditProduct(record)}>
         <span>Edit Product</span>
       </Menu.Item>
-      <Menu.Item key="delete">
+      {/* <Menu.Item key="delete">
         <Popconfirm
           title="Are you sure you want to delete this product?"
           onConfirm={() => handleDeleteProduct(record.id)}
@@ -30,7 +30,7 @@ export default function ProductList({
             <span>Delete Product</span>
           </p>
         </Popconfirm>
-      </Menu.Item>
+      </Menu.Item> */}
     </Menu>
   );
 
@@ -96,7 +96,7 @@ export default function ProductList({
       dataSource={convertedData}
       rowKey="id"
       // scroll={{ y: 330 }}
-      pagination={{pageSize: 4}}
+      pagination={{ pageSize: 5 }}
     />
   );
 }

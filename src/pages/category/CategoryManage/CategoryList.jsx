@@ -3,8 +3,12 @@ import { Space, Table, Dropdown, Menu } from "antd";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { format } from "date-fns";
 import { formatCurrency } from "../../product/ProductUtil";
+import { useSelector } from "react-redux";
+import { selectAuth } from "../../../slices/auth.slice";
 
-export default function CategoryList({ categoryData, onEditCategory }) {  
+export default function CategoryList({ categoryData, onEditCategory }) {
+  const auth = useSelector(selectAuth);
+
   const actionsMenu = (record) => (
     <Menu>
       <Menu.Item key="edit" onClick={() => onEditCategory(record)}>
@@ -42,21 +46,27 @@ export default function CategoryList({ categoryData, onEditCategory }) {
       key: "date",
       render: (date) => format(new Date(date), "dd-MM-yyyy"),
     },
-    {
-      key: "action",
-      render: (_, record) => (
-        <Space size="middle">
-          <Dropdown overlay={actionsMenu(record)}>
-            <a
-              className="ant-dropdown-link"
-              onClick={(e) => e.preventDefault()}
-            >
-              <MoreHorizIcon style={{ color: "#333333" }} />
-            </a>
-          </Dropdown>
-        </Space>
-      ),
-    },
+    ...(auth.roles.some(
+      (role) => role === "ROLE_ADMIN" || role === "ROLE_MANAGER"
+    )
+      ? [
+          {
+            key: "action",
+            render: (_, record) => (
+              <Space size="middle">
+                <Dropdown overlay={actionsMenu(record)}>
+                  <a
+                    className="ant-dropdown-link"
+                    onClick={(e) => e.preventDefault()}
+                  >
+                    <MoreHorizIcon style={{ color: "#333333" }} />
+                  </a>
+                </Dropdown>
+              </Space>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
