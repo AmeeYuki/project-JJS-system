@@ -2,12 +2,15 @@ import { Table, Space, Tag } from "antd";
 import PropTypes from "prop-types";
 import ActionsMenu from "./ActionsMenu";
 import dayjs from "dayjs";
+import { useSelector } from "react-redux";
+import { selectAuth } from "../../slices/auth.slice";
 
 const PromotionTable = ({
   data,
   handleUpdatePromotion,
   handleDeletePromotion,
 }) => {
+  const auth = useSelector(selectAuth);
   const columns = [
     {
       title: "No.",
@@ -55,20 +58,26 @@ const PromotionTable = ({
     //     </Tag>
     //   ),
     // },
-    {
-      title: "Actions",
-      key: "action",
-      fixed: "right",
-      render: (_, record) => (
-        <Space size="middle">
-          <ActionsMenu
-            promotionId={record.id}
-            handleUpdatePromotion={handleUpdatePromotion}
-            handleDeletePromotion={handleDeletePromotion}
-          />
-        </Space>
-      ),
-    },
+    ...(auth.roles.some(
+      (role) => role === "ROLE_ADMIN" || role === "ROLE_MANAGER"
+    )
+      ? [
+          {
+            title: "Actions",
+            key: "action",
+            fixed: "right",
+            render: (_, record) => (
+              <Space size="middle">
+                <ActionsMenu
+                  promotionId={record.id}
+                  handleUpdatePromotion={handleUpdatePromotion}
+                  handleDeletePromotion={handleDeletePromotion}
+                />
+              </Space>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (

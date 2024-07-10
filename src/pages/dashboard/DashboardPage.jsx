@@ -33,7 +33,7 @@ const DashboardPage = () => {
   } = useGetAllCustomerQuery();
 
   const auth = useSelector(selectAuth);
-
+  console.log(auth);
   return (
     <Container fluid>
       <Row className="mb-4">
@@ -44,12 +44,16 @@ const DashboardPage = () => {
 
       <Home auth={auth} />
 
-      <Dashboard
-        productsData={productsData}
-        userData={userData}
-        orderData={orderData}
-        customerData={customerData}
-      />
+      {auth.roles.some(
+        (role) => role === "ROLE_ADMIN" || role === "ROLE_MANAGER"
+      ) ? (
+        <Dashboard
+          productsData={productsData}
+          userData={userData}
+          orderData={orderData}
+          customerData={customerData}
+        />
+      ) : null}
     </Container>
   );
 };

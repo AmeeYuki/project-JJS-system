@@ -86,17 +86,14 @@ export const router = createBrowserRouter([
                 path: "counter",
                 element: Counter,
               },
-              {
-                path: "promotion",
-                element: Promotion,
-              },
-              {
-                path: "category",
-                element: Category,
-              },
+
               {
                 path: "counter/:id",
                 element: CounterDetail,
+              },
+              {
+                path: "promotion",
+                element: Promotion,
               },
             ],
           },
@@ -108,6 +105,10 @@ export const router = createBrowserRouter([
               />
             ),
             children: [
+              {
+                path: "category",
+                element: Category,
+              },
               {
                 path: "customer",
                 element: Customer,

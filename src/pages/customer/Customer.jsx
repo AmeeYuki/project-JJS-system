@@ -12,6 +12,8 @@ import {
   useUpdateCustomerMutation,
   useDeleteCustomerMutation,
 } from "../../services/customerAPI";
+import CustomButton from "../../components/CustomButton/CustomButton";
+import { RiFilter3Line } from "@remixicon/react";
 
 export default function Customer() {
   const [rows, setRows] = useState([]);
@@ -40,21 +42,22 @@ export default function Customer() {
         index: index + 1,
       }));
       setRows(indexedUsers);
-      setFilteredRows(indexedUsers.slice().sort((a, b) => a.id - b.id));
+      setFilteredRows(
+        indexedUsers.slice().sort((a, b) => a.fullName - b.fullName)
+      );
     }
   }, [customers]);
 
   useEffect(() => {
     const lowercasedFilter = searchTerm.toLowerCase();
     const filteredData = rows.filter((item) => {
-      return (
-        item.id.toString().includes(lowercasedFilter) ||
-        item.phone.toLowerCase().includes(lowercasedFilter)
-      );
+      return item.phone.toLowerCase().includes(lowercasedFilter);
     });
 
-    // Sort filteredData by id in ascending order
-    const sortedFilteredData = filteredData.sort((a, b) => a.id - b.id);
+    // Sort filteredData by fullName in ascending order, case insensitive
+    const sortedFilteredData = filteredData.sort((a, b) => {
+      return a.fullName.toLowerCase().localeCompare(b.fullName.toLowerCase());
+    });
 
     setFilteredRows(sortedFilteredData);
   }, [searchTerm, rows]);
@@ -146,13 +149,22 @@ export default function Customer() {
             <Input
               type="text"
               className="searchInput"
-              placeholder="Search by ID or phone number"
+              placeholder="Search by phone number"
               value={searchTerm}
               onChange={handleSearch}
+              style={{
+                width: 400,
+              }}
             />
-            <Button className="filterButton">Filter</Button>
           </div>
-          <Button className="addCustomerButton" onClick={handleOpen}>
+          <Button
+            style={{
+              backgroundColor: "#333",
+              color: "#fff",
+              fontWeight: "bold",
+            }}
+            onClick={handleOpen}
+          >
             Add Customer
           </Button>
         </div>

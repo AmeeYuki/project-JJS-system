@@ -9,10 +9,11 @@
   margin-bottom: 20px;
 }
 
-.titlepromotion {
+.titlePromotion {
   font-size: 40px;
   font-weight: bold;
   margin-bottom: 20px;
+  font-family: "Playfair Display";
 }
 
 .controls {

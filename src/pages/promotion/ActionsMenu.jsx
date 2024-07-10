@@ -1,7 +1,7 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import { IconButton, Menu, MenuItem } from "@mui/material";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 
 const ActionsMenu = ({
   promotionId,
@@ -35,7 +35,7 @@ const ActionsMenu = ({
   return (
     <>
       <IconButton onClick={handleClick}>
-        <MoreVertIcon />
+        <MoreHorizIcon />
       </IconButton>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
         <MenuItem onClick={() => handleMenuItemClick("update")}>
