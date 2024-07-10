@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./Product.css";
 import { Input, message, notification } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
@@ -7,6 +7,7 @@ import {
   useDeleteProductMutation,
   useEditProductMutation,
   useGetProductsQuery,
+  useUploadProductsDataMutation,
 } from "../../services/productAPI";
 import ProductList from "./ProductManage/ProductList";
 import CreateProductModal from "./ProductManage/CreateProductModal";
@@ -14,7 +15,7 @@ import UpdateProductModal from "./ProductManage/UpdateProductModal";
 import { CircularProgress } from "@mui/material";
 import { RiAddLine, RiFilter3Line } from "@remixicon/react";
 import CustomButton from "../../components/CustomButton/CustomButton";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import FilterProductModal from "./ProductManage/FilterProductModal";
 import ViewDetailProductModal from "./ProductManage/ViewDetailProductModal";
 
@@ -34,6 +35,9 @@ export default function Product() {
     useAddProductMutation();
   const [deleteProductMutation, { isLoading: isLoadingDelete }] =
     useDeleteProductMutation();
+  const [uploadProductsDataMutation] = useUploadProductsDataMutation();
+
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (productsData) {
@@ -209,6 +213,33 @@ export default function Product() {
     link.click();
   };
 
+  const handleFileInputClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleFileUpload = async () => {
+    const file = fileInputRef.current.files[0];
+    if (!file) {
+      notification.warning({ message: "No file selected" });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      await uploadProductsDataMutation(formData);
+      notification.success({ message: "File uploaded successfully" });
+      refetch();
+    } catch (error) {
+      console.error("Error uploading file: ", error);
+      notification.error({
+        message: "File upload failed",
+        description: error.message,
+      });
+    }
+  };
+
   return (
     <div className="product-manage-page">
       <div className="header">
@@ -248,9 +279,17 @@ export default function Product() {
           />
         </div>
         <div className="action-right">
+          <input
+            type="file"
+            accept=".xlsx, .xls .csv"
+            ref={fileInputRef}
+            style={{ display: "none" }}
+            onChange={handleFileUpload}
+          />
+
           <CustomButton
+            text="Import Products"
             icon={RiAddLine}
-            text="Import file"
             iconSize="16px"
             iconColor="white"
             textColor="white"
@@ -267,6 +306,7 @@ export default function Product() {
             iconPosition="left"
             fontSize="16px"
             padding="10px 20px"
+            onClick={handleFileInputClick}
           />
           <CustomButton
             icon={RiAddLine}

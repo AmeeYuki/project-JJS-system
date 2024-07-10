@@ -106,6 +106,22 @@ export const productAPI = createApi({
             ]
           : [{ type: "ProductList", id: "LIST" }],
     }),
+    uploadProductsData: builder.mutation({
+      query: (formData) => {
+        const body = new FormData();
+        body.append("file", formData.file);
+
+        return {
+          url: "products/upload_products_data",
+          method: "POST",
+          body,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        };
+      },
+      invalidatesTags: [{ type: "ProductList", id: "LIST" }],
+    }),
   }),
 });
 
@@ -117,4 +133,5 @@ export const {
   useDeleteProductMutation,
   useGetProductByIdQuery,
   useGetProductsByCounterIdQuery,
+  useUploadProductsDataMutation,
 } = productAPI;
