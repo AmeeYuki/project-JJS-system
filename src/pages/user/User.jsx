@@ -42,6 +42,7 @@ export default function User() {
     useInactiveUserMutation();
 
   const handleCreateUser = async (values) => {
+    console.log(values);
     const phoneNumber = values.phone;
     if (phoneNumber.charAt(0) !== "0") {
       notification.error({
@@ -62,11 +63,11 @@ export default function User() {
 
     try {
       const response = await createUser(values);
-      console.log(response.error.data);
-      if (response.error.originalStatus === 200) {
+      console.log(response);
+      if (response.data) {
         setIsCreateModalVisible(false);
         notification.success({
-          message: "Create user successfully",
+          message: response.data.message,
         });
         refetch(); // Refetch the user data
       } else {
@@ -76,7 +77,7 @@ export default function User() {
         });
       }
     } catch (error) {
-      console.error("Error creating user: ", error);
+      console.log(error);
       notification.error({
         message: "Failed to create user",
         // description: error,

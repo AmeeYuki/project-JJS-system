@@ -2,6 +2,65 @@ import React from "react";
 import { Flex, Table } from "antd";
 
 export default function OrderTable({ products, order }) {
+  const calculateTotalSellPrice = (
+    priceProcessing,
+    priceStone,
+    weight,
+    sellPricePerGram
+  ) => {
+    return priceProcessing + priceStone + weight * sellPricePerGram;
+  };
+
+  const calculateTotalBuyPrice = (weight, buyPricePerGram) => {
+    return weight * buyPricePerGram;
+  };
+
+  const data = products.map((item, index) => {
+    const totalPriceSell = calculateTotalSellPrice(
+      item.product.priceProcessing,
+      item.product.priceStone,
+      item.product.weight,
+      item.product.type.sell_price_per_gram
+    );
+
+    const totalPriceBuy = calculateTotalBuyPrice(
+      item.product.weight,
+      item.product.type.buy_price_per_gram
+    );
+
+    const total_price =
+      order?.type === "sell"
+        ? totalPriceSell * item.quantity
+        : totalPriceBuy * item.quantity;
+
+    return {
+      key: index,
+      no: index + 1,
+      product_name: item.product.productName,
+      product_id: item.product.id,
+      product_image: item.product.imageUrl,
+      quantity: item.quantity,
+      weight: item.product.weight,
+      weightUnit: item.product.weightUnit,
+      unitPrice: item.unitPrice,
+      barcode: item.product.barcode,
+      priceProcessing: item.product.priceProcessing,
+      priceStone: item.product.priceStone,
+      buy_price_per_gram: item.product.type.buy_price_per_gram,
+      sell_price_per_gram: item.product.type.sell_price_per_gram,
+      type: item.product.type.type,
+      totalPriceSell,
+      totalPriceBuy,
+      total_price,
+    };
+  });
+
+  const subtotal = data.reduce((sum, item) => sum + item.total_price, 0);
+  let total = subtotal - order.discount;
+  if (total < 0) {
+    total = 0;
+  }
+
   const columns = [
     {
       title: "No.",
@@ -25,25 +84,36 @@ export default function OrderTable({ products, order }) {
     },
     {
       title: "Barcode",
-      dataIndex: "product_barcode",
-      key: "product_barcode",
+      dataIndex: "barcode",
+      key: "barcode",
     },
     {
       title: "Type",
-      dataIndex: "product_type",
-      key: "product_type",
+      dataIndex: "type",
+      key: "type",
     },
     {
       title: "Quantity",
       dataIndex: "quantity",
       key: "quantity",
     },
-    {
-      title: "Price",
-      dataIndex: "price",
-      key: "price",
-      render: (price) => `${price.toLocaleString()} VNĐ`,
-    },
+    ...(order?.type === "sell"
+      ? [
+          {
+            title: "Price to Sell",
+            dataIndex: "totalPriceSell",
+            key: "totalPriceSell",
+            render: (price) => `${price.toLocaleString()} VNĐ`,
+          },
+        ]
+      : [
+          {
+            title: "Price to Buy",
+            dataIndex: "totalPriceBuy",
+            key: "totalPriceBuy",
+            render: (price) => `${price.toLocaleString()} VNĐ`,
+          },
+        ]),
     {
       title: "Total",
       dataIndex: "total_price",
@@ -51,23 +121,6 @@ export default function OrderTable({ products, order }) {
       render: (total_price) => `${total_price.toLocaleString()} VNĐ`,
     },
   ];
-
-  const data = products.map((item, index) => ({
-    key: index,
-    product_name: item.product.productName,
-    product_image: item.product.imageUrl,
-    product_barcode: item.product.barcode,
-    product_type: item.product.type.type,
-    quantity: item.quantity,
-    price: item.unitPrice,
-    total_price: item.unitPrice * item.quantity,
-  }));
-
-  const subtotal = data.reduce((sum, item) => sum + item.total_price, 0);
-  let total = subtotal - order.discount;
-  if (total < 0) {
-    total = 0;
-  }
 
   return (
     <div style={{ marginTop: 10 }}>

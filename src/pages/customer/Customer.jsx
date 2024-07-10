@@ -12,6 +12,8 @@ import {
   useUpdateCustomerMutation,
   useDeleteCustomerMutation,
 } from "../../services/customerAPI";
+import CustomButton from "../../components/CustomButton/CustomButton";
+import { RiFilter3Line } from "@remixicon/react";
 
 export default function Customer() {
   const [rows, setRows] = useState([]);
@@ -149,10 +151,19 @@ export default function Customer() {
               placeholder="Search by ID or phone number"
               value={searchTerm}
               onChange={handleSearch}
+              style={{
+                width: 400,
+              }}
             />
-            <Button className="filterButton">Filter</Button>
           </div>
-          <Button className="addCustomerButton" onClick={handleOpen}>
+          <Button
+            style={{
+              backgroundColor: "#333",
+              color: "#fff",
+              fontWeight: "bold",
+            }}
+            onClick={handleOpen}
+          >
             Add Customer
           </Button>
         </div>

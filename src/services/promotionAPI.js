@@ -58,7 +58,7 @@ export const promotionAPI = createApi({
     }),
     usePromotion: builder.mutation({
       query: (code) => ({
-        url: `promotions/use/${code}`,
+        url: `promotions/get_promotion_by_code/${code}`,
         method: "POST",
       }),
       invalidatesTags: [{ type: "PromotionList", id: "LIST" }],

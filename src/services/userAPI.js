@@ -33,7 +33,7 @@ export const userAPI = createApi({
           phone_number: body.phone,
           date_of_birth: body.dob,
           role_id: body.role,
-          counter_id: body.counter_id,
+          counter_id: body.counter,
         };
         return {
           method: "POST",

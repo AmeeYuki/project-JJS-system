@@ -24,14 +24,8 @@ const useSider = () => {
     const list = [
       {
         label: "Home",
-        icon: <HomeOutlined />,
-        href: "",
-        roles: ["ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STAFF"],
-      },
-      {
-        label: "Dashboard",
         icon: <AreaChartOutlined />,
-        href: "dashboard",
+        href: "",
         roles: ["ROLE_ADMIN"],
       },
       {
