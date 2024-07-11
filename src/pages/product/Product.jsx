@@ -18,6 +18,7 @@ import CustomButton from "../../components/CustomButton/CustomButton";
 import { useNavigate } from "react-router-dom";
 import FilterProductModal from "./ProductManage/FilterProductModal";
 import ViewDetailProductModal from "./ProductManage/ViewDetailProductModal";
+import * as XLSX from "xlsx";
 
 export default function Product() {
   const { data: productsData, isLoading, refetch } = useGetProductsQuery();
@@ -213,29 +214,82 @@ export default function Product() {
     link.click();
   };
 
-  const handleFileInputClick = () => {
-    fileInputRef.current.click();
-  };
-
-  const handleFileUpload = async () => {
-    const file = fileInputRef.current.files[0];
-    if (!file) {
-      notification.warning({ message: "No file selected" });
-      return;
-    }
-
+  const handleUploadProductsData = async (event) => {
+    const file = event.target.files[0];
     const formData = new FormData();
     formData.append("file", file);
 
     try {
-      await uploadProductsDataMutation(formData);
-      notification.success({ message: "File uploaded successfully" });
-      refetch();
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: "array" });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+          if (rows.length < 2) {
+            notification.error({
+              message: "File upload failed",
+              description: "No data found in the uploaded file.",
+            });
+            return;
+          }
+          const headerRow = rows[0];
+          let barcodeColumnIndex = -1;
+
+          for (let i = 0; i < headerRow.length; i++) {
+            if (headerRow[i]?.toLowerCase()?.includes("barcode")) {
+              barcodeColumnIndex = i;
+              break;
+            }
+          }
+
+          if (barcodeColumnIndex === -1) {
+            notification.error({
+              message: "File upload failed",
+              description: "Barcode column not found in the uploaded file.",
+            });
+            return;
+          }
+          const uploadedBarcodes = rows
+            .slice(1)
+            .map((row) => row[barcodeColumnIndex]);
+          const existingBarcodes = productData.map(
+            (product) => product.barcode
+          );
+          const duplicates = uploadedBarcodes.filter((barcode) =>
+            existingBarcodes.includes(barcode)
+          );
+
+          if (duplicates.length > 0) {
+            notification.error({
+              message: "File upload failed",
+              description: `Duplicate barcodes found: ${duplicates.join(", ")}`,
+            });
+          } else {
+            const response = await uploadProductsDataMutation(
+              formData
+            ).unwrap();
+            notification.success({
+              message: "Create product successfully",
+            });
+            refetch();
+          }
+        } catch (error) {
+          console.error("Error parsing file:", error);
+          notification.error({
+            message: "File upload failed",
+            description: "Error parsing the uploaded file.",
+          });
+        }
+      };
+      reader.readAsArrayBuffer(file);
     } catch (error) {
-      console.error("Error uploading file: ", error);
+      console.error("Error uploading file:", error);
       notification.error({
         message: "File upload failed",
-        description: error.message,
+        description: "Error uploading the file.",
       });
     }
   };
@@ -281,10 +335,9 @@ export default function Product() {
         <div className="action-right">
           <input
             type="file"
-            accept=".xlsx, .xls .csv"
             ref={fileInputRef}
             style={{ display: "none" }}
-            onChange={handleFileUpload}
+            onChange={handleUploadProductsData}
           />
 
           <CustomButton
@@ -306,7 +359,7 @@ export default function Product() {
             iconPosition="left"
             fontSize="16px"
             padding="10px 20px"
-            onClick={handleFileInputClick}
+            onClick={() => fileInputRef.current.click()}
           />
           <CustomButton
             icon={RiAddLine}

@@ -10,9 +10,8 @@ export const productAPI = createApi({
     prepareHeaders: (headers, { getState }) => {
       const token = selectToken(getState());
       if (token) {
-        headers.append("Authorization", `Bearer ${token}`);
+        headers.set("Authorization", `Bearer ${token}`);
       }
-      headers.append("Content-Type", "application/json");
       return headers;
     },
   }),
@@ -29,14 +28,6 @@ export const productAPI = createApi({
         }
       },
     }),
-    // addProduct: builder.mutation({
-    //   query: (body) => ({
-    //     method: "POST",
-    //     url: `products/create`,
-    //     body,
-    //   }),
-    //   invalidatesTags: [{ type: "ProductList", id: "LIST" }],
-    // }),
 
     addProduct: builder.mutation({
       query: (body) => {
@@ -93,9 +84,11 @@ export const productAPI = createApi({
       }),
       invalidatesTags: [{ type: "ProductList", id: "LIST" }],
     }),
+
     getProductById: builder.query({
       query: (productId) => `products/get_product_by_id/${productId}`,
     }),
+
     getProductsByCounterId: builder.query({
       query: (counterId) => `products/get_products_by_counter/${counterId}`,
       providesTags: (result) =>
@@ -106,6 +99,7 @@ export const productAPI = createApi({
             ]
           : [{ type: "ProductList", id: "LIST" }],
     }),
+
     uploadProductsData: builder.mutation({
       query: (formData) => {
         const body = new FormData();
@@ -115,9 +109,6 @@ export const productAPI = createApi({
           url: "products/upload_products_data",
           method: "POST",
           body,
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
         };
       },
       invalidatesTags: [{ type: "ProductList", id: "LIST" }],
