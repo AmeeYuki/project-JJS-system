@@ -11,6 +11,7 @@ import {
   TagOutlined,
   PercentageOutlined,
   TagsOutlined,
+  GoldOutlined,
 } from "@ant-design/icons";
 
 import { selectAuth } from "../slices/auth.slice";
@@ -26,6 +27,12 @@ const useSider = () => {
         label: "Home",
         icon: <AreaChartOutlined />,
         href: "",
+        roles: ["ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STAFF"],
+      },
+      {
+        label: "Gold Price",
+        icon: <GoldOutlined />,
+        href: "goldPrice",
         roles: ["ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STAFF"],
       },
       {
