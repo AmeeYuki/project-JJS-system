@@ -9,7 +9,7 @@ const CustomerTable = ({
   handleCreatePromotion,
 }) => {
   const columns = [
-    { title: "ID", dataIndex: "id", key: "id" },
+    { title: "ID", dataIndex: "index", key: "id" },
     { title: "Name", dataIndex: "fullName", key: "fullName" },
     { title: "Phone", dataIndex: "phone", key: "phone" },
     { title: "Email", dataIndex: "email", key: "email" },
@@ -33,7 +33,14 @@ const CustomerTable = ({
     },
   ];
 
-  return <Table dataSource={data} columns={columns} rowKey="id" />;
+  return (
+    <Table
+      dataSource={data}
+      columns={columns}
+      rowKey="id"
+      pagination={{ pageSize: 5 }}
+    />
+  );
 };
 
 CustomerTable.propTypes = {

@@ -4,7 +4,7 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { selectAuth, selectToken } from "../slices/auth.slice";
 
 const AuthGuard = ({ allowedRoles }) => {
-  const token = useSelector(selectToken);
+  const token = localStorage.getItem("token");
   const auth = useSelector(selectAuth);
   const location = useLocation();
 

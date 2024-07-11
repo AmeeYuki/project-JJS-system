@@ -1,5 +1,6 @@
 import { Dropdown, Menu } from "antd";
 import PropTypes from "prop-types";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 
 const ActionsMenu = ({
   customerId,
@@ -19,15 +20,17 @@ const ActionsMenu = ({
       {/* <Menu.Item key="3" onClick={() => handleDeleteCustomer(customerId)}>
         Delete Customer
       </Menu.Item> */}
-      <Menu.Item key="4" onClick={() => handleCreatePromotion(customerId)}>
+      {/* <Menu.Item key="4" onClick={() => handleCreatePromotion(customerId)}>
         Create Promotion
-      </Menu.Item>
+      </Menu.Item> */}
     </Menu>
   );
 
   return (
     <Dropdown overlay={menu} trigger={["click"]}>
-      <a onClick={(e) => e.preventDefault()}>...</a>
+      <a onClick={(e) => e.preventDefault()}>
+        <MoreHorizIcon />
+      </a>
     </Dropdown>
   );
 };

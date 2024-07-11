@@ -7,19 +7,48 @@ const VoucherModal = ({ isVisible, onClose, onApplyPromotion }) => {
   const [promotionDetails, setPromotionDetails] = useState(null);
   const [usePromotion, { isLoading }] = useUsePromotionMutation();
 
+  // const handleApplyPromotion = async () => {
+  //   try {
+  //     const promotion = await usePromotion(code).unwrap();
+  //     console.log(promotion);
+  //     if (promotion) {
+  //       onApplyPromotion(promotion);
+  //       setPromotionDetails(promotion); // Store promotion details
+  //       message.success("Voucher applied successfully!");
+  //     } else {
+  //       message.error("Voucher applied fail!");
+  //       onApplyPromotion(null);
+  //       setPromotionDetails(null); // Store promotion details
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to apply promotion:", error);
+  //     message.error("Failed to apply promotion. Please try again.");
+  //   }
+  // };
+
   const handleApplyPromotion = async () => {
     try {
       const promotion = await usePromotion(code).unwrap();
       console.log(promotion);
       if (promotion) {
-        onApplyPromotion(promotion);
-        setPromotionDetails(promotion); // Store promotion details
-        message.success("Voucher applied successfully!");
+        const currentTime = Date.now();
+        if (currentTime < promotion.startDate) {
+          message.error("Voucher is not yet available.");
+          return;
+        } else if (currentTime > promotion.endDate) {
+          message.error("Voucher has expired.");
+          return;
+        } else {
+          onApplyPromotion(promotion);
+          setPromotionDetails(promotion); // Store promotion details
+          message.success("Voucher applied successfully!");
+          return;
+        }
       } else {
         message.error("Voucher applied fail!");
-        onApplyPromotion(null);
-        setPromotionDetails(null); // Store promotion details
       }
+      onApplyPromotion(null);
+      setPromotionDetails(null); // Clear promotion details
     } catch (error) {
       console.error("Failed to apply promotion:", error);
       message.error("Failed to apply promotion. Please try again.");

@@ -4,7 +4,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { selectToken } from "../slices/auth.slice";
 
 const GuestGuard = () => {
-  const token = useSelector(selectToken);
+  const token = localStorage.getItem("token");
 
   // If token exists, redirect to homepage or another appropriate page
   if (token) {

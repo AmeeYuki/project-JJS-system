@@ -26,7 +26,7 @@ const useSider = () => {
         label: "Home",
         icon: <AreaChartOutlined />,
         href: "",
-        roles: ["ROLE_ADMIN"],
+        roles: ["ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STAFF"],
       },
       {
         label: "Product",

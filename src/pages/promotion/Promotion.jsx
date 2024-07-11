@@ -13,6 +13,8 @@ import {
 import CustomButton from "../../components/CustomButton/CustomButton";
 import { RiAddLine } from "@remixicon/react";
 import { debounce } from "lodash";
+import { useSelector } from "react-redux";
+import { selectAuth } from "../../slices/auth.slice";
 
 export default function Promotion() {
   const [rows, setRows] = useState([]);
@@ -22,7 +24,7 @@ export default function Promotion() {
   const [deletePromotion] = useDeletePromotionMutation();
   const [deleteExpiredPromotions] = useDeleteExpiredPromotionsMutation();
   const [addPromotion] = useAddPromotionMutation();
-
+  const auth = useSelector(selectAuth);
   useEffect(() => {
     const deleteExpiredPromos = async () => {
       try {
@@ -102,23 +104,27 @@ export default function Promotion() {
               onChange={handleSearch}
             />
           </div>
-          <CustomButton
-            icon={RiAddLine}
-            text="Create Promotion"
-            iconSize="20px"
-            iconColor="white"
-            textColor="white"
-            containerStyle={{
-              backgroundColor: "#000000",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-            }}
-            iconPosition="left"
-            fontSize="16px"
-            padding="10px 10px"
-            onClick={handleOpen}
-          />
+          {auth.roles.some(
+            (role) => role === "ROLE_ADMIN" || role === "ROLE_MANAGER"
+          ) ? (
+            <CustomButton
+              icon={RiAddLine}
+              text="Create Promotion"
+              iconSize="20px"
+              iconColor="white"
+              textColor="white"
+              containerStyle={{
+                backgroundColor: "#000000",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+              }}
+              iconPosition="left"
+              fontSize="16px"
+              padding="10px 10px"
+              onClick={handleOpen}
+            />
+          ) : null}
         </div>
       </div>
 
