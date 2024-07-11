@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./Product.css";
 import { Input, message, notification } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
@@ -7,6 +7,7 @@ import {
   useDeleteProductMutation,
   useEditProductMutation,
   useGetProductsQuery,
+  useUploadProductsDataMutation,
 } from "../../services/productAPI";
 import ProductList from "./ProductManage/ProductList";
 import CreateProductModal from "./ProductManage/CreateProductModal";
@@ -14,9 +15,10 @@ import UpdateProductModal from "./ProductManage/UpdateProductModal";
 import { CircularProgress } from "@mui/material";
 import { RiAddLine, RiFilter3Line } from "@remixicon/react";
 import CustomButton from "../../components/CustomButton/CustomButton";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import FilterProductModal from "./ProductManage/FilterProductModal";
 import ViewDetailProductModal from "./ProductManage/ViewDetailProductModal";
+import * as XLSX from "xlsx";
 
 export default function Product() {
   const { data: productsData, isLoading, refetch } = useGetProductsQuery();
@@ -34,6 +36,9 @@ export default function Product() {
     useAddProductMutation();
   const [deleteProductMutation, { isLoading: isLoadingDelete }] =
     useDeleteProductMutation();
+  const [uploadProductsDataMutation] = useUploadProductsDataMutation();
+
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (productsData) {
@@ -125,6 +130,7 @@ export default function Product() {
       console.error(error);
     }
   };
+
   const handleEditProduct = (product) => {
     setSelectedProduct(product);
     setIsUpdateModalVisible(true);
@@ -154,6 +160,138 @@ export default function Product() {
 
   const handleViewProductDetail = (product) => {
     setSelectedProductDetail(product);
+  };
+
+  const handleExportFile = () => {
+    if (!productsData || !productsData.products) {
+      console.error("Products data is null or undefined:", productsData);
+      return;
+    }
+
+    const columns = [
+      "Product Name",
+      "Barcode",
+      "Quantity",
+      "Processing Price",
+      "Stone Price",
+      "Weight",
+      "Weight Unit",
+      "Description",
+      "Buy Price per Gram",
+      "Sell Price per Gram",
+      "Type",
+      "Image URL",
+    ];
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [columns.join(",")]
+        .concat(
+          productsData.products.map((product) =>
+            [
+              product.product_name,
+              product.barcode,
+              product.quantity,
+              product.price_processing,
+              product.price_stone,
+              product.weight,
+              product.weight_unit,
+              product.description,
+              product.type.buy_price_per_gram,
+              product.type.sell_price_per_gram,
+              product.type.type,
+              product.image_url,
+            ].join(",")
+          )
+        )
+        .join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "products.csv");
+    document.body.appendChild(link);
+    link.click();
+  };
+
+  const handleUploadProductsData = async (event) => {
+    const file = event.target.files[0];
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: "array" });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+          if (rows.length < 2) {
+            notification.error({
+              message: "File upload failed",
+              description: "No data found in the uploaded file.",
+            });
+            return;
+          }
+          const headerRow = rows[0];
+          let barcodeColumnIndex = -1;
+
+          for (let i = 0; i < headerRow.length; i++) {
+            if (headerRow[i]?.toLowerCase()?.includes("barcode")) {
+              barcodeColumnIndex = i;
+              break;
+            }
+          }
+
+          if (barcodeColumnIndex === -1) {
+            notification.error({
+              message: "File upload failed",
+              description: "Barcode column not found in the uploaded file.",
+            });
+            return;
+          }
+          const uploadedBarcodes = rows
+            .slice(1)
+            .map((row) => row[barcodeColumnIndex]);
+          const existingBarcodes = productData.map(
+            (product) => product.barcode
+          );
+          const duplicates = uploadedBarcodes.filter((barcode) =>
+            existingBarcodes.includes(barcode)
+          );
+
+          if (duplicates.length > 0) {
+            notification.error({
+              message: "File upload failed",
+              description: `Duplicate barcodes found: ${duplicates.join(", ")}`,
+            });
+          } else {
+            const response = await uploadProductsDataMutation(
+              formData
+            ).unwrap();
+            notification.success({
+              message: "Create product successfully",
+            });
+            refetch();
+          }
+        } catch (error) {
+          console.error("Error parsing file:", error);
+          notification.error({
+            message: "File upload failed",
+            description: "Error parsing the uploaded file.",
+          });
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      notification.error({
+        message: "File upload failed",
+        description: "Error uploading the file.",
+      });
+    }
   };
 
   return (
@@ -195,9 +333,16 @@ export default function Product() {
           />
         </div>
         <div className="action-right">
+          <input
+            type="file"
+            ref={fileInputRef}
+            style={{ display: "none" }}
+            onChange={handleUploadProductsData}
+          />
+
           <CustomButton
+            text="Import Products"
             icon={RiAddLine}
-            text="Import file"
             iconSize="16px"
             iconColor="white"
             textColor="white"
@@ -214,6 +359,7 @@ export default function Product() {
             iconPosition="left"
             fontSize="16px"
             padding="10px 20px"
+            onClick={() => fileInputRef.current.click()}
           />
           <CustomButton
             icon={RiAddLine}
@@ -235,6 +381,28 @@ export default function Product() {
             fontSize="16px"
             padding="10px 20px"
             onClick={() => setIsCreateModalVisible(true)}
+          />
+
+          <CustomButton
+            icon={RiAddLine}
+            text="Export file"
+            iconSize="16px"
+            iconColor="white"
+            textColor="white"
+            containerStyle={{
+              backgroundColor: "#333333",
+              marginBottom: "10px",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+            hoverStyle={{
+              opacity: 0.6,
+            }}
+            iconPosition="left"
+            fontSize="16px"
+            padding="10px 20px"
+            onClick={handleExportFile}
           />
 
           <CustomButton
