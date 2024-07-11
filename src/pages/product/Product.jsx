@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./Product.css";
-import { Input, message, notification } from "antd";
+import { Input, message, Modal, notification } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import {
   useAddProductMutation,
@@ -29,6 +29,9 @@ export default function Product() {
   const [searchValue, setSearchValue] = useState("");
   const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
   const [selectedProductDetail, setSelectedProductDetail] = useState(null);
+  const [file, setFile] = useState(null);
+  const [isConfirmationModalVisible, setIsConfirmationModalVisible] =
+    useState(false);
 
   const [editProductMutation, { isLoading: isLoadingEdit }] =
     useEditProductMutation();
@@ -213,9 +216,14 @@ export default function Product() {
     document.body.appendChild(link);
     link.click();
   };
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
+    setFile(selectedFile);
+    setIsConfirmationModalVisible(true);
+  };
 
-  const handleUploadProductsData = async (event) => {
-    const file = event.target.files[0];
+  const handleConfirmUpload = async () => {
+    setIsConfirmationModalVisible(false);
     const formData = new FormData();
     formData.append("file", file);
 
@@ -280,7 +288,7 @@ export default function Product() {
           console.error("Error parsing file:", error);
           notification.error({
             message: "File upload failed",
-            description: "Error parsing the uploaded file.",
+            description: "An error occurred while parsing the file.",
           });
         }
       };
@@ -289,9 +297,14 @@ export default function Product() {
       console.error("Error uploading file:", error);
       notification.error({
         message: "File upload failed",
-        description: "Error uploading the file.",
+        description: "An error occurred while uploading the file.",
       });
     }
+  };
+
+  const handleCancelUpload = () => {
+    setIsConfirmationModalVisible(false);
+    setFile(null);
   };
 
   return (
@@ -335,9 +348,10 @@ export default function Product() {
         <div className="action-right">
           <input
             type="file"
+            accept=".xlsx, .xls, .csv"
+            onChange={handleFileChange}
             ref={fileInputRef}
             style={{ display: "none" }}
-            onChange={handleUploadProductsData}
           />
 
           <CustomButton
@@ -480,6 +494,15 @@ export default function Product() {
         onCancel={handleFilterModalCancel}
         onApply={handleApplyFilter}
       />
+
+      <Modal
+        title="Confirm File Upload"
+        visible={isConfirmationModalVisible}
+        onOk={handleConfirmUpload}
+        onCancel={handleCancelUpload}
+      >
+        <p>Are you sure you want to upload the selected file?</p>
+      </Modal>
     </div>
   );
 }
