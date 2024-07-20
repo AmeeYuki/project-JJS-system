@@ -1,24 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ConfigProvider, Tabs, notification } from "antd";
 import { useLocation, useParams } from "react-router-dom";
 import ProductListCounter from "../product/ProductManage/ProductListCounter";
 import UserListByCounterAndRole from "./CounterManage/UserListByCounterAndRole";
 import UpdateProductModal from "../product/ProductManage/UpdateProductModal";
 import ViewDetailProductModal from "../product/ProductManage/ViewDetailProductModal";
-import UpdateUserModal from "../user/UserManage/UpdateUserModal";
 import {
   useGetProductsByCounterIdQuery,
   useEditProductMutation,
-  useDeleteProductMutation,
 } from "../../services/productAPI";
 import {
-  useEditUserMutation,
-  useDeleteUserMutation,
   useActiveUserMutation,
   useInactiveUserMutation,
   useGetUsersByRoleAndCounterQuery,
 } from "../../services/userAPI";
+import { useGetOrderByCounterIdQuery } from "../../services/orderAPI";
 import "./CounterDetail.css";
+import { formatCurrency } from "../product/ProductUtil";
 
 const { TabPane } = Tabs;
 
@@ -31,6 +29,7 @@ const CounterDetail = () => {
     useGetProductsByCounterIdQuery(id);
   const { data: users, refetch: refetchUsers } =
     useGetUsersByRoleAndCounterQuery({ roleId: 3, counterId: id });
+  const { data: orders } = useGetOrderByCounterIdQuery(id);
 
   const [productData, setProductData] = useState([]);
   const [userData, setUserData] = useState([]);
@@ -43,15 +42,12 @@ const CounterDetail = () => {
 
   const [editProductMutation, { isLoading: isLoadingEditProduct }] =
     useEditProductMutation();
-  const [deleteProductMutation, { isLoading: isLoadingDeleteProduct }] =
-    useDeleteProductMutation();
-
   const [activeUserMutation, { isLoading: isLoadingActiveUser }] =
     useActiveUserMutation();
   const [inactiveUserMutation, { isLoading: isLoadingInactiveUser }] =
     useInactiveUserMutation();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (Array.isArray(products)) {
       const indexedProducts = products.map((product, index) => ({
         ...product,
@@ -61,7 +57,7 @@ const CounterDetail = () => {
     }
   }, [products]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (Array.isArray(users)) {
       const indexedUsers = users.map((user, index) => ({
         ...user,
@@ -70,6 +66,31 @@ const CounterDetail = () => {
       setUserData(indexedUsers);
     }
   }, [users]);
+
+  const calculateSalesData = (orders) => {
+    if (!Array.isArray(orders))
+      return { totalRevenue: 0, productQuantities: {} };
+
+    let totalRevenue = 0;
+    const productQuantities = {};
+
+    orders.forEach((order) => {
+      if (Array.isArray(order.items)) {
+        order.items.forEach((item) => {
+          const { productId, quantity, price } = item;
+          totalRevenue += quantity * price;
+          if (!productQuantities[productId]) {
+            productQuantities[productId] = 0;
+          }
+          productQuantities[productId] += quantity;
+        });
+      }
+    });
+
+    return { totalRevenue, productQuantities };
+  };
+
+  const { totalRevenue, productQuantities } = calculateSalesData(orders);
 
   const handleUpdateProduct = (values) => {
     editProductMutation(values)
@@ -80,23 +101,6 @@ const CounterDetail = () => {
         notification.success({ message: "Update product successfully" });
       })
       .catch((error) => console.error("Error updating product: ", error));
-  };
-
-  const handleDeleteProduct = async (productId) => {
-    try {
-      await deleteProductMutation(productId);
-      localStorage.setItem(`deleted_product_${productId}`, "true");
-      setProductData((prevProducts) =>
-        prevProducts.map((product) =>
-          product.id === productId ? { ...product, deleted: true } : product
-        )
-      );
-      notification.success({
-        message: "Delete product successfully",
-      });
-    } catch (error) {
-      console.error(error);
-    }
   };
 
   const handleEditProduct = (product) => {
@@ -145,13 +149,8 @@ const CounterDetail = () => {
         <Tabs defaultActiveKey="1">
           <TabPane tab={<span className="tab-title">Product</span>} key="1">
             <ProductListCounter
-              productData={productData.filter(
-                (product) =>
-                  !product.deleted &&
-                  !localStorage.getItem(`deleted_product_${product.id}`)
-              )}
+              productData={productData}
               onEditProduct={handleEditProduct}
-              handleDeleteProduct={handleDeleteProduct}
               onViewProductDetail={handleViewProductDetail}
             />
             {selectedProduct && (
@@ -179,7 +178,24 @@ const CounterDetail = () => {
               handleActiveUser={handleActiveUser}
               handleInactiveUser={handleInactiveUser}
             />
-
+          </TabPane>
+          <TabPane tab={<span className="tab-title">Sales</span>} key="3">
+            <div className="counter_info_wrapper">
+              <p className="counter_info_title">Total Revenue:</p>
+              <p>{formatCurrency(totalRevenue)}</p>
+            </div>
+            <div className="counter_info_wrapper">
+              <p className="counter_info_title">Product Quantities Sold:</p>
+              <ul>
+                {Object.entries(productQuantities).map(
+                  ([productId, quantity]) => (
+                    <li key={productId}>
+                      Product ID: {productId}, Quantity Sold: {quantity}
+                    </li>
+                  )
+                )}
+              </ul>
+            </div>
           </TabPane>
         </Tabs>
       </ConfigProvider>
