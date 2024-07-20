@@ -38,13 +38,13 @@ const DashboardPage = () => {
     <Container fluid>
       <Row className="mb-4">
         <Col md={12}>
-          <h2>Welcome to Jewelry Selling System Dashboard, {auth?.name}!</h2>
+          <h2>Welcome to Luminary, {auth?.name}!</h2>
         </Col>
       </Row>
 
       <Home auth={auth} />
 
-      {auth.roles.some(
+      {auth?.roles?.some(
         (role) => role === "ROLE_ADMIN" || role === "ROLE_MANAGER"
       ) ? (
         <Dashboard

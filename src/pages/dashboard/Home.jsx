@@ -29,6 +29,9 @@ export default function Home({ auth }) {
               <p>Email: {auth?.email || "null"}</p>
               <p>Name: {auth?.name || "null"}</p>
               <p>Role: {auth?.roles || "null"}</p>
+              {auth?.counter?.counterName && (
+                <p>Counter: {auth?.counter?.counterName || "null"}</p>
+              )}
               {/* <div className="buttons-container">
                 <Button type="primary" className="action-button">
                   Make Order

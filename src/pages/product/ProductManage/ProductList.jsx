@@ -96,7 +96,10 @@ export default function ProductList({
       dataSource={convertedData}
       rowKey="id"
       // scroll={{ y: 330 }}
-      pagination={{ pageSize: 5 }}
+      pagination={{
+        pageSize: 5,
+        showSizeChanger: false, // Ẩn phần chọn số lượng mục hiển thị trên mỗi trang
+      }}
     />
   );
 }

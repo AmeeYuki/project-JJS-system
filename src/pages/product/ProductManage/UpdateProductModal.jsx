@@ -138,9 +138,10 @@ const UpdateProductModal = ({
         }
         okText="Update"
         cancelText="Cancel"
-        okButtonProps={{ loading }}
+        // okButtonProps={loading}
         onCancel={onCancel}
         onOk={handleOk}
+        confirmLoading={loading}
       >
         <Form form={form} name="form_in_modal">
           <Form.Item

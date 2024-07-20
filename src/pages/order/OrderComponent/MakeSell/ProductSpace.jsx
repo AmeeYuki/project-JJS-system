@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { ConfigProvider, message } from "antd";
-import { useGetProductsQuery } from "../../../../services/productAPI";
+import {
+  useGetProductsByCounterIdQuery,
+  useGetProductsQuery,
+} from "../../../../services/productAPI";
 import ProductTable from "./ProductTable";
 import CartTable from "./CartTable";
 import CartSummary from "./CartSummary";
@@ -11,6 +14,7 @@ import PolicyModel from "./PolicyModel";
 
 export default function ProductSpace({
   onProductChange,
+  auth,
   customerId,
   discountChange,
   onDiscountData,
@@ -18,7 +22,11 @@ export default function ProductSpace({
   onPointDiscount,
   onSubtotalOrder,
 }) {
-  const { data: productsData, isError, isLoading } = useGetProductsQuery();
+  const {
+    data: productsData,
+    isError,
+    isLoading,
+  } = useGetProductsByCounterIdQuery(auth?.counter?.id);
   const [searchTerm, setSearchTerm] = useState("");
   const [cartItems, setCartItems] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
@@ -138,15 +146,17 @@ export default function ProductSpace({
   }, [subtotal, discount, pointCustomer]);
 
   const filteredProducts =
-    productsData?.products.filter((item) =>
+    productsData?.filter((item) =>
       item.barcode.toLowerCase().includes(searchTerm.toLowerCase())
     ) || [];
 
+  console.log(filteredProducts);
   const productData = filteredProducts.map((item, index) => ({
     key: index,
     id: item.id,
     product_image: item.image_url,
     product_name: item.product_name,
+    counter: item?.counter_id?.counterName,
     barcode: item.barcode,
     type: item.type,
     price: calculatePrice(item),
