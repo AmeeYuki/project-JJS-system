@@ -8,6 +8,8 @@ import { useGetOrdersQuery } from "../../services/orderAPI";
 import MakeOrderModal from "./OrderComponent/MakeOrderModel";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { selectAuth } from "../../slices/auth.slice";
 
 export default function Order() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,7 +21,7 @@ export default function Order() {
     isLoading,
     refetch: refetchOrderData,
   } = useGetOrdersQuery();
-
+  const auth = useSelector(selectAuth);
   function convertData(orders) {
     return orders.orders.map((el) => {
       return {
@@ -117,30 +119,33 @@ export default function Order() {
             </ConfigProvider>
           </div>
           <div className="action-right">
-            <div>
-              <CustomButton
-                icon={RiAddLine}
-                text="Make Order"
-                iconSize="20px"
-                iconColor="white"
-                textColor="white"
-                containerStyle={{
-                  backgroundColor: "#000000",
-                  border: "none",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                }}
-                iconPosition="left"
-                fontSize="16px"
-                padding="10px 10px"
-                onClick={showModal}
-              />
-            </div>
+            {auth?.roles?.some((role) => role === "ROLE_STAFF") ? (
+              <div>
+                <CustomButton
+                  icon={RiAddLine}
+                  text="Make Order"
+                  iconSize="20px"
+                  iconColor="white"
+                  textColor="white"
+                  containerStyle={{
+                    backgroundColor: "#000000",
+                    border: "none",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                  }}
+                  iconPosition="left"
+                  fontSize="16px"
+                  padding="10px 10px"
+                  onClick={showModal}
+                />
+              </div>
+            ) : null}
           </div>
         </div>
         <div className="order-list">
           <OrderList ordersData={orderData} loading={isLoading} />
         </div>
+
         <MakeOrderModal
           open={isModalOpen}
           onMakeSell={handleMakeSell}

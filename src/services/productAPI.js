@@ -102,13 +102,13 @@ export const productAPI = createApi({
 
     uploadProductsData: builder.mutation({
       query: (formData) => {
-        const body = new FormData();
-        body.append("file", formData.file);
+        // const body = new FormData();
+        // body.append("file", formData.file);
 
         return {
           url: "products/upload_products_data",
           method: "POST",
-          body,
+          body: formData,
         };
       },
       invalidatesTags: [{ type: "ProductList", id: "LIST" }],
