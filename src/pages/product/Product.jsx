@@ -19,6 +19,8 @@ import { useNavigate } from "react-router-dom";
 import FilterProductModal from "./ProductManage/FilterProductModal";
 import ViewDetailProductModal from "./ProductManage/ViewDetailProductModal";
 import * as XLSX from "xlsx";
+import { useSelector } from "react-redux";
+import { selectAuth } from "../../slices/auth.slice";
 
 export default function Product() {
   const { data: productsData, isLoading, refetch } = useGetProductsQuery();
@@ -32,7 +34,7 @@ export default function Product() {
   const [file, setFile] = useState(null);
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] =
     useState(false);
-
+  const auth = useSelector(selectAuth);
   const [editProductMutation, { isLoading: isLoadingEdit }] =
     useEditProductMutation();
   const [addProductMutation, { isLoading: isLoadingAdd }] =
@@ -354,70 +356,79 @@ export default function Product() {
             style={{ display: "none" }}
           />
 
-          <CustomButton
-            text="Import Products"
-            icon={RiAddLine}
-            iconSize="16px"
-            iconColor="white"
-            textColor="white"
-            containerStyle={{
-              backgroundColor: "#333333",
-              marginBottom: "10px",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-            hoverStyle={{
-              opacity: 0.6,
-            }}
-            iconPosition="left"
-            fontSize="16px"
-            padding="10px 20px"
-            onClick={() => fileInputRef.current.click()}
-          />
-          <CustomButton
-            icon={RiAddLine}
-            text="Add Product"
-            iconSize="16px"
-            iconColor="white"
-            textColor="white"
-            containerStyle={{
-              backgroundColor: "#333333",
-              marginBottom: "10px",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-            hoverStyle={{
-              opacity: 0.6,
-            }}
-            iconPosition="left"
-            fontSize="16px"
-            padding="10px 20px"
-            onClick={() => setIsCreateModalVisible(true)}
-          />
+          {/* auth manager */}
+          {auth?.roles?.some(
+            (role) => role === "ROLE_ADMIN" || role === "ROLE_MANAGER"
+          ) ? (
+            <>
+              <CustomButton
+                text="Import Products"
+                icon={RiAddLine}
+                iconSize="16px"
+                iconColor="white"
+                textColor="white"
+                containerStyle={{
+                  backgroundColor: "#333333",
+                  marginBottom: "10px",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
+                hoverStyle={{
+                  opacity: 0.6,
+                }}
+                iconPosition="left"
+                fontSize="16px"
+                padding="10px 20px"
+                onClick={() => fileInputRef.current.click()}
+              />
+              <CustomButton
+                icon={RiAddLine}
+                text="Add Product"
+                iconSize="16px"
+                iconColor="white"
+                textColor="white"
+                containerStyle={{
+                  backgroundColor: "#333333",
+                  marginBottom: "10px",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
+                hoverStyle={{
+                  opacity: 0.6,
+                }}
+                iconPosition="left"
+                fontSize="16px"
+                padding="10px 20px"
+                onClick={() => setIsCreateModalVisible(true)}
+              />
 
-          <CustomButton
-            icon={RiAddLine}
-            text="Export file"
-            iconSize="16px"
-            iconColor="white"
-            textColor="white"
-            containerStyle={{
-              backgroundColor: "#333333",
-              marginBottom: "10px",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-            hoverStyle={{
-              opacity: 0.6,
-            }}
-            iconPosition="left"
-            fontSize="16px"
-            padding="10px 20px"
-            onClick={handleExportFile}
-          />
+              <CustomButton
+                icon={RiAddLine}
+                text="Export file"
+                iconSize="16px"
+                iconColor="white"
+                textColor="white"
+                containerStyle={{
+                  backgroundColor: "#333333",
+                  marginBottom: "10px",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
+                hoverStyle={{
+                  opacity: 0.6,
+                }}
+                iconPosition="left"
+                fontSize="16px"
+                padding="10px 20px"
+                onClick={handleExportFile}
+              />
+            </>
+          ) : null}
+
+          {/* auth manager */}
 
           <CustomButton
             text="View Types"

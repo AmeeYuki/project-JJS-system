@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Button, Input } from "antd";
+import { Button, Input, message } from "antd";
 import CustomerTable from "./CustomerTable";
 import CustomerForm from "./CustomerForm";
 import CustomerDetail from "./CustomerDetail";
@@ -84,7 +84,8 @@ export default function Customer() {
       handleClose();
     } catch (error) {
       console.error("Error adding customer: ", error);
-      alert(`Error: ${error.status} - ${error.data}`);
+      message.error(error.data);
+      // alert(`Error: ${error.status} - ${error.data}`);
     }
   };
 
@@ -115,7 +116,8 @@ export default function Customer() {
       handleCloseUpdate();
     } catch (error) {
       console.error("Error updating customer: ", error);
-      alert(`Error: ${error.message}`);
+      // alert(`Error: ${error.data}`);
+      message.error(error.data);
     }
   };
 
@@ -125,7 +127,9 @@ export default function Customer() {
       refetch();
     } catch (error) {
       console.error("Error deleting customer: ", error);
-      alert(`Error: ${error.status} - ${error.data}`);
+      message.error(error.data);
+
+      // alert(`Error: ${error.status} - ${error.data}`);
     }
   };
 
@@ -173,6 +177,7 @@ export default function Customer() {
       <div className="tb_customer">
         <div style={{ height: 400, width: "100%" }}>
           <CustomerTable
+            loading={isLoading}
             data={filteredRows}
             handleViewDetail={handleViewDetail}
             handleUpdateCustomer={handleUpdateCustomer}

@@ -4,7 +4,7 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 
-export default function OrderList({ ordersData }) {
+export default function OrderList({ ordersData, loading }) {
   const navigate = useNavigate();
   const actionsMenu = (record) => (
     <Menu>
@@ -106,7 +106,11 @@ export default function OrderList({ ordersData }) {
       <Table
         dataSource={ordersData}
         columns={columns}
-        pagination={{ pageSize: 5 }}
+        pagination={{
+          pageSize: 5,
+          showSizeChanger: false, // Ẩn phần chọn số lượng mục hiển thị trên mỗi trang
+        }}
+        loading={loading}
       />
     </div>
   );

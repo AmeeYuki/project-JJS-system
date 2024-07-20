@@ -139,7 +139,7 @@ export default function Order() {
           </div>
         </div>
         <div className="order-list">
-          <OrderList ordersData={orderData} />
+          <OrderList ordersData={orderData} loading={isLoading} />
         </div>
         <MakeOrderModal
           open={isModalOpen}

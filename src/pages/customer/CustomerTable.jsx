@@ -5,6 +5,7 @@ import ActionsMenu from "./ActionsMenu";
 const CustomerTable = ({
   data,
   handleViewDetail,
+  loading,
   handleUpdateCustomer,
   handleCreatePromotion,
 }) => {
@@ -38,7 +39,11 @@ const CustomerTable = ({
       dataSource={data}
       columns={columns}
       rowKey="id"
-      pagination={{ pageSize: 5 }}
+      loading={loading}
+      pagination={{
+        pageSize: 5,
+        showSizeChanger: false, // Ẩn phần chọn số lượng mục hiển thị trên mỗi trang
+      }}
     />
   );
 };
