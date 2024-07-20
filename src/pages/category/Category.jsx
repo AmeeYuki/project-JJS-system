@@ -196,6 +196,7 @@ export default function Category() {
         onCreate={handleAddCategory}
         onCancel={() => setIsAddModalVisible(false)}
         loading={isLoadingAdd}
+        categories={categories}
       />
     </div>
   );

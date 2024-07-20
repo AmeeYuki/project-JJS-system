@@ -30,5 +30,8 @@ export const formatCurrency = (value) => {
   if (value === undefined || value === null) {
     return "N/A";
   }
-  return value.toLocaleString("en-US", {}) + " VND";
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(value);
 };
