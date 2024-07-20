@@ -8,6 +8,7 @@ const UpdateCategoryModal = ({
   onCancel,
   category,
   loading,
+  existingCategories = [], 
 }) => {
   const [form] = Form.useForm();
   const [priceChanged, setPriceChanged] = useState(false);
@@ -27,6 +28,17 @@ const UpdateCategoryModal = ({
 
   const disabledDate = (current) => {
     return current && current < moment().startOf("day");
+  };
+
+  const checkTypeUniqueness = async (_, value) => {
+    if (
+      existingCategories.some(
+        (cat) => cat.type === value && cat.id !== category.id
+      )
+    ) {
+      return Promise.reject(new Error("Type name already exists!"));
+    }
+    return Promise.resolve();
   };
 
   return (
@@ -83,6 +95,7 @@ const UpdateCategoryModal = ({
               required: true,
               message: "Please input the name of the category!",
             },
+            { validator: checkTypeUniqueness },
           ]}
         >
           <Input />
