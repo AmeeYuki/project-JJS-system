@@ -189,6 +189,7 @@ export default function Category() {
           onCancel={() => setIsUpdateModalVisible(false)}
           loading={isLoadingEdit}
           category={selectedCategory}
+          existingCategories={categories}
         />
       )}
       <CreateCategoryModal
