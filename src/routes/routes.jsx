@@ -47,6 +47,9 @@ const CounterDetail = Loadable({
 const Policy = Loadable({
   loader: () => import("../pages/customerPolicy/Policy"),
 });
+const GoldPrice = Loadable({
+  loader: () => import("../pages/goldPrice/GoldPrice"),
+});
 
 const MakePurchase = Loadable({
   loader: () =>
@@ -108,6 +111,10 @@ export const router = createBrowserRouter([
               {
                 path: "category",
                 element: Category,
+              },
+              {
+                path: "goldPrice",
+                element: GoldPrice,
               },
               {
                 path: "customer",
