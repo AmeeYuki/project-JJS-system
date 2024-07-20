@@ -2,6 +2,7 @@ import React from "react";
 import { Table, Button } from "antd";
 
 const ProductTable = ({ products, addToCart }) => {
+  console.log(products);
   const productColumns = [
     {
       title: "No.",
@@ -28,6 +29,12 @@ const ProductTable = ({ products, addToCart }) => {
       title: "Barcode",
       dataIndex: "barcode",
       key: "barcode",
+    },
+    {
+      title: "Counter",
+      // dataIndex: ["counterId", "counterName"],
+      dataIndex: "counter",
+      key: "counter",
     },
     {
       title: "Type",

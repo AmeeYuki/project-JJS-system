@@ -170,6 +170,12 @@ export default function CustomerSpace({
                 <Col span={15}>
                   <p>{getCurrentDate()}</p>
                 </Col>
+                <Col span={8} offset={0}>
+                  <p>Counter:</p>
+                </Col>
+                <Col span={15}>
+                  <p>{auth?.counter?.counterName}</p>
+                </Col>
               </Row>
             </Col>
           </Row>

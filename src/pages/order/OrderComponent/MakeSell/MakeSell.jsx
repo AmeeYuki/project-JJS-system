@@ -46,6 +46,7 @@ export default function MakeSell() {
       type: "sell",
       customer_id: 0,
       user_id: auth.id,
+      counter_id: auth?.counter?.id || null,
     },
   });
 
@@ -183,6 +184,7 @@ export default function MakeSell() {
         {customerData == true ? (
           <div className="product-space">
             <ProductSpace
+              auth={auth}
               customerId={customerId}
               customerPoint={customerPoint}
               onProductChange={handleProductChange}

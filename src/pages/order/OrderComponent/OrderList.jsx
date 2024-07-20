@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 
 export default function OrderList({ ordersData, loading }) {
+  console.log(ordersData);
   const navigate = useNavigate();
   const actionsMenu = (record) => (
     <Menu>
@@ -30,21 +31,26 @@ export default function OrderList({ ordersData, loading }) {
       render: (_, __, index) => index + 1,
     },
     {
-      title: "Create by",
-      dataIndex: "createBy",
-      key: "createBy",
+      title: "Order Code",
+      dataIndex: "orderId",
+      key: "orderId",
     },
     {
       title: "Customer",
       dataIndex: "customerName",
       key: "customerName",
     },
-
     {
-      title: "Order Code",
-      dataIndex: "orderId",
-      key: "orderId",
+      title: "Create by",
+      dataIndex: "createBy",
+      key: "createBy",
     },
+    // {
+    //   title: "Counter",
+    //   dataIndex: "counter",
+    //   key: "counter",
+    // },
+
     {
       title: "Date",
       dataIndex: "date",
