@@ -1,9 +1,16 @@
-import React from "react";
-import { Modal, Form, Input, DatePicker, InputNumber } from "antd";
+import React, { useState } from "react";
+import { Modal, Form, Input, DatePicker, InputNumber, message } from "antd";
 import moment from "moment";
 
-const CreateCategoryModal = ({ visible, onCreate, onCancel, loading }) => {
+const CreateCategoryModal = ({
+  visible,
+  onCreate,
+  onCancel,
+  loading,
+  categories = [],
+}) => {
   const [form] = Form.useForm();
+  const [duplicateError, setDuplicateError] = useState(false);
 
   const disablePastDates = (current) => {
     return current && current < moment().startOf("day");
@@ -16,8 +23,25 @@ const CreateCategoryModal = ({ visible, onCreate, onCancel, loading }) => {
         if (values.date) {
           values.date = values.date.format("YYYY-MM-DD");
         }
-        onCreate(values);
-        form.resetFields();
+        const isDuplicate = categories.some(
+          (category) =>
+            category.type.toLowerCase() === values.type.toLowerCase()
+        );
+        if (isDuplicate) {
+          setDuplicateError(true);
+          form.setFields([
+            {
+              name: "type",
+              errors: [
+                "Category name already exists. Please choose a different name.",
+              ],
+            },
+          ]);
+        } else {
+          setDuplicateError(false);
+          onCreate(values);
+          form.resetFields();
+        }
       })
       .catch((info) => {
         console.log("Validate Failed:", info);
@@ -38,6 +62,12 @@ const CreateCategoryModal = ({ visible, onCreate, onCancel, loading }) => {
         <Form.Item
           name="type"
           label="Type Name"
+          validateStatus={duplicateError ? "error" : ""}
+          help={
+            duplicateError
+              ? "Category name already exists. Please choose a different name."
+              : ""
+          }
           rules={[
             {
               required: true,

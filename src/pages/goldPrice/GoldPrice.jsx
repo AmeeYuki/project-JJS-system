@@ -1,13 +1,13 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import "./GoldPrice.css"
+import "./GoldPrice.css";
 
 const GoldPricePage = () => {
   return (
     <Container fluid>
       <Row className="mb-4">
         <Col md={12}>
-          <h1 className="title">Welcome to Gold Price Page</h1>
+          <h1 className="title_goldPrice">Welcome to Gold Price Page</h1>
         </Col>
       </Row>
 
