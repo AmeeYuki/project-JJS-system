@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ConfigProvider, Tabs, notification } from "antd";
+import { ConfigProvider, Tabs, notification, Spin } from "antd";
 import { useLocation, useParams } from "react-router-dom";
 import ProductListCounter from "../product/ProductManage/ProductListCounter";
 import UserListByCounterAndRole from "./CounterManage/UserListByCounterAndRole";
@@ -15,21 +15,42 @@ import {
   useGetUsersByRoleAndCounterQuery,
 } from "../../services/userAPI";
 import { useGetOrderByCounterIdQuery } from "../../services/orderAPI";
+import { Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
 import "./CounterDetail.css";
 import { formatCurrency } from "../product/ProductUtil";
 
 const { TabPane } = Tabs;
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 const CounterDetail = () => {
   const { id } = useParams();
   const location = useLocation();
   const { counterName, location: counterLocation } = location.state || {};
 
-  const { data: products, refetch: refetchProducts } =
-    useGetProductsByCounterIdQuery(id);
-  const { data: users, refetch: refetchUsers } =
-    useGetUsersByRoleAndCounterQuery({ roleId: 3, counterId: id });
-  const { data: orders } = useGetOrderByCounterIdQuery(id);
+  const {
+    data: products,
+    refetch: refetchProducts,
+    isLoading: isLoadingProducts,
+  } = useGetProductsByCounterIdQuery(id);
+  const {
+    data: users,
+    refetch: refetchUsers,
+    isLoading: isLoadingUsers,
+  } = useGetUsersByRoleAndCounterQuery({ roleId: 3, counterId: id });
+  const {
+    data: orderData,
+    isLoading: isLoadingOrders,
+    isError: isErrorOrders,
+  } = useGetOrderByCounterIdQuery(id);
 
   const [productData, setProductData] = useState([]);
   const [userData, setUserData] = useState([]);
@@ -37,60 +58,81 @@ const CounterDetail = () => {
     useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedProductDetail, setSelectedProductDetail] = useState(null);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [productQuantities, setProductQuantities] = useState({});
+  const [chartData, setChartData] = useState({ labels: [], values: [] });
 
-  const [selectedUser, setSelectedUser] = useState(null);
-
-  const [editProductMutation, { isLoading: isLoadingEditProduct }] =
-    useEditProductMutation();
-  const [activeUserMutation, { isLoading: isLoadingActiveUser }] =
-    useActiveUserMutation();
-  const [inactiveUserMutation, { isLoading: isLoadingInactiveUser }] =
-    useInactiveUserMutation();
+  const [editProductMutation] = useEditProductMutation();
+  const [activeUserMutation] = useActiveUserMutation();
+  const [inactiveUserMutation] = useInactiveUserMutation();
 
   useEffect(() => {
     if (Array.isArray(products)) {
-      const indexedProducts = products.map((product, index) => ({
-        ...product,
-        index: index + 1,
-      }));
-      setProductData(indexedProducts);
+      setProductData(
+        products.map((product, index) => ({
+          ...product,
+          index: index + 1,
+        }))
+      );
     }
   }, [products]);
 
   useEffect(() => {
     if (Array.isArray(users)) {
-      const indexedUsers = users.map((user, index) => ({
-        ...user,
-        index: index + 1,
-      }));
-      setUserData(indexedUsers);
+      setUserData(
+        users.map((user, index) => ({
+          ...user,
+          index: index + 1,
+        }))
+      );
     }
   }, [users]);
 
+  useEffect(() => {
+    if (orderData && orderData.orders) {
+      const { totalRevenue, productQuantities, chartData } = calculateSalesData(
+        orderData.orders
+      );
+      setTotalRevenue(totalRevenue);
+      setProductQuantities(productQuantities);
+      setChartData(chartData);
+    }
+  }, [orderData]);
+
   const calculateSalesData = (orders) => {
-    if (!Array.isArray(orders))
-      return { totalRevenue: 0, productQuantities: {} };
+    if (!Array.isArray(orders)) {
+      return {
+        totalRevenue: 0,
+        productQuantities: {},
+        chartData: { labels: [], values: [] },
+      };
+    }
 
     let totalRevenue = 0;
     const productQuantities = {};
+    const chartData = { labels: [], values: [] };
 
     orders.forEach((order) => {
-      if (Array.isArray(order.items)) {
-        order.items.forEach((item) => {
-          const { productId, quantity, price } = item;
-          totalRevenue += quantity * price;
-          if (!productQuantities[productId]) {
-            productQuantities[productId] = 0;
+      if (Array.isArray(order.orderDetailsList)) {
+        order.orderDetailsList.forEach(({ product, quantity, unitPrice }) => {
+          const orderTotal = quantity * unitPrice;
+          totalRevenue += orderTotal;
+          if (!productQuantities[product.id]) {
+            productQuantities[product.id] = {
+              name: product.productName,
+              quantity: 0,
+            };
           }
-          productQuantities[productId] += quantity;
+          productQuantities[product.id].quantity += quantity;
         });
       }
     });
 
-    return { totalRevenue, productQuantities };
-  };
+    chartData.labels = Object.values(productQuantities).map((p) => p.name);
+    chartData.values = Object.values(productQuantities).map((p) => p.quantity);
 
-  const { totalRevenue, productQuantities } = calculateSalesData(orders);
+    return { totalRevenue, productQuantities, chartData };
+  };
 
   const handleUpdateProduct = (values) => {
     editProductMutation(values)
@@ -98,9 +140,12 @@ const CounterDetail = () => {
       .then(() => {
         setIsUpdateProductModalVisible(false);
         refetchProducts();
-        notification.success({ message: "Update product successfully" });
+        notification.success({ message: "Product updated successfully" });
       })
-      .catch((error) => console.error("Error updating product: ", error));
+      .catch((error) => {
+        console.error("Error updating product: ", error);
+        notification.error({ message: "Failed to update product" });
+      });
   };
 
   const handleEditProduct = (product) => {
@@ -114,23 +159,33 @@ const CounterDetail = () => {
 
   const handleActiveUser = async (userId) => {
     try {
-      await activeUserMutation(userId);
+      await activeUserMutation(userId).unwrap();
       refetchUsers();
       notification.success({ message: "User activated successfully" });
     } catch (error) {
-      console.error(error);
+      console.error("Error activating user: ", error);
+      notification.error({ message: "Failed to activate user" });
     }
   };
 
   const handleInactiveUser = async (userId) => {
     try {
-      await inactiveUserMutation(userId);
+      await inactiveUserMutation(userId).unwrap();
       refetchUsers();
-      notification.success({ message: "User inactivated successfully" });
+      notification.success({ message: "User deactivated successfully" });
     } catch (error) {
-      console.error(error);
+      console.error("Error deactivating user: ", error);
+      notification.error({ message: "Failed to deactivate user" });
     }
   };
+
+  if (isLoadingProducts || isLoadingUsers || isLoadingOrders) {
+    return <Spin size="large" />;
+  }
+
+  if (isErrorOrders) {
+    return <div>Error loading orders data</div>;
+  }
 
   return (
     <div className="counter_detail_page">
@@ -158,7 +213,6 @@ const CounterDetail = () => {
                 visible={isUpdateProductModalVisible}
                 onUpdate={handleUpdateProduct}
                 onCancel={() => setIsUpdateProductModalVisible(false)}
-                loading={isLoadingEditProduct}
                 product={selectedProduct}
               />
             )}
@@ -179,7 +233,7 @@ const CounterDetail = () => {
               handleInactiveUser={handleInactiveUser}
             />
           </TabPane>
-          <TabPane tab={<span className="tab-title">Sales</span>} key="3">
+          <TabPane tab={<span className="tab-title">Revenue</span>} key="3">
             <div className="counter_info_wrapper">
               <p className="counter_info_title">Total Revenue:</p>
               <p>{formatCurrency(totalRevenue)}</p>
@@ -188,13 +242,47 @@ const CounterDetail = () => {
               <p className="counter_info_title">Product Quantities Sold:</p>
               <ul>
                 {Object.entries(productQuantities).map(
-                  ([productId, quantity]) => (
+                  ([productId, { name, quantity }]) => (
                     <li key={productId}>
-                      Product ID: {productId}, Quantity Sold: {quantity}
+                      {name} - {quantity}
                     </li>
                   )
                 )}
               </ul>
+            </div>
+            <div className="chart-container">
+              <Bar
+                data={{
+                  labels: chartData.labels,
+                  datasets: [
+                    {
+                      label: "Product Quantities",
+                      data: chartData.values,
+                      backgroundColor: "rgba(75,192,192,0.4)",
+                      borderColor: "rgba(75,192,192,1)",
+                      borderWidth: 1,
+                    },  
+                  ],
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: "top",
+                    },
+                    tooltip: {
+                      callbacks: {
+                        label: (context) => {
+                          return `${context.label}: ${context.raw}`;
+                        },
+                      },
+                    },
+                  },
+                }}
+                width={500}
+                height={300}
+              />
             </div>
           </TabPane>
         </Tabs>
