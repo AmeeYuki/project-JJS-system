@@ -1,36 +1,56 @@
-import React, { useState } from "react";
-import { ConfigProvider, Tabs, notification } from "antd";
+import React, { useState, useEffect } from "react";
+import { ConfigProvider, Tabs, notification, Spin } from "antd";
 import { useLocation, useParams } from "react-router-dom";
 import ProductListCounter from "../product/ProductManage/ProductListCounter";
 import UserListByCounterAndRole from "./CounterManage/UserListByCounterAndRole";
 import UpdateProductModal from "../product/ProductManage/UpdateProductModal";
 import ViewDetailProductModal from "../product/ProductManage/ViewDetailProductModal";
-import UpdateUserModal from "../user/UserManage/UpdateUserModal";
 import {
   useGetProductsByCounterIdQuery,
   useEditProductMutation,
-  useDeleteProductMutation,
 } from "../../services/productAPI";
 import {
-  useEditUserMutation,
-  useDeleteUserMutation,
   useActiveUserMutation,
   useInactiveUserMutation,
   useGetUsersByRoleAndCounterQuery,
 } from "../../services/userAPI";
+import { useGetOrderByCounterIdQuery } from "../../services/orderAPI";
+import { Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
 import "./CounterDetail.css";
+import { formatCurrency } from "../product/ProductUtil";
 
 const { TabPane } = Tabs;
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 const CounterDetail = () => {
   const { id } = useParams();
   const location = useLocation();
   const { counterName, location: counterLocation } = location.state || {};
 
-  const { data: products, refetch: refetchProducts } =
-    useGetProductsByCounterIdQuery(id);
-  const { data: users, refetch: refetchUsers } =
-    useGetUsersByRoleAndCounterQuery({ roleId: 3, counterId: id });
+  const {
+    data: products,
+    refetch: refetchProducts,
+    isLoading: isLoadingProducts,
+  } = useGetProductsByCounterIdQuery(id);
+  const {
+    data: users,
+    refetch: refetchUsers,
+    isLoading: isLoadingUsers,
+  } = useGetUsersByRoleAndCounterQuery({ roleId: 3, counterId: id });
+  const {
+    data: orderData,
+    isLoading: isLoadingOrders,
+    isError: isErrorOrders,
+  } = useGetOrderByCounterIdQuery(id);
 
   const [productData, setProductData] = useState([]);
   const [userData, setUserData] = useState([]);
@@ -38,38 +58,81 @@ const CounterDetail = () => {
     useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedProductDetail, setSelectedProductDetail] = useState(null);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [productQuantities, setProductQuantities] = useState({});
+  const [chartData, setChartData] = useState({ labels: [], values: [] });
 
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [editProductMutation] = useEditProductMutation();
+  const [activeUserMutation] = useActiveUserMutation();
+  const [inactiveUserMutation] = useInactiveUserMutation();
 
-  const [editProductMutation, { isLoading: isLoadingEditProduct }] =
-    useEditProductMutation();
-  const [deleteProductMutation, { isLoading: isLoadingDeleteProduct }] =
-    useDeleteProductMutation();
-
-  const [activeUserMutation, { isLoading: isLoadingActiveUser }] =
-    useActiveUserMutation();
-  const [inactiveUserMutation, { isLoading: isLoadingInactiveUser }] =
-    useInactiveUserMutation();
-
-  React.useEffect(() => {
+  useEffect(() => {
     if (Array.isArray(products)) {
-      const indexedProducts = products.map((product, index) => ({
-        ...product,
-        index: index + 1,
-      }));
-      setProductData(indexedProducts);
+      setProductData(
+        products.map((product, index) => ({
+          ...product,
+          index: index + 1,
+        }))
+      );
     }
   }, [products]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (Array.isArray(users)) {
-      const indexedUsers = users.map((user, index) => ({
-        ...user,
-        index: index + 1,
-      }));
-      setUserData(indexedUsers);
+      setUserData(
+        users.map((user, index) => ({
+          ...user,
+          index: index + 1,
+        }))
+      );
     }
   }, [users]);
+
+  useEffect(() => {
+    if (orderData && orderData.orders) {
+      const { totalRevenue, productQuantities, chartData } = calculateSalesData(
+        orderData.orders
+      );
+      setTotalRevenue(totalRevenue);
+      setProductQuantities(productQuantities);
+      setChartData(chartData);
+    }
+  }, [orderData]);
+
+  const calculateSalesData = (orders) => {
+    if (!Array.isArray(orders)) {
+      return {
+        totalRevenue: 0,
+        productQuantities: {},
+        chartData: { labels: [], values: [] },
+      };
+    }
+
+    let totalRevenue = 0;
+    const productQuantities = {};
+    const chartData = { labels: [], values: [] };
+
+    orders.forEach((order) => {
+      if (Array.isArray(order.orderDetailsList)) {
+        order.orderDetailsList.forEach(({ product, quantity, unitPrice }) => {
+          const orderTotal = quantity * unitPrice;
+          totalRevenue += orderTotal;
+          if (!productQuantities[product.id]) {
+            productQuantities[product.id] = {
+              name: product.productName,
+              quantity: 0,
+            };
+          }
+          productQuantities[product.id].quantity += quantity;
+        });
+      }
+    });
+
+    chartData.labels = Object.values(productQuantities).map((p) => p.name);
+    chartData.values = Object.values(productQuantities).map((p) => p.quantity);
+
+    return { totalRevenue, productQuantities, chartData };
+  };
 
   const handleUpdateProduct = (values) => {
     editProductMutation(values)
@@ -77,26 +140,12 @@ const CounterDetail = () => {
       .then(() => {
         setIsUpdateProductModalVisible(false);
         refetchProducts();
-        notification.success({ message: "Update product successfully" });
+        notification.success({ message: "Product updated successfully" });
       })
-      .catch((error) => console.error("Error updating product: ", error));
-  };
-
-  const handleDeleteProduct = async (productId) => {
-    try {
-      await deleteProductMutation(productId);
-      localStorage.setItem(`deleted_product_${productId}`, "true");
-      setProductData((prevProducts) =>
-        prevProducts.map((product) =>
-          product.id === productId ? { ...product, deleted: true } : product
-        )
-      );
-      notification.success({
-        message: "Delete product successfully",
+      .catch((error) => {
+        console.error("Error updating product: ", error);
+        notification.error({ message: "Failed to update product" });
       });
-    } catch (error) {
-      console.error(error);
-    }
   };
 
   const handleEditProduct = (product) => {
@@ -110,23 +159,33 @@ const CounterDetail = () => {
 
   const handleActiveUser = async (userId) => {
     try {
-      await activeUserMutation(userId);
+      await activeUserMutation(userId).unwrap();
       refetchUsers();
       notification.success({ message: "User activated successfully" });
     } catch (error) {
-      console.error(error);
+      console.error("Error activating user: ", error);
+      notification.error({ message: "Failed to activate user" });
     }
   };
 
   const handleInactiveUser = async (userId) => {
     try {
-      await inactiveUserMutation(userId);
+      await inactiveUserMutation(userId).unwrap();
       refetchUsers();
-      notification.success({ message: "User inactivated successfully" });
+      notification.success({ message: "User deactivated successfully" });
     } catch (error) {
-      console.error(error);
+      console.error("Error deactivating user: ", error);
+      notification.error({ message: "Failed to deactivate user" });
     }
   };
+
+  if (isLoadingProducts || isLoadingUsers || isLoadingOrders) {
+    return <Spin size="large" />;
+  }
+
+  if (isErrorOrders) {
+    return <div>Error loading orders data</div>;
+  }
 
   return (
     <div className="counter_detail_page">
@@ -145,13 +204,8 @@ const CounterDetail = () => {
         <Tabs defaultActiveKey="1">
           <TabPane tab={<span className="tab-title">Product</span>} key="1">
             <ProductListCounter
-              productData={productData.filter(
-                (product) =>
-                  !product.deleted &&
-                  !localStorage.getItem(`deleted_product_${product.id}`)
-              )}
+              productData={productData}
               onEditProduct={handleEditProduct}
-              handleDeleteProduct={handleDeleteProduct}
               onViewProductDetail={handleViewProductDetail}
             />
             {selectedProduct && (
@@ -159,7 +213,6 @@ const CounterDetail = () => {
                 visible={isUpdateProductModalVisible}
                 onUpdate={handleUpdateProduct}
                 onCancel={() => setIsUpdateProductModalVisible(false)}
-                loading={isLoadingEditProduct}
                 product={selectedProduct}
               />
             )}
@@ -179,7 +232,58 @@ const CounterDetail = () => {
               handleActiveUser={handleActiveUser}
               handleInactiveUser={handleInactiveUser}
             />
-
+          </TabPane>
+          <TabPane tab={<span className="tab-title">Revenue</span>} key="3">
+            <div className="counter_info_wrapper">
+              <p className="counter_info_title">Total Revenue:</p>
+              <p>{formatCurrency(totalRevenue)}</p>
+            </div>
+            <div className="counter_info_wrapper">
+              <p className="counter_info_title">Product Quantities Sold:</p>
+              <ul>
+                {Object.entries(productQuantities).map(
+                  ([productId, { name, quantity }]) => (
+                    <li key={productId}>
+                      {name} - {quantity}
+                    </li>
+                  )
+                )}
+              </ul>
+            </div>
+            <div className="chart-container">
+              <Bar
+                data={{
+                  labels: chartData.labels,
+                  datasets: [
+                    {
+                      label: "Product Quantities",
+                      data: chartData.values,
+                      backgroundColor: "rgba(75,192,192,0.4)",
+                      borderColor: "rgba(75,192,192,1)",
+                      borderWidth: 1,
+                    },  
+                  ],
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: "top",
+                    },
+                    tooltip: {
+                      callbacks: {
+                        label: (context) => {
+                          return `${context.label}: ${context.raw}`;
+                        },
+                      },
+                    },
+                  },
+                }}
+                width={500}
+                height={300}
+              />
+            </div>
           </TabPane>
         </Tabs>
       </ConfigProvider>

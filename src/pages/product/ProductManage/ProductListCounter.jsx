@@ -23,19 +23,6 @@ export default function ProductListCounter({
       >
         <span>Edit Product</span>
       </Menu.Item>
-      <Menu.Item key="delete">
-        <Popconfirm
-          title="Are you sure you want to delete this product?"
-          onConfirm={() => handleDeleteProduct(record.id)}
-          okText="Yes"
-          cancelText="No"
-        >
-          <p className="submenu-producttable-dropdown-delete">
-            <span style={{ color: "#2C5282" }}></span>
-            <span>Delete Product</span>
-          </p>
-        </Popconfirm>
-      </Menu.Item>
     </Menu>
   );
 
@@ -103,7 +90,7 @@ export default function ProductListCounter({
       // scroll={{
       //   y: 330,
       // }}
-      pagination={{pageSize: 4}}
+      pagination={{ pageSize: 4 }}
     />
   );
 }
