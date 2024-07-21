@@ -21,6 +21,7 @@ export default function ProductSpace({
   customerPoint,
   onPointDiscount,
   onSubtotalOrder,
+  setPaymentMethod,
 }) {
   const {
     data: productsData,
@@ -150,7 +151,6 @@ export default function ProductSpace({
       item.barcode.toLowerCase().includes(searchTerm.toLowerCase())
     ) || [];
 
-  console.log(filteredProducts);
   const productData = filteredProducts.map((item, index) => ({
     key: index,
     id: item.id,
@@ -244,6 +244,7 @@ export default function ProductSpace({
         setPromotionModalVisible={setPromotionModalVisible}
         setSendRequestModalVisible={setSendRequestModalVisible}
         onPointChange={handlePointChange}
+        setPaymentMethod={setPaymentMethod}
       />
       <VoucherModal
         isVisible={isVoucherModalVisible}

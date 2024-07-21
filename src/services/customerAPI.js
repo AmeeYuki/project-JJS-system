@@ -139,7 +139,7 @@ export const {
   useGetAllPolicyQuery,
   useAcceptPolicyMutation,
   useRejectPolicyMutation,
-  useGetPolicyCustomerAcceptQuery,
+  useLazyGetPolicyCustomerAcceptQuery,
   useUsedPolicyMutation,
   useUsePointMutation,
   useAddPointMutation,

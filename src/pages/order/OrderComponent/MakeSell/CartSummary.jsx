@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Button } from "antd";
+import { Button, Radio, Select } from "antd";
 import { RiDiscountPercentLine } from "@remixicon/react";
+import { Option } from "antd/es/mentions";
 
 const CartSummary = ({
   subtotal,
@@ -12,6 +13,7 @@ const CartSummary = ({
   setSendRequestModalVisible,
   customerPoint,
   onPointChange, // New prop to handle points change
+  setPaymentMethod,
 }) => {
   const [discountType, setDiscountType] = useState("voucher");
   const [enteredPoints, setEnteredPoints] = useState(0);
@@ -39,6 +41,9 @@ const CartSummary = ({
     }
   };
 
+  const handleChange = (value) => {
+    setPaymentMethod(value.target.value);
+  };
   return (
     <div className="cart-total">
       <div className="policy">
@@ -134,6 +139,13 @@ const CartSummary = ({
             {totalBeforeDiscount.toLocaleString()} VNĐ
           </p>
         </div>
+        <hr />
+        <p style={{ fontSize: "20px", fontWeight: 500 }}>Payment method:</p>
+
+        <Radio.Group defaultValue={0} onChange={handleChange}>
+          <Radio value={0}>Cash</Radio>
+          <Radio value={1}>MoMo</Radio>
+        </Radio.Group>
       </div>
     </div>
   );
