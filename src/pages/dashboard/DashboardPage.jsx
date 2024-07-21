@@ -33,7 +33,6 @@ const DashboardPage = () => {
   } = useGetAllCustomerQuery();
 
   const auth = useSelector(selectAuth);
-  console.log(auth);
   return (
     <Container fluid>
       <Row className="mb-4">

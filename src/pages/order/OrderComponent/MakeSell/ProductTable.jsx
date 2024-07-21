@@ -2,7 +2,6 @@ import React from "react";
 import { Table, Button } from "antd";
 
 const ProductTable = ({ products, addToCart }) => {
-  console.log(products);
   const productColumns = [
     {
       title: "No.",
