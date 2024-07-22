@@ -1,9 +1,11 @@
-import React from "react";
-import { Space, Table, Tag, Dropdown, Menu, Popconfirm } from "antd";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import React, { useState, useEffect, useCallback } from "react";
+import { Space, Table, Tag, Dropdown, Spin } from "antd";
 import { useSelector } from "react-redux";
 import { selectAuth } from "../../../slices/auth.slice";
 import { useGetUsersByRoleAndCounterQuery } from "../../../services/userAPI";
+import { useLazyGetOrderByUserIdQuery } from "../../../services/orderAPI";
+import { formatCurrency } from "../../product/ProductUtil";
+import { MoreOutlined } from "@ant-design/icons";
 
 const UserListByCounterAndRole = ({
   roleId,
@@ -14,27 +16,59 @@ const UserListByCounterAndRole = ({
   const auth = useSelector(selectAuth);
   const idAuth = auth.id;
 
-  const { data: userData = [], isLoading } = useGetUsersByRoleAndCounterQuery({
-    roleId,
-    counterId,
-    enabled: !!roleId && !!counterId,
-  });
+  const { data: userData = [], isLoading: isLoadingUsers } =
+    useGetUsersByRoleAndCounterQuery({
+      roleId,
+      counterId,
+      enabled: !!roleId && !!counterId,
+    });
 
-  const actionsMenu = (record) => (
-    <Menu>
-      <Menu.Item
-        key={record.active ? "deactivate" : "activate"}
-        className="submenu-usertable"
-        onClick={() =>
-          record.active
-            ? handleInactiveUser(record.id)
-            : handleActiveUser(record.id)
-        }
-      >
-        <span>{record.active ? "Inactive user" : "Active user"}</span>
-      </Menu.Item>
-    </Menu>
-  );
+  const [userRevenue, setUserRevenue] = useState({});
+  const [isLoadingRevenue, setIsLoadingRevenue] = useState(false);
+  const [triggerFetchOrders] = useLazyGetOrderByUserIdQuery();
+
+  const calculateTotalRevenue = useCallback((orders) => {
+    return orders.reduce((total, order) => {
+      const orderTotal = order.orderDetailsList.reduce((orderSum, detail) => {
+        return orderSum + detail.quantity * detail.unitPrice;
+      }, 0);
+      return total + orderTotal;
+    }, 0);
+  }, []);
+
+  const fetchUserRevenue = useCallback(async () => {
+    setIsLoadingRevenue(true);
+    const revenueData = {};
+    for (const user of userData) {
+      try {
+        const { data: orderData } = await triggerFetchOrders(user.id);
+        const totalRevenue = calculateTotalRevenue(orderData?.orders || []);
+        revenueData[user.id] = totalRevenue;
+      } catch (error) {
+        console.error(`Error fetching orders for user ${user.id}:`, error);
+        revenueData[user.id] = 0;
+      }
+    }
+    setUserRevenue(revenueData);
+    setIsLoadingRevenue(false);
+  }, [userData, triggerFetchOrders, calculateTotalRevenue]);
+
+  useEffect(() => {
+    if (userData.length > 0) {
+      fetchUserRevenue();
+    }
+  }, [userData, fetchUserRevenue]);
+
+  const actionsMenu = (record) => [
+    {
+      key: record.active ? "deactivate" : "activate",
+      label: record.active ? "Inactive user" : "Active user",
+      onClick: () =>
+        record.active
+          ? handleInactiveUser(record.id)
+          : handleActiveUser(record.id),
+    },
+  ];
 
   const columns = [
     {
@@ -87,18 +121,29 @@ const UserListByCounterAndRole = ({
       ),
     },
     {
+      title: "Revenue",
+      dataIndex: "id",
+      key: "revenue",
+      render: (userId) => (
+        <div style={{ textAlign: "right" }}>
+          {isLoadingRevenue ? (
+            <Spin size="small" />
+          ) : (
+            formatCurrency(userRevenue[userId] || 0)
+          )}
+        </div>
+      ),
+    },
+    {
       key: "action",
       render: (_, record) =>
         record.id === idAuth ? (
           ""
         ) : (
           <Space size="middle">
-            <Dropdown overlay={actionsMenu(record)} trigger={["click"]}>
-              <a
-                className="ant-dropdown-link"
-                onClick={(e) => e.preventDefault()}
-              >
-                <MoreHorizIcon style={{ color: "#333333" }} />
+            <Dropdown menu={{ items: actionsMenu(record) }} trigger={["click"]}>
+              <a onClick={(e) => e.preventDefault()}>
+                <MoreOutlined style={{ color: "#333333" }} />
               </a>
             </Dropdown>
           </Space>
@@ -106,7 +151,7 @@ const UserListByCounterAndRole = ({
     },
   ];
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoadingUsers) return <div>Loading users...</div>;
 
   const dataWithNo = userData.map((item, index) => ({
     id: item.id,
@@ -120,18 +165,17 @@ const UserListByCounterAndRole = ({
     firstLogin: item.first_login,
     roleName: item.role.name,
     counterName: item.counter.counterName,
+    revenue: userRevenue[item.id] || 0,
     no: index + 1,
   }));
 
   return (
-    <>
-      <Table
-        columns={columns}
-        dataSource={dataWithNo}
-        rowKey="id"
-        pagination={{ pageSize: 5 }}
-      />
-    </>
+    <Table
+      columns={columns}
+      dataSource={dataWithNo}
+      rowKey="id"
+      pagination={{ pageSize: 5 }}
+    />
   );
 };
 
