@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { SearchOutlined } from "@ant-design/icons";
-import { Input, message, Button } from "antd";
+import { Input, message, Button, Flex } from "antd";
 import {
   useAddOrderMutation,
   useLazyGetOrderByIdQuery,
@@ -136,10 +136,10 @@ export default function MakePurchase() {
           }
         });
 
-        // message.success("Order successfully created!");
-        // setCartItems([]);
-        // setOrder(null);
-        // navigate(`/order/${orderId}`);
+        message.success("Order successfully created!");
+        setCartItems([]);
+        setOrder(null);
+        navigate(`/order/${orderId}`);
       }
     } catch (error) {
       message.error("Failed to create order.");
@@ -174,14 +174,17 @@ export default function MakePurchase() {
               <OrderInformation order={order} />
               <OrderProducts products={products} addToCart={addToCart} />
               <Cart cartItems={cartItems} removeFromCart={removeFromCart} />
-              <Button
-                type="primary"
-                onClick={handleMakeOrder}
-                loading={isLoading}
-                disabled={cartItems.length === 0}
-              >
-                Make Repurchased
-              </Button>
+              <Flex style={{ marginTop: "20px" }} justify="space-between">
+                <div></div>
+                <Button
+                  type="primary"
+                  onClick={handleMakeOrder}
+                  loading={isLoading}
+                  disabled={cartItems.length === 0}
+                >
+                  Make Repurchased
+                </Button>
+              </Flex>
             </>
           )}
         </>

@@ -93,7 +93,7 @@ export const orderAPI = createApi({
     createPayment: builder.mutation({
       query: ({ orderId, total, orderInfo }) => {
         return {
-          method: "POST",
+          method: "GET",
           url: `payments/createPayment?orderId=${orderId}&total=${total}&orderInfo=${orderInfo}`,
         };
       },
