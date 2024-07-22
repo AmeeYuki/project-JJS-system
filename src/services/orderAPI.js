@@ -119,4 +119,6 @@ export const {
   useLazyGetOrderByIdQuery,
   useLazyGetOrderDetailQuery,
   useGetOrderByCounterIdQuery,
+  useGetOrderByUserIdQuery,
+  useLazyGetOrderByUserIdQuery,
 } = orderAPI;

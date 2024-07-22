@@ -117,7 +117,7 @@ const CounterDetail = () => {
         order.orderDetailsList.forEach(({ product, quantity, unitPrice }) => {
           const orderTotal = quantity * unitPrice;
           totalRevenue += orderTotal;
-          if (!productQuantities[product.id]) {
+          if (!productQuantities[product.id]) { 
             productQuantities[product.id] = {
               name: product.productName,
               quantity: 0,
@@ -261,7 +261,7 @@ const CounterDetail = () => {
                       backgroundColor: "rgba(75,192,192,0.4)",
                       borderColor: "rgba(75,192,192,1)",
                       borderWidth: 1,
-                    },  
+                    },
                   ],
                 }}
                 options={{
