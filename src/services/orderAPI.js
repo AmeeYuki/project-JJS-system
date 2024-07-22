@@ -89,6 +89,32 @@ export const orderAPI = createApi({
       },
       invalidatesTags: [{ type: "OrderList", id: "LIST" }],
     }),
+    getOrderByCounterId: builder.query({
+      query: (counterId) => `orders/get_order_by_counterId/${counterId}`,
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.orders.map(({ id }) => ({
+                type: "OrderList",
+                id,
+              })),
+              { type: "OrderList", id: "LIST" },
+            ]
+          : [{ type: "OrderList", id: "LIST" }],
+    }),
+    getOrderByUserId: builder.query({
+      query: (userId) => `orders/get_order_by_userId/${userId}`,
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.orders.map(({ id }) => ({
+                type: "OrderList",
+                id,
+              })),
+              { type: "OrderList", id: "LIST" },
+            ]
+          : [{ type: "OrderList", id: "LIST" }],
+    }),
   }),
 });
 
@@ -102,4 +128,5 @@ export const {
   useLazyGetOrderByIdQuery,
   useLazyGetOrderDetailQuery,
   useCreatePaymentMutation,
+  useGetOrderByCounterIdQuery,
 } = orderAPI;
