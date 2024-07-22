@@ -56,6 +56,10 @@ const MakePurchase = Loadable({
     import("../pages/order/OrderComponent/MakePurchased/MakePurchase"),
 });
 
+const CheckPayment = Loadable({
+  loader: () => import("../pages/order/OrderComponent/MakeSell/CheckPayment"),
+});
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -147,6 +151,11 @@ export const router = createBrowserRouter([
               {
                 path: "policy",
                 element: Policy,
+              },
+              {
+                // path: "check-payment/:id",
+                path: "check-payment/:orderId/:requestId",
+                element: CheckPayment,
               },
             ],
           },

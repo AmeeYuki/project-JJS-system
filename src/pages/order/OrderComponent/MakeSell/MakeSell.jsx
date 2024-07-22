@@ -6,6 +6,7 @@ import ProductSpace from "./ProductSpace";
 import {
   useAddOrderMutation,
   useCreatePaymentMutation,
+  useUpdateOrderStatusCompleteMutation,
 } from "../../../../services/orderAPI";
 import { useSelector } from "react-redux";
 import { selectAuth } from "../../../../slices/auth.slice";
@@ -22,6 +23,7 @@ export default function MakeSell() {
   const [applyPoints] = useUsePointMutation();
   const [addPoint] = useAddPointMutation();
   const [createPayment] = useCreatePaymentMutation();
+  const [updateOrderComplete] = useUpdateOrderStatusCompleteMutation();
 
   const [customerData, setCustomerData] = useState(false);
   const [customerId, setCustomerId] = useState();
@@ -86,6 +88,9 @@ export default function MakeSell() {
           notification.success({
             message: "Order made successfully",
           });
+          await updateOrderComplete({
+            orderId: orderId,
+          });
           navigate(`/order/${orderId}`);
         } else if (payment === 1) {
           const totalOrder = orderRequests.reduce(
@@ -102,6 +107,8 @@ export default function MakeSell() {
             orderInfo,
           });
           console.log(paymentResponse);
+          const requestId = paymentResponse.data.payload.requestId;
+          console.log(requestId);
 
           if (paymentResponse.data) {
             const payUrl = paymentResponse.data.payUrl;
@@ -109,6 +116,7 @@ export default function MakeSell() {
               message: "Order made successfully with momo",
             });
             window.open(payUrl, "_blank"); // Open the payUrl in a new tab
+            navigate(`/check-payment/${orderId}/${requestId}`);
 
             // navigate(`/order/${orderId}`);
           } else {

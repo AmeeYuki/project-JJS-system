@@ -6,6 +6,7 @@ import {
   useLazyGetOrderByIdQuery,
   useLazyGetOrderDetailQuery,
   useUpdateOrderDetailStatusPurchasedMutation,
+  useUpdateOrderStatusCompleteMutation,
 } from "../../../../services/orderAPI"; // Adjust the path as necessary
 import OrderInformation from "./OrderInformation";
 import OrderProducts from "./OrderProducts";
@@ -24,6 +25,8 @@ export default function MakePurchase() {
   const navigate = useNavigate();
   const [addOrder, { isLoading }] = useAddOrderMutation();
   const [updateStatusPurchased] = useUpdateOrderDetailStatusPurchasedMutation();
+  const [updateOrderComplete] = useUpdateOrderStatusCompleteMutation();
+
   console.log(cartItems);
   const [getOrderById, { isLoading: isOrderLoading }] =
     useLazyGetOrderByIdQuery();
@@ -134,6 +137,9 @@ export default function MakePurchase() {
               error
             );
           }
+        });
+        await updateOrderComplete({
+          orderId: orderId,
         });
 
         message.success("Order successfully created!");

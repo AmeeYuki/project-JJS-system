@@ -69,6 +69,26 @@ export const orderAPI = createApi({
       },
       invalidatesTags: [{ type: "OrderList", id: "LIST" }],
     }),
+    updateOrderStatusComplete: builder.mutation({
+      query: ({ orderId }) => {
+        return {
+          method: "PUT",
+          url: `orders/update_order_status/${orderId}`,
+          body: 1,
+        };
+      },
+      invalidatesTags: [{ type: "OrderList", id: "LIST" }],
+    }),
+    updateOrderStatusCancel: builder.mutation({
+      query: ({ orderId }) => {
+        return {
+          method: "PUT",
+          url: `orders/update_order_status/${orderId}`,
+          body: 2,
+        };
+      },
+      invalidatesTags: [{ type: "OrderList", id: "LIST" }],
+    }),
     editOrder: builder.mutation({
       query: (payload) => {
         return {
@@ -95,6 +115,15 @@ export const orderAPI = createApi({
         return {
           method: "GET",
           url: `payments/createPayment?orderId=${orderId}&total=${total}&orderInfo=${orderInfo}`,
+        };
+      },
+      invalidatesTags: [{ type: "OrderList", id: "LIST" }],
+    }),
+    checkPayment: builder.mutation({
+      query: ({ orderId, requestId }) => {
+        return {
+          method: "GET",
+          url: `payments/checkPaymentStatus?orderId=${orderId}&requestId=${requestId}`,
         };
       },
       invalidatesTags: [{ type: "OrderList", id: "LIST" }],
@@ -140,4 +169,7 @@ export const {
   useCreatePaymentMutation,
   useGetOrderByCounterIdQuery,
   useUpdateOrderDetailStatusPurchasedMutation,
+  useUpdateOrderStatusCompleteMutation,
+  useUpdateOrderStatusCancelMutation,
+  useCheckPaymentMutation,
 } = orderAPI;

@@ -5,7 +5,6 @@ import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 
 export default function OrderList({ ordersData, loading }) {
-  console.log(ordersData);
   const navigate = useNavigate();
   const actionsMenu = (record) => (
     <Menu>
@@ -85,34 +84,34 @@ export default function OrderList({ ordersData, loading }) {
         </div>
       ),
     },
-    // {
-    //   title: <div style={{ textAlign: "center" }}>Status</div>,
-    //   dataIndex: "order_status",
-    //   key: "order_status",
-    //   render: (order_status) => (
-    //     <div style={{ textAlign: "center" }}>
-    //       <Tag
-    //         color={
-    //           order_status === 1
-    //             ? "#d7b14e"
-    //             : order_status === 0
-    //             ? "green"
-    //             : order_status === 2
-    //             ? "red"
-    //             : "gray"
-    //         }
-    //       >
-    //         {order_status === 1
-    //           ? "Paying"
-    //           : order_status === 0
-    //           ? "Complete"
-    //           : order_status === 2
-    //           ? "Cancel"
-    //           : "UNKNOWN"}
-    //       </Tag>
-    //     </div>
-    //   ),
-    // },
+    {
+      title: <div style={{ textAlign: "center" }}>Status</div>,
+      dataIndex: "order_status",
+      key: "order_status",
+      render: (order_status) => (
+        <div style={{ textAlign: "center" }}>
+          <Tag
+            color={
+              order_status === 0
+                ? "#d7b14e"
+                : order_status === 1
+                ? "green"
+                : order_status === 2
+                ? "red"
+                : "gray"
+            }
+          >
+            {order_status === 0
+              ? "Paying"
+              : order_status === 1
+              ? "Complete"
+              : order_status === 2
+              ? "Cancel"
+              : "UNKNOWN"}
+          </Tag>
+        </div>
+      ),
+    },
     {
       title: <div style={{ textAlign: "center" }}>Payment</div>,
       dataIndex: "payment_method",
