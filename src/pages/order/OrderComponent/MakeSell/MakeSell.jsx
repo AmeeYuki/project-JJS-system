@@ -243,7 +243,10 @@ import { Button, message, notification } from "antd";
 import CustomerSpace from "./CustomerSpace";
 import "./MakeSell.css";
 import ProductSpace from "./ProductSpace";
-import { useAddOrderMutation } from "../../../../services/orderAPI";
+import {
+  useAddOrderMutation,
+  useCreatePaymentMutation,
+} from "../../../../services/orderAPI";
 import { useSelector } from "react-redux";
 import { selectAuth } from "../../../../slices/auth.slice";
 import { useNavigate } from "react-router-dom";
@@ -258,6 +261,7 @@ export default function MakeSell() {
   const [usedPolicy] = useUsedPolicyMutation();
   const [applyPoints] = useUsePointMutation();
   const [addPoint] = useAddPointMutation();
+  const [createPayment] = useCreatePaymentMutation();
 
   const [customerData, setCustomerData] = useState(false);
   const [customerId, setCustomerId] = useState();

@@ -80,6 +80,15 @@ export const orderAPI = createApi({
         { type: "OrderList", id: "LIST" },
       ],
     }),
+    createPayment: builder.mutation({
+      query: ({ orderId, total, orderInfo }) => {
+        return {
+          method: "POST",
+          url: `payments/createPayment?orderId=${orderId}&total=${total}&orderInfo=${orderInfo}`,
+        };
+      },
+      invalidatesTags: [{ type: "OrderList", id: "LIST" }],
+    }),
   }),
 });
 
@@ -92,4 +101,5 @@ export const {
   useGetOrderDetailQuery,
   useLazyGetOrderByIdQuery,
   useLazyGetOrderDetailQuery,
+  useCreatePaymentMutation,
 } = orderAPI;

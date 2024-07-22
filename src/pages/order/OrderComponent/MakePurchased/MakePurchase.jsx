@@ -22,17 +22,6 @@ export default function MakePurchase() {
   const auth = useSelector(selectAuth);
   const navigate = useNavigate();
   const [addOrder, { isLoading }] = useAddOrderMutation();
-  const [orderData, setOrderData] = useState({
-    orderRequests: [],
-    orderDTO: {
-      date: new Date().toISOString(),
-      discount: 0,
-      created_by: auth.name,
-      type: "buy",
-      customer_id: 0,
-      user_id: auth.id,
-    },
-  });
 
   const [getOrderById, { isLoading: isOrderLoading }] =
     useLazyGetOrderByIdQuery();
@@ -47,16 +36,7 @@ export default function MakePurchase() {
         return; // Exit the function if the order type is 'buy'
       }
 
-      // console.log(orderData);
-      // console.log(orderData.customer.id);
       setOrder(orderData);
-      setOrderData((prevData) => ({
-        ...prevData,
-        orderDTO: {
-          ...prevData.orderDTO,
-          customer_id: orderData.customer.id, // Assuming orderData contains customer.id
-        },
-      }));
 
       const productsData = await getOrderDetail(orderId).unwrap();
       setProducts(productsData);
@@ -91,7 +71,6 @@ export default function MakePurchase() {
   };
 
   const handleMakeOrder = async () => {
-    // console.log(cartItems);
     try {
       const orderRequests = cartItems.map((item) => ({
         quantity: item.quantity,
@@ -100,24 +79,24 @@ export default function MakePurchase() {
       }));
 
       const finalOrderData = {
-        ...orderData,
         orderRequests,
-      };
-
-      const result = await addOrder(finalOrderData).unwrap();
-      message.success("Order successfully created!");
-      setCartItems([]);
-      setOrderData({
-        orderRequests: [],
         orderDTO: {
           date: new Date().toISOString(),
           discount: 0,
           created_by: auth.name,
           type: "buy",
-          customer_id: 0, // Reset customer_id after order creation
+          payment_method: 0,
+          order_status: 0,
+          customer_id: order.customer.id,
           user_id: auth.id,
+          counter_id: auth?.counter?.id,
         },
-      });
+      };
+
+      const result = await addOrder(finalOrderData);
+      console.log(result);
+      message.success("Order successfully created!");
+      setCartItems([]);
       setOrder(null);
       navigate("/order");
     } catch (error) {
