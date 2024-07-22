@@ -97,6 +97,7 @@ export default function ProductSpace({
     );
     const currentQuantityInCart =
       existingItemIndex >= 0 ? cartItems[existingItemIndex].quantity : 0;
+    console.log(product);
 
     if (currentQuantityInCart + 1 > product.available_quantity) {
       message.error("Cannot add more than available quantity.");

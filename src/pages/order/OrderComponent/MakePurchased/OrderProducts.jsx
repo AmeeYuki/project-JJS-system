@@ -1,5 +1,6 @@
 import React from "react";
-import { Card, Table, Col, Row, Button } from "antd";
+import { Card, Table, Col, Row, Button, Tag } from "antd";
+import { red } from "@mui/material/colors";
 
 const OrderProducts = ({ products, addToCart }) => {
   const orderColumns = [
@@ -52,15 +53,25 @@ const OrderProducts = ({ products, addToCart }) => {
       render: (price) => `${price.toLocaleString()} VNĐ`,
     },
     {
+      title: "Status",
+      dataIndex: "purchased_status",
+      key: "purchased_status",
+      render: (purchased_status) =>
+        purchased_status === 0 && <Tag color="#ff0000">Bought</Tag>,
+    },
+    {
       title: "Action",
       key: "action",
-      render: (_, record) => (
-        <Button onClick={() => addToCart(record)} type="primary">
-          Add to Cart
-        </Button>
-      ),
+      render: (_, record) =>
+        record.purchased_status !== 0 && (
+          <Button onClick={() => addToCart(record)} type="primary">
+            Add to Cart
+          </Button>
+        ),
     },
   ];
+
+  console.log(products);
 
   const calculateTotalPrice = (
     priceProcessing,
@@ -79,6 +90,7 @@ const OrderProducts = ({ products, addToCart }) => {
   ) => {
     return weight * sellPricePerGram;
   };
+  console.log(products);
   const orderData = products.map((item, index) => ({
     key: index,
     no: index + 1,
@@ -95,6 +107,8 @@ const OrderProducts = ({ products, addToCart }) => {
     buy_price_per_gram: item.product.type.buy_price_per_gram,
     sell_price_per_gram: item.product.type.sell_price_per_gram,
     type: item.product.type.type,
+    purchased_status: item.purchasedStatus,
+    orderDetailId: item.id,
     totalPriceSell: calculateTotalPrice(
       item.product.priceProcessing,
       item.product.priceStone,

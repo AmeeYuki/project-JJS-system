@@ -30,6 +30,8 @@ export default function Order() {
         createBy: el?.created_by,
         date: el?.date,
         type: el?.type,
+        order_status: el?.order_status,
+        payment_method: el?.payment_method,
         // status,
       };
     });
@@ -51,10 +53,16 @@ export default function Order() {
             .toLowerCase()
             .includes(searchValue.toLowerCase())
       );
-      setOrderData(filteredOrders);
+
+      const sortedOrders = filteredOrders.sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return dateB - dateA; // Sort in descending order
+      });
+
+      setOrderData(sortedOrders);
     }
   }, [searchValue, orders]);
-
   const showModal = () => {
     setIsModalOpen(true);
   };

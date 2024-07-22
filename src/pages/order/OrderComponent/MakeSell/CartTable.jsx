@@ -62,7 +62,8 @@ const CartTable = ({
       title: "Total",
       dataIndex: "total",
       key: "total",
-      render: (text) => text.toLocaleString(),
+      // render: (text) => text.toLocaleString(),
+      render: (text) => new Intl.NumberFormat("vi-VN").format(text) + " VNĐ",
     },
     {
       title: "Action",
