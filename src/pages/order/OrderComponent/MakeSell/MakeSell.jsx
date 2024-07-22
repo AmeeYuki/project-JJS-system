@@ -271,7 +271,7 @@ export default function MakeSell() {
   const [policyId, setPolicyId] = useState();
   const [pointDiscount, setPointDiscount] = useState(0);
   const [payment, setPayment] = useState(0);
-  const [orderStatus, setOrderStatus] = useState(0);
+  const [orderStatus, setOrderStatus] = useState(1);
   const [orderRequests, setOrderRequests] = useState([]);
   const [discount, setDiscount] = useState(0);
 
@@ -302,8 +302,9 @@ export default function MakeSell() {
 
     try {
       const response = await addOrder(orderData);
+      const orderId = response.data.order.id;
       console.log(response);
-      if (response.error.originalStatus === 200) {
+      if (response.data) {
         if (customerDataUpdate) {
           await addPoint({
             data: customerDataUpdate,
@@ -321,16 +322,26 @@ export default function MakeSell() {
         if (policyId) {
           await usedPolicy({ id: policyId });
         }
-
-        notification.success({
-          message: "Order made successfully",
-        });
-        navigate("/order");
+        if (payment === 0) {
+          notification.success({
+            message: "Order made successfully",
+          });
+          navigate(`/order/${orderId}`);
+        }
+        if (payment === 1) {
+          notification.success({
+            message: "Order made successfully with momo",
+          });
+          navigate(`/order/${orderId}`);
+        }
       } else {
-        throw new Error("Unexpected response format");
+        notification.error({
+          message: "Order made Unsuccessfully",
+        });
       }
     } catch (error) {
       console.error("Error adding order:", error);
+      console.log();
       notification.error({
         message: "Error making order",
         description: error.message,

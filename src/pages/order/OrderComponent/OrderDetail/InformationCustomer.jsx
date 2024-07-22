@@ -26,8 +26,25 @@ export default function InformationCustomer({ order }) {
               <Col span={8} offset={0}>
                 <p>Type:</p>
               </Col>
-              <Col span={15}>{order?.type == "sell" ? "Sell" : "Buy"}</Col>
-
+              <Col span={15}>{order?.type == "sell" ? "Sell" : "Buy"}</Col>{" "}
+              <Col span={8} offset={0}>
+                <p>Status:</p>
+              </Col>
+              <Col span={15}>
+                {order?.order_status == 0
+                  ? "Paying"
+                  : order?.order_status == 1
+                  ? "Complete"
+                  : order?.order_status == 2
+                  ? "Cancel"
+                  : null}
+              </Col>{" "}
+              <Col span={8} offset={0}>
+                <p>Payment method:</p>
+              </Col>
+              <Col span={15}>
+                {order?.payment_method == 0 ? "Cash" : "Momo"}
+              </Col>
               {/* <Col span={8} offset={0}>
                 <p>Discount:</p>
               </Col> */}

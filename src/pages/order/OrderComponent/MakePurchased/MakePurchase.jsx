@@ -5,6 +5,7 @@ import {
   useAddOrderMutation,
   useLazyGetOrderByIdQuery,
   useLazyGetOrderDetailQuery,
+  useUpdateOrderDetailStatusPurchasedMutation,
 } from "../../../../services/orderAPI"; // Adjust the path as necessary
 import OrderInformation from "./OrderInformation";
 import OrderProducts from "./OrderProducts";
@@ -22,7 +23,8 @@ export default function MakePurchase() {
   const auth = useSelector(selectAuth);
   const navigate = useNavigate();
   const [addOrder, { isLoading }] = useAddOrderMutation();
-
+  const [updateStatusPurchased] = useUpdateOrderDetailStatusPurchasedMutation();
+  console.log(cartItems);
   const [getOrderById, { isLoading: isOrderLoading }] =
     useLazyGetOrderByIdQuery();
   const [getOrderDetail, { isLoading: isProductsLoading }] =
@@ -45,24 +47,45 @@ export default function MakePurchase() {
     }
   };
 
+  // const addToCart = (product) => {
+  //   const existingItem = cartItems.find(
+  //     (item) => item.product_name === product.product_name
+  //   );
+
+  //   if (existingItem && existingItem.quantity + 1 > product.quantity) {
+  //     message.error(`Cannot add more than ${product.quantity} items`);
+  //   } else {
+  //     if (existingItem) {
+  //       const updatedCartItems = cartItems.map((item) =>
+  //         item.product_name === product.product_name
+  //           ? { ...item, quantity: item.quantity + 1 }
+  //           : item
+  //       );
+  //       setCartItems(updatedCartItems);
+  //     } else {
+  //       setCartItems([...cartItems, { ...product, quantity: 1 }]);
+  //     }
+  //   }
+  // };
   const addToCart = (product) => {
     const existingItem = cartItems.find(
-      (item) => item.product_name === product.product_name
+      (item) => item.product_id === product.product_id
     );
 
-    if (existingItem && existingItem.quantity + 1 > product.quantity) {
-      message.error(`Cannot add more than ${product.quantity} items`);
-    } else {
-      if (existingItem) {
+    if (existingItem) {
+      const totalQuantity = existingItem.quantity + product.quantity;
+      if (totalQuantity > product.quantity) {
+        message.error(`The product is ready on cart`);
+      } else {
         const updatedCartItems = cartItems.map((item) =>
-          item.product_name === product.product_name
-            ? { ...item, quantity: item.quantity + 1 }
+          item.product_id === product.product_id
+            ? { ...item, quantity: totalQuantity }
             : item
         );
         setCartItems(updatedCartItems);
-      } else {
-        setCartItems([...cartItems, { ...product, quantity: 1 }]);
       }
+    } else {
+      setCartItems([...cartItems, { ...product, quantity: product.quantity }]);
     }
   };
 
@@ -86,7 +109,7 @@ export default function MakePurchase() {
           created_by: auth.name,
           type: "buy",
           payment_method: 0,
-          order_status: 0,
+          order_status: 1,
           customer_id: order.customer.id,
           user_id: auth.id,
           counter_id: auth?.counter?.id,
@@ -95,10 +118,29 @@ export default function MakePurchase() {
 
       const result = await addOrder(finalOrderData);
       console.log(result);
-      message.success("Order successfully created!");
-      setCartItems([]);
-      setOrder(null);
-      navigate("/order");
+      const orderId = result.data.order.id;
+      if (result.data) {
+        // Update the status of each product in the cart
+        cartItems.map(async (item) => {
+          console.log(item.orderDetailId);
+          try {
+            const updateStatus = await updateStatusPurchased({
+              orderDetailId: item.orderDetailId,
+            });
+            console.log(updateStatus);
+          } catch (error) {
+            console.error(
+              `Failed to update status for product ${item.product_id}:`,
+              error
+            );
+          }
+        });
+
+        // message.success("Order successfully created!");
+        // setCartItems([]);
+        // setOrder(null);
+        // navigate(`/order/${orderId}`);
+      }
     } catch (error) {
       message.error("Failed to create order.");
     }
@@ -138,7 +180,7 @@ export default function MakePurchase() {
                 loading={isLoading}
                 disabled={cartItems.length === 0}
               >
-                Make Order
+                Make Repurchased
               </Button>
             </>
           )}

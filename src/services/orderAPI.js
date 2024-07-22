@@ -59,6 +59,16 @@ export const orderAPI = createApi({
       },
       invalidatesTags: [{ type: "OrderList", id: "LIST" }],
     }),
+    updateOrderDetailStatusPurchased: builder.mutation({
+      query: ({ orderDetailId }) => {
+        return {
+          method: "PUT",
+          url: `order_details/update_purchased_status/${orderDetailId}`,
+          body: 0,
+        };
+      },
+      invalidatesTags: [{ type: "OrderList", id: "LIST" }],
+    }),
     editOrder: builder.mutation({
       query: (payload) => {
         return {
@@ -129,4 +139,5 @@ export const {
   useLazyGetOrderDetailQuery,
   useCreatePaymentMutation,
   useGetOrderByCounterIdQuery,
+  useUpdateOrderDetailStatusPurchasedMutation,
 } = orderAPI;

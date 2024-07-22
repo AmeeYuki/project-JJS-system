@@ -30,6 +30,8 @@ export default function Order() {
         createBy: el?.created_by,
         date: el?.date,
         type: el?.type,
+        order_status: el?.order_status,
+        payment_method: el?.payment_method,
         // status,
       };
     });
