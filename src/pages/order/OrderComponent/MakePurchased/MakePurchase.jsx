@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { SearchOutlined } from "@ant-design/icons";
-import { Input, message, Button } from "antd";
+import { Input, message, Button, Flex } from "antd";
 import {
   useAddOrderMutation,
   useLazyGetOrderByIdQuery,
   useLazyGetOrderDetailQuery,
+  useUpdateOrderDetailStatusPurchasedMutation,
+  useUpdateOrderStatusCompleteMutation,
 } from "../../../../services/orderAPI"; // Adjust the path as necessary
 import OrderInformation from "./OrderInformation";
 import OrderProducts from "./OrderProducts";
@@ -22,18 +24,10 @@ export default function MakePurchase() {
   const auth = useSelector(selectAuth);
   const navigate = useNavigate();
   const [addOrder, { isLoading }] = useAddOrderMutation();
-  const [orderData, setOrderData] = useState({
-    orderRequests: [],
-    orderDTO: {
-      date: new Date().toISOString(),
-      discount: 0,
-      created_by: auth.name,
-      type: "buy",
-      customer_id: 0,
-      user_id: auth.id,
-    },
-  });
+  const [updateStatusPurchased] = useUpdateOrderDetailStatusPurchasedMutation();
+  const [updateOrderComplete] = useUpdateOrderStatusCompleteMutation();
 
+  console.log(cartItems);
   const [getOrderById, { isLoading: isOrderLoading }] =
     useLazyGetOrderByIdQuery();
   const [getOrderDetail, { isLoading: isProductsLoading }] =
@@ -47,16 +41,7 @@ export default function MakePurchase() {
         return; // Exit the function if the order type is 'buy'
       }
 
-      // console.log(orderData);
-      // console.log(orderData.customer.id);
       setOrder(orderData);
-      setOrderData((prevData) => ({
-        ...prevData,
-        orderDTO: {
-          ...prevData.orderDTO,
-          customer_id: orderData.customer.id, // Assuming orderData contains customer.id
-        },
-      }));
 
       const productsData = await getOrderDetail(orderId).unwrap();
       setProducts(productsData);
@@ -65,24 +50,45 @@ export default function MakePurchase() {
     }
   };
 
+  // const addToCart = (product) => {
+  //   const existingItem = cartItems.find(
+  //     (item) => item.product_name === product.product_name
+  //   );
+
+  //   if (existingItem && existingItem.quantity + 1 > product.quantity) {
+  //     message.error(`Cannot add more than ${product.quantity} items`);
+  //   } else {
+  //     if (existingItem) {
+  //       const updatedCartItems = cartItems.map((item) =>
+  //         item.product_name === product.product_name
+  //           ? { ...item, quantity: item.quantity + 1 }
+  //           : item
+  //       );
+  //       setCartItems(updatedCartItems);
+  //     } else {
+  //       setCartItems([...cartItems, { ...product, quantity: 1 }]);
+  //     }
+  //   }
+  // };
   const addToCart = (product) => {
     const existingItem = cartItems.find(
-      (item) => item.product_name === product.product_name
+      (item) => item.product_id === product.product_id
     );
 
-    if (existingItem && existingItem.quantity + 1 > product.quantity) {
-      message.error(`Cannot add more than ${product.quantity} items`);
-    } else {
-      if (existingItem) {
+    if (existingItem) {
+      const totalQuantity = existingItem.quantity + product.quantity;
+      if (totalQuantity > product.quantity) {
+        message.error(`The product is ready on cart`);
+      } else {
         const updatedCartItems = cartItems.map((item) =>
-          item.product_name === product.product_name
-            ? { ...item, quantity: item.quantity + 1 }
+          item.product_id === product.product_id
+            ? { ...item, quantity: totalQuantity }
             : item
         );
         setCartItems(updatedCartItems);
-      } else {
-        setCartItems([...cartItems, { ...product, quantity: 1 }]);
       }
+    } else {
+      setCartItems([...cartItems, { ...product, quantity: product.quantity }]);
     }
   };
 
@@ -91,7 +97,6 @@ export default function MakePurchase() {
   };
 
   const handleMakeOrder = async () => {
-    // console.log(cartItems);
     try {
       const orderRequests = cartItems.map((item) => ({
         quantity: item.quantity,
@@ -100,26 +105,48 @@ export default function MakePurchase() {
       }));
 
       const finalOrderData = {
-        ...orderData,
         orderRequests,
-      };
-
-      const result = await addOrder(finalOrderData).unwrap();
-      message.success("Order successfully created!");
-      setCartItems([]);
-      setOrderData({
-        orderRequests: [],
         orderDTO: {
           date: new Date().toISOString(),
           discount: 0,
           created_by: auth.name,
           type: "buy",
-          customer_id: 0, // Reset customer_id after order creation
+          payment_method: 0,
+          order_status: 1,
+          customer_id: order.customer.id,
           user_id: auth.id,
+          counter_id: auth?.counter?.id,
         },
-      });
-      setOrder(null);
-      navigate("/order");
+      };
+
+      const result = await addOrder(finalOrderData);
+      console.log(result);
+      const orderId = result.data.order.id;
+      if (result.data) {
+        // Update the status of each product in the cart
+        cartItems.map(async (item) => {
+          console.log(item.orderDetailId);
+          try {
+            const updateStatus = await updateStatusPurchased({
+              orderDetailId: item.orderDetailId,
+            });
+            console.log(updateStatus);
+          } catch (error) {
+            console.error(
+              `Failed to update status for product ${item.product_id}:`,
+              error
+            );
+          }
+        });
+        await updateOrderComplete({
+          orderId: orderId,
+        });
+
+        message.success("Order successfully created!");
+        setCartItems([]);
+        setOrder(null);
+        navigate(`/order/${orderId}`);
+      }
     } catch (error) {
       message.error("Failed to create order.");
     }
@@ -153,14 +180,17 @@ export default function MakePurchase() {
               <OrderInformation order={order} />
               <OrderProducts products={products} addToCart={addToCart} />
               <Cart cartItems={cartItems} removeFromCart={removeFromCart} />
-              <Button
-                type="primary"
-                onClick={handleMakeOrder}
-                loading={isLoading}
-                disabled={cartItems.length === 0}
-              >
-                Make Order
-              </Button>
+              <Flex style={{ marginTop: "20px" }} justify="space-between">
+                <div></div>
+                <Button
+                  type="primary"
+                  onClick={handleMakeOrder}
+                  loading={isLoading}
+                  disabled={cartItems.length === 0}
+                >
+                  Make Repurchased
+                </Button>
+              </Flex>
             </>
           )}
         </>

@@ -59,6 +59,36 @@ export const orderAPI = createApi({
       },
       invalidatesTags: [{ type: "OrderList", id: "LIST" }],
     }),
+    updateOrderDetailStatusPurchased: builder.mutation({
+      query: ({ orderDetailId }) => {
+        return {
+          method: "PUT",
+          url: `order_details/update_purchased_status/${orderDetailId}`,
+          body: 0,
+        };
+      },
+      invalidatesTags: [{ type: "OrderList", id: "LIST" }],
+    }),
+    updateOrderStatusComplete: builder.mutation({
+      query: ({ orderId }) => {
+        return {
+          method: "PUT",
+          url: `orders/update_order_status/${orderId}`,
+          body: 1,
+        };
+      },
+      invalidatesTags: [{ type: "OrderList", id: "LIST" }],
+    }),
+    updateOrderStatusCancel: builder.mutation({
+      query: ({ orderId }) => {
+        return {
+          method: "PUT",
+          url: `orders/update_order_status/${orderId}`,
+          body: 2,
+        };
+      },
+      invalidatesTags: [{ type: "OrderList", id: "LIST" }],
+    }),
     editOrder: builder.mutation({
       query: (payload) => {
         return {
@@ -79,6 +109,24 @@ export const orderAPI = createApi({
       invalidatesTags: (_res, _err, _arg) => [
         { type: "OrderList", id: "LIST" },
       ],
+    }),
+    createPayment: builder.mutation({
+      query: ({ orderId, total, orderInfo }) => {
+        return {
+          method: "GET",
+          url: `payments/createPayment?orderId=${orderId}&total=${total}&orderInfo=${orderInfo}`,
+        };
+      },
+      invalidatesTags: [{ type: "OrderList", id: "LIST" }],
+    }),
+    checkPayment: builder.mutation({
+      query: ({ orderId, requestId }) => {
+        return {
+          method: "GET",
+          url: `payments/checkPaymentStatus?orderId=${orderId}&requestId=${requestId}`,
+        };
+      },
+      invalidatesTags: [{ type: "OrderList", id: "LIST" }],
     }),
     getOrderByCounterId: builder.query({
       query: (counterId) => `orders/get_order_by_counterId/${counterId}`,
@@ -118,7 +166,12 @@ export const {
   useGetOrderDetailQuery,
   useLazyGetOrderByIdQuery,
   useLazyGetOrderDetailQuery,
+  useCreatePaymentMutation,
   useGetOrderByCounterIdQuery,
+  useUpdateOrderDetailStatusPurchasedMutation,
+  useUpdateOrderStatusCompleteMutation,
+  useUpdateOrderStatusCancelMutation,
+  useCheckPaymentMutation,
   useGetOrderByUserIdQuery,
   useLazyGetOrderByUserIdQuery,
 } = orderAPI;

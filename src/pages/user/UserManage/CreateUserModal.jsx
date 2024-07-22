@@ -30,6 +30,9 @@ const CreateUserModal = ({ visible, onCreate, onCancel, loading }) => {
     }
   };
 
+  const activeCounters =
+    countersData?.filter((counter) => counter.status === true) || [];
+
   return (
     <div className="create-user-page">
       <Modal
@@ -158,8 +161,8 @@ const CreateUserModal = ({ visible, onCreate, onCancel, loading }) => {
                 loading={countersLoading}
                 disabled={countersLoading}
               >
-                {countersData &&
-                  countersData.map((counter) => (
+                {activeCounters &&
+                  activeCounters.map((counter) => (
                     <Option key={counter.id} value={counter.id}>
                       {counter.counterName}
                     </Option>
