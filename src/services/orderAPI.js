@@ -172,4 +172,6 @@ export const {
   useUpdateOrderStatusCompleteMutation,
   useUpdateOrderStatusCancelMutation,
   useCheckPaymentMutation,
+  useGetOrderByUserIdQuery,
+  useLazyGetOrderByUserIdQuery,
 } = orderAPI;
