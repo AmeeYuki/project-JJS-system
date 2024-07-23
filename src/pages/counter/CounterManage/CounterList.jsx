@@ -2,6 +2,8 @@ import React from "react";
 import { Space, Table, Dropdown, Menu, Tag } from "antd";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { selectAuth } from "../../../slices/auth.slice";
 
 export default function CounterList({
   counterData,
@@ -10,7 +12,7 @@ export default function CounterList({
   handleInactiveCounter,
 }) {
   const navigate = useNavigate();
-
+  const auth = useSelector(selectAuth);
   const onViewCounterDetail = (record) => {
     navigate(`/counter/${record.id}`, {
       state: { counterName: record.counterName, location: record.location },
@@ -22,30 +24,34 @@ export default function CounterList({
       <Menu.Item key="detail" onClick={() => onViewCounterDetail(record)}>
         <span>View Detail</span>
       </Menu.Item>
-      <Menu.Item
-        key="edit"
-        className="submenu-countertable"
-        onClick={() => onEditCounter(record)}
-      >
-        <span>Edit Counter</span>
-      </Menu.Item>
-      {record.status ? (
-        <Menu.Item
-          key="deactivate"
-          className="submenu-usertable"
-          onClick={() => handleInactiveCounter(record.id)}
-        >
-          <span>Inactive Counter</span>
-        </Menu.Item>
-      ) : (
-        <Menu.Item
-          key="activate"
-          className="submenu-usertable"
-          onClick={() => handleActiveCounter(record.id)}
-        >
-          <span>Active Counter</span>
-        </Menu.Item>
-      )}
+      {auth?.roles?.some((role) => role === "ROLE_ADMIN") ? (
+        <>
+          <Menu.Item
+            key="edit"
+            className="submenu-countertable"
+            onClick={() => onEditCounter(record)}
+          >
+            <span>Edit Counter</span>
+          </Menu.Item>
+          {record.status ? (
+            <Menu.Item
+              key="deactivate"
+              className="submenu-usertable"
+              onClick={() => handleInactiveCounter(record.id)}
+            >
+              <span>Inactive Counter</span>
+            </Menu.Item>
+          ) : (
+            <Menu.Item
+              key="activate"
+              className="submenu-usertable"
+              onClick={() => handleActiveCounter(record.id)}
+            >
+              <span>Active Counter</span>
+            </Menu.Item>
+          )}
+        </>
+      ) : null}
     </Menu>
   );
 

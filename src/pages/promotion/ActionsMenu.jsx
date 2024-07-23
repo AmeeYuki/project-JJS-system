@@ -38,9 +38,9 @@ const ActionsMenu = ({
         <MoreHorizIcon />
       </IconButton>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-        <MenuItem onClick={() => handleMenuItemClick("update")}>
+        {/* <MenuItem onClick={() => handleMenuItemClick("update")}>
           Update
-        </MenuItem>
+        </MenuItem> */}
         <MenuItem onClick={() => handleMenuItemClick("delete")}>
           Delete
         </MenuItem>

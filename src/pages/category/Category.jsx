@@ -14,6 +14,8 @@ import CustomButton from "../../components/CustomButton/CustomButton";
 import { useNavigate } from "react-router-dom";
 import { RiAddLine } from "@remixicon/react";
 import { CircularProgress } from "@mui/material";
+import { useSelector } from "react-redux";
+import { selectAuth } from "../../slices/auth.slice";
 
 export default function Category() {
   const { data: categories, isLoading, refetch } = useGetTypesQuery();
@@ -22,6 +24,7 @@ export default function Category() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+  const auth = useSelector(selectAuth);
 
   const [addTypeMutation, { isLoading: isLoadingAdd }] = useAddTypeMutation();
   const [editTypeMutation, { isLoading: isLoadingEdit }] =
@@ -118,28 +121,33 @@ export default function Category() {
             onPressEnter={() => handleSearch(searchValue)}
           />
         </div>
+
         <div className="action-right">
-          <CustomButton
-            icon={RiAddLine}
-            text="Add Type"
-            iconSize="16px"
-            iconColor="white"
-            textColor="white"
-            containerStyle={{
-              backgroundColor: "#333333",
-              marginBottom: "10px",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-            hoverStyle={{
-              opacity: 0.6,
-            }}
-            iconPosition="left"
-            fontSize="16px"
-            padding="10px 20px"
-            onClick={() => setIsAddModalVisible(true)}
-          />
+          {auth?.roles?.some((role) => role === "ROLE_STAFF") ? null : (
+            <>
+              <CustomButton
+                icon={RiAddLine}
+                text="Add Type"
+                iconSize="16px"
+                iconColor="white"
+                textColor="white"
+                containerStyle={{
+                  backgroundColor: "#333333",
+                  marginBottom: "10px",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
+                hoverStyle={{
+                  opacity: 0.6,
+                }}
+                iconPosition="left"
+                fontSize="16px"
+                padding="10px 20px"
+                onClick={() => setIsAddModalVisible(true)}
+              />
+            </>
+          )}
 
           <CustomButton
             text="View Products"

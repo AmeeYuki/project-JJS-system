@@ -28,9 +28,9 @@ export default function CheckPayment() {
               break;
             case 1007:
               // Payment successful, update order status and navigate
-              await updateOrderComplete({ orderId });
+              await updateOrderCancel({ orderId });
               notification.success({
-                message: "Payment completed successfully!",
+                message: "Payment unsuccessfully!",
               });
               navigate(`/order/${orderId}`);
               setLoading(false); // Stop checking after success

@@ -27,7 +27,11 @@ export default function ProductSpace({
     data: productsData,
     isError,
     isLoading,
+    refetch,
   } = useGetProductsByCounterIdQuery(auth?.counter?.id);
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
   const [searchTerm, setSearchTerm] = useState("");
   const [cartItems, setCartItems] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
@@ -51,7 +55,10 @@ export default function ProductSpace({
     const processingPrice = product.price_processing;
     const typeSellPrice = product.type?.sell_price_per_gram;
     const weight = product.weight;
-    const totalPrice = stonePrice + processingPrice + typeSellPrice * weight;
+    const priceRate = product?.price_rate;
+    const totalPrice =
+      (stonePrice + processingPrice + typeSellPrice * weight) * priceRate;
+    // const totalPrice = stonePrice + processingPrice + typeSellPrice * weight;
     return totalPrice;
   };
 

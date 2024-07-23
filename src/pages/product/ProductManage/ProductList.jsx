@@ -2,6 +2,8 @@ import React from "react";
 import { Space, Table, Dropdown, Menu, Popconfirm } from "antd";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { convertProductData, formatCurrency } from "../ProductUtil.jsx";
+import { useSelector } from "react-redux";
+import { selectAuth } from "../../../slices/auth.slice.js";
 
 export default function ProductList({
   productData,
@@ -10,15 +12,19 @@ export default function ProductList({
   onViewProductDetail,
 }) {
   const convertedData = convertProductData(productData);
-
+  const auth = useSelector(selectAuth);
   const actionsMenu = (record) => (
     <Menu>
       <Menu.Item key="detail" onClick={() => onViewProductDetail(record)}>
         <span>View Detail</span>
       </Menu.Item>
-      <Menu.Item key="edit" onClick={() => onEditProduct(record)}>
-        <span>Edit Product</span>
-      </Menu.Item>
+      {auth?.roles?.some((role) => role === "ROLE_STAFF") ? null : (
+        <>
+          <Menu.Item key="edit" onClick={() => onEditProduct(record)}>
+            <span>Edit Product</span>
+          </Menu.Item>
+        </>
+      )}
       {/* <Menu.Item key="delete">
         <Popconfirm
           title="Are you sure you want to delete this product?"

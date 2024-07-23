@@ -47,17 +47,7 @@ const PromotionTable = ({
       key: "endDate",
       render: (endDate) => dayjs(endDate).format("DD-MM-YYYY"),
     },
-    // {
-    //   title: "Status",
-    //   dataIndex: "used",
-    //   align: "center",
-    //   key: "used",
-    //   render: (is_used) => (
-    //     <Tag color={is_used ? "green" : "volcano"}>
-    //       {is_used ? "Used" : "Not use"}
-    //     </Tag>
-    //   ),
-    // },
+
     ...(auth.roles.some(
       (role) => role === "ROLE_ADMIN" || role === "ROLE_MANAGER"
     )
@@ -70,7 +60,7 @@ const PromotionTable = ({
               <Space size="middle">
                 <ActionsMenu
                   promotionId={record.id}
-                  handleUpdatePromotion={handleUpdatePromotion}
+                  // handleUpdatePromotion={handleUpdatePromotion}
                   handleDeletePromotion={handleDeletePromotion}
                 />
               </Space>
