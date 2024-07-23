@@ -41,7 +41,7 @@ const CreateProductModal = ({ visible, onCreate, onCancel }) => {
       setImageUrl(null);
     }
   };
-  
+
   const generateBarcode = (type) => {
     const randomNum = Math.floor(100000 + Math.random() * 900000);
     return type + randomNum;
@@ -215,6 +215,20 @@ const CreateProductModal = ({ visible, onCreate, onCancel }) => {
           <Form.Item
             name="priceProcessing"
             label="Price (Processing):"
+            rules={[
+              {
+                required: true,
+                message: "Please input the price of the product!",
+              },
+              { pattern: /^[0-9]+$/, message: "Please input a valid price!" },
+              { validator: validateNonNegativeNumber },
+            ]}
+          >
+            <Input placeholder="Input the price..." addonAfter=" VND" />
+          </Form.Item>
+          <Form.Item
+            name="priceRate"
+            label="Price (Rate):"
             rules={[
               {
                 required: true,
