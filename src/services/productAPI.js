@@ -43,6 +43,7 @@ export const productAPI = createApi({
           image_url: body.image,
           type_id: body.typeId,
           counter_id: body.counterId,
+          price_rate: body.priceRate,
         };
         return {
           method: "POST",
@@ -67,6 +68,7 @@ export const productAPI = createApi({
           image_url: patch.image_url,
           type_id: patch.type_id,
           counter_id: patch.counter_id,
+          price_rate: patch.price_rate,
         };
         return {
           url: `products/update/${id}`,

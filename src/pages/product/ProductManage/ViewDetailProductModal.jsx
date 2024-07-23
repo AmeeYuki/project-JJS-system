@@ -107,6 +107,9 @@ const ViewDetailProductModal = ({ visible, onClose, product }) => {
             <strong>Price Stone:</strong> {formatCurrency(product.priceStone)}
           </p>
           <p style={{ marginBottom: "10px" }}>
+            <strong>Price Rate:</strong> {formatCurrency(product.priceRate)}
+          </p>
+          <p style={{ marginBottom: "10px" }}>
             <strong>Quantity:</strong> {product.quantity}
           </p>
           <p style={{ marginBottom: "10px" }}>

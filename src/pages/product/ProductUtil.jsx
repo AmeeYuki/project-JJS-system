@@ -12,6 +12,7 @@ export const convertProductData = (data) => {
       weightUnit: item.weight_unit,
       priceProcessing: item.price_processing,
       priceStone: item.price_stone,
+      priceRate: item.price_rate,
       quantity: item.quantity,
       active: item.status === "active",
       description: item.description || "",
