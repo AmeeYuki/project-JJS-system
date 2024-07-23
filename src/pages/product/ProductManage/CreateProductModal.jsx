@@ -234,11 +234,14 @@ const CreateProductModal = ({ visible, onCreate, onCancel }) => {
                 required: true,
                 message: "Please input the price of the product!",
               },
-              { pattern: /^[0-9]+$/, message: "Please input a valid price!" },
+              {
+                pattern: /^[0-9]+(\.[0-9]{1,2})?$/,
+                message: "Please input a valid price!",
+              },
               { validator: validateNonNegativeNumber },
             ]}
           >
-            <Input placeholder="Input the price..." addonAfter=" VND" />
+            <Input placeholder="Input the price..." />
           </Form.Item>
           <Form.Item
             name="weight"
