@@ -97,13 +97,16 @@ export default function MakeSell() {
             (sum, req) => sum + req.quantity * req.unit_price,
             0
           );
-          const totalFinal = totalOrder - discount;
+          const totalFinal = Math.round(totalOrder - discount);
+          // totalFinal = Math.round(totalFinal);
+
+          console.log(totalFinal);
           const orderInfo = `Order ID: ${orderId}, Total: ${totalFinal}`;
           console.log(orderInfo);
           const paymentResponse = await createPayment({
             orderId,
-            // total: totalFinal,
-            total: 1000,
+            total: totalFinal,
+            // total: 1000,
             orderInfo,
           });
           console.log(paymentResponse);

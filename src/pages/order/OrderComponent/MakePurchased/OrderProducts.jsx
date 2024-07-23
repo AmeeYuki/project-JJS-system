@@ -32,9 +32,9 @@ const OrderProducts = ({ products, addToCart }) => {
     },
     {
       title: "Price to Sell",
-      dataIndex: "totalPriceSell",
-      key: "price",
-      render: (totalPriceSell) => `${totalPriceSell.toLocaleString()} VNĐ`,
+      dataIndex: "unitPrice",
+      key: "unitPrice",
+      render: (unitPrice) => `${unitPrice.toLocaleString()} VNĐ`,
     },
     {
       title: "Type",
@@ -48,9 +48,9 @@ const OrderProducts = ({ products, addToCart }) => {
     },
     {
       title: "Total Price",
-      dataIndex: "unitPrice",
-      key: "unitPrice",
-      render: (price) => `${price.toLocaleString()} VNĐ`,
+      dataIndex: "totalPriceSell",
+      key: "totalPriceSell",
+      render: (totalPriceSell) => `${totalPriceSell.toLocaleString()} VNĐ`,
     },
     {
       title: "Status",
@@ -73,13 +73,8 @@ const OrderProducts = ({ products, addToCart }) => {
 
   console.log(products);
 
-  const calculateTotalPrice = (
-    priceProcessing,
-    priceStone,
-    weight,
-    sellPricePerGram
-  ) => {
-    return priceProcessing + priceStone + weight * sellPricePerGram;
+  const calculateTotalPrice = (quantity, unitPrice) => {
+    return quantity * unitPrice;
   };
 
   const calculateTotalBuyPrice = (
@@ -109,12 +104,7 @@ const OrderProducts = ({ products, addToCart }) => {
     type: item.product.type.type,
     purchased_status: item.purchasedStatus,
     orderDetailId: item.id,
-    totalPriceSell: calculateTotalPrice(
-      item.product.priceProcessing,
-      item.product.priceStone,
-      item.product.weight,
-      item.product.type.sell_price_per_gram
-    ),
+    totalPriceSell: calculateTotalPrice(item.quantity, item.unitPrice),
     totalPriceBuy: calculateTotalBuyPrice(
       item.product.priceProcessing,
       item.product.priceStone,

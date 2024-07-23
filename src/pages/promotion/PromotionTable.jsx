@@ -60,8 +60,8 @@ const PromotionTable = ({
               <Space size="middle">
                 <ActionsMenu
                   promotionId={record.id}
-                  handleUpdatePromotion={handleUpdatePromotion}
-                  // handleDeletePromotion={handleDeletePromotion}
+                  // handleUpdatePromotion={handleUpdatePromotion}
+                  handleDeletePromotion={handleDeletePromotion}
                 />
               </Space>
             ),

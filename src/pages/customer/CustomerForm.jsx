@@ -2,6 +2,13 @@ import { useEffect } from "react";
 import { Modal, Button, Input, Form, notification } from "antd";
 import PropTypes from "prop-types";
 
+const initialCustomer = {
+  fullName: "",
+  phone: "",
+  email: "",
+  address: "",
+};
+
 const CustomerForm = ({
   open,
   handleClose,
@@ -36,8 +43,11 @@ const CustomerForm = ({
       });
       return;
     }
+    form.resetFields();
 
     handleAddCustomer();
+    setNewCustomer(initialCustomer); // reset newCustomer về trạng thái ban đầu
+    form.resetFields(); // reset form fields
   };
 
   return (
@@ -109,7 +119,7 @@ const CustomerForm = ({
             Cancel
           </Button>
           <Button type="primary" onClick={handleSave}>
-            Save
+            Create
           </Button>
         </Form.Item>
       </Form>

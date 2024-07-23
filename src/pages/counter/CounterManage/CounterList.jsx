@@ -24,7 +24,7 @@ export default function CounterList({
       <Menu.Item key="detail" onClick={() => onViewCounterDetail(record)}>
         <span>View Detail</span>
       </Menu.Item>
-      {auth?.roles?.some((role) => role === "ROLE_STAFF") ? (
+      {auth?.roles?.some((role) => role === "ROLE_ADMIN") ? (
         <>
           <Menu.Item
             key="edit"

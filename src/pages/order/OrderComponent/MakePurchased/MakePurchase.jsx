@@ -50,27 +50,8 @@ export default function MakePurchase() {
     }
   };
 
-  // const addToCart = (product) => {
-  //   const existingItem = cartItems.find(
-  //     (item) => item.product_name === product.product_name
-  //   );
-
-  //   if (existingItem && existingItem.quantity + 1 > product.quantity) {
-  //     message.error(`Cannot add more than ${product.quantity} items`);
-  //   } else {
-  //     if (existingItem) {
-  //       const updatedCartItems = cartItems.map((item) =>
-  //         item.product_name === product.product_name
-  //           ? { ...item, quantity: item.quantity + 1 }
-  //           : item
-  //       );
-  //       setCartItems(updatedCartItems);
-  //     } else {
-  //       setCartItems([...cartItems, { ...product, quantity: 1 }]);
-  //     }
-  //   }
-  // };
   const addToCart = (product) => {
+    // console.log(product);
     const existingItem = cartItems.find(
       (item) => item.product_id === product.product_id
     );
@@ -88,20 +69,27 @@ export default function MakePurchase() {
         setCartItems(updatedCartItems);
       }
     } else {
-      setCartItems([...cartItems, { ...product, quantity: product.quantity }]);
+      setCartItems([
+        ...cartItems,
+        {
+          ...product,
+          quantity: product.quantity,
+          totalPriceBuy: product.totalPriceBuy,
+        },
+      ]);
     }
   };
 
   const removeFromCart = (key) => {
     setCartItems(cartItems.filter((item) => item.key !== key));
   };
-
+  // console.log(cartItems);
   const handleMakeOrder = async () => {
     try {
       const orderRequests = cartItems.map((item) => ({
         quantity: item.quantity,
         product_id: item.product_id,
-        unit_price: item.totalPriceSell,
+        unit_price: item.totalPriceBuy,
       }));
 
       const finalOrderData = {
@@ -118,7 +106,7 @@ export default function MakePurchase() {
           counter_id: auth?.counter?.id,
         },
       };
-
+      console.log(finalOrderData);
       const result = await addOrder(finalOrderData);
       console.log(result);
       const orderId = result.data.order.id;
