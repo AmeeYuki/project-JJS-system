@@ -271,21 +271,39 @@ export default function Product() {
           const duplicates = uploadedBarcodes.filter((barcode) =>
             existingBarcodes.includes(barcode)
           );
+          const newBarcodes = uploadedBarcodes.filter(
+            (barcode) => !existingBarcodes.includes(barcode)
+          );
 
-          if (duplicates.length > 0) {
-            notification.error({
-              message: "File upload failed",
-              description: `Duplicate barcodes found: ${duplicates.join(", ")}`,
+          if (newBarcodes.length === 0) {
+            notification.warning({
+              message: "No new products to add",
+              description: `All barcodes already exist: ${duplicates.join(
+                ", "
+              )}`,
             });
-          } else {
-            const response = await uploadProductsDataMutation(
-              formData
-            ).unwrap();
-            notification.success({
-              message: "Create product successfully",
-            });
-            refetch();
+            return;
           }
+
+          const response = await uploadProductsDataMutation(formData).unwrap();
+
+          const successMessage = (
+            <div>
+              <div>New barcodes added: {newBarcodes.join(", ")}</div>
+              {duplicates.length > 0 && (
+                <div style={{ marginTop: "8px" }}>
+                  Duplicate barcodes skipped: {duplicates.join(", ")}
+                </div>
+              )}
+            </div>
+          );
+
+          notification.success({
+            message: "Create product successfully",
+            description: successMessage,
+            duration: 0, // Thông báo sẽ không tự đóng
+          });
+          refetch();
         } catch (error) {
           console.error("Error parsing file:", error);
           notification.error({
