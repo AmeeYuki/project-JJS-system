@@ -6,3 +6,6 @@ https://www.canva.com/design/DAGKm3FyKIM/hYnFsoYYSrspiHGTnQy-sQ/edit?fbclid=IwZX
 
 -doc:
 https://docs.google.com/document/d/1CuLeWps1guhtIYIqHJAJ32_JfmGl6T6_WJuIHZzAQQ4/edit?fbclid=IwZXh0bgNhZW0CMTAAAR2uioGKSb_P3GqVxKWxxoEnMCOn5Is5IbwtRIhL-8PhJa1YHZAsndNqlbo_aem_C5RB-n4VW6uRSfGLsriUMg
+
+- Sequence diagram for create order: https://app.diagrams.net/#G1pRh-SU3FKBHXZ-7bqlmg_STsxW1U3Yb4#%7B%22pageId%22%3A%22APNeoNTlUuOF4Hwo0r3r%22%7D
+- sequnce diagram for login , register : https://app.diagrams.net/#G1R1PKc5LV1ZmdAhrEpqSZ_JxilvYABsUL#%7B%22pageId%22%3A%22O2IM2OY7cGQcBs5rGdAW%22%7D
