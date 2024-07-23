@@ -113,6 +113,7 @@ const UpdateProductModal = ({
         type_id: values.typeId,
         counter_id: values.counterId,
         id: product.id,
+        price_rate: values.priceRate,
       };
       await onUpdate(updatedProduct);
     } catch (error) {
@@ -240,6 +241,19 @@ const UpdateProductModal = ({
           <Form.Item
             name="priceStone"
             label="Price (Stone):"
+            rules={[
+              {
+                required: true,
+                message: "Please input the stone price of the product!",
+              },
+              { pattern: /^[0-9]+$/, message: "Please input a valid price!" },
+            ]}
+          >
+            <Input placeholder="Input the stone price..." addonAfter=" VND" />
+          </Form.Item>
+          <Form.Item
+            name="priceRate"
+            label="Price (Rate):"
             rules={[
               {
                 required: true,
