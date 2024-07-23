@@ -257,12 +257,15 @@ const UpdateProductModal = ({
             rules={[
               {
                 required: true,
-                message: "Please input the stone price of the product!",
+                message: "Please input the price rate of the product!",
               },
-              { pattern: /^[0-9]+$/, message: "Please input a valid price!" },
+              {
+                pattern: /^[0-9]+(\.[0-9]{1,2})?$/,
+                message: "Please input a valid price rate!",
+              },
             ]}
           >
-            <Input placeholder="Input the stone price..." addonAfter=" VND" />
+            <Input placeholder="Input the price rate..." />
           </Form.Item>
 
           <Form.Item name="description" label="Description:">
