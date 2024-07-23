@@ -4,7 +4,6 @@ import { Input, notification } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import {
   useAddCounterMutation,
-  useDeleteCounterMutation,
   useEditCounterMutation,
   useGetCountersQuery,
   useInactiveCounterMutation,
@@ -17,6 +16,8 @@ import { CircularProgress } from "@mui/material";
 import { RiAddFill } from "@remixicon/react";
 import CustomButton from "../../components/CustomButton/CustomButton";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { selectAuth } from "../../slices/auth.slice";
 
 export default function Counter() {
   const { data: counters, isLoading, refetch } = useGetCountersQuery();
@@ -25,7 +26,7 @@ export default function Counter() {
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
   const [selectedCounter, setSelectedCounter] = useState(null);
   const [searchValue, setSearchValue] = useState("");
-
+  const auth = useSelector(selectAuth);
   const [editCounterMutation, { isLoading: isLoadingEdit }] =
     useEditCounterMutation();
   const [addCounterMutation, { isLoading: isLoadingAdd }] =
@@ -161,27 +162,29 @@ export default function Counter() {
           />
         </div>
         <div className="action-right">
-          <CustomButton
-            icon={RiAddFill}
-            text="Add Counter"
-            iconSize="16px"
-            iconColor="white"
-            textColor="white"
-            containerStyle={{
-              backgroundColor: "#333333",
-              marginBottom: "10px",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-            hoverStyle={{
-              opacity: 0.6,
-            }}
-            iconPosition="left"
-            fontSize="16px"
-            padding="10px 20px"
-            onClick={() => setIsCreateModalVisible(true)}
-          />
+          {auth?.roles?.some((role) => role === "ROLE_ADMIN") ? (
+            <CustomButton
+              icon={RiAddFill}
+              text="Add Counter"
+              iconSize="16px"
+              iconColor="white"
+              textColor="white"
+              containerStyle={{
+                backgroundColor: "#333333",
+                marginBottom: "10px",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+              hoverStyle={{
+                opacity: 0.6,
+              }}
+              iconPosition="left"
+              fontSize="16px"
+              padding="10px 20px"
+              onClick={() => setIsCreateModalVisible(true)}
+            />
+          ) : null}
         </div>
       </div>
       <div className="counter-list">
