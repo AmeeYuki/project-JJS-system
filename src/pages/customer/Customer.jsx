@@ -41,10 +41,10 @@ export default function Customer() {
         ...user,
         index: index + 1,
       }));
-      setRows(indexedUsers);
-      setFilteredRows(
-        indexedUsers.slice().sort((a, b) => a.fullName - b.fullName)
-      );
+      // Sort the customers by id in ascending order
+      const sortedUsers = indexedUsers.slice().sort((a, b) => a.id - b.id);
+      setRows(sortedUsers);
+      setFilteredRows(sortedUsers);
     }
   }, [customers]);
 
@@ -54,10 +54,8 @@ export default function Customer() {
       return item.phone.toLowerCase().includes(lowercasedFilter);
     });
 
-    // Sort filteredData by fullName in ascending order, case insensitive
-    const sortedFilteredData = filteredData.sort((a, b) => {
-      return a.fullName.toLowerCase().localeCompare(b.fullName.toLowerCase());
-    });
+    // Sort filteredData by id in ascending order
+    const sortedFilteredData = filteredData.sort((a, b) => a.id - b.id);
 
     setFilteredRows(sortedFilteredData);
   }, [searchTerm, rows]);
@@ -85,7 +83,6 @@ export default function Customer() {
     } catch (error) {
       console.error("Error adding customer: ", error);
       message.error(error.data);
-      // alert(`Error: ${error.status} - ${error.data}`);
     }
   };
 
@@ -116,7 +113,6 @@ export default function Customer() {
       handleCloseUpdate();
     } catch (error) {
       console.error("Error updating customer: ", error);
-      // alert(`Error: ${error.data}`);
       message.error(error.data);
     }
   };
@@ -128,8 +124,6 @@ export default function Customer() {
     } catch (error) {
       console.error("Error deleting customer: ", error);
       message.error(error.data);
-
-      // alert(`Error: ${error.status} - ${error.data}`);
     }
   };
 
