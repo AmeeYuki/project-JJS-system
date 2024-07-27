@@ -186,7 +186,7 @@ export const orderAPI = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: API_URL_BE,
     prepareHeaders: (headers, { getState }) => {
-      const token = selectToken(getState()); // Retrieve token from Redux state using selectToken selector
+      const token = selectToken(getState());
       if (token) {
         headers.append("Authorization", `Bearer ${token}`);
       }
