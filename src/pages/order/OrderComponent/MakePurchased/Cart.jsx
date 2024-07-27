@@ -1,7 +1,11 @@
-// import React from "react";
-// import { Table, Button } from "antd";
+// import React, { useState } from "react";
+// import { Table, Button, InputNumber } from "antd";
 
-// const Cart = ({ cartItems, removeFromCart }) => {
+// const Cart = ({ cartItems, removeFromCart, updateCartQuantity }) => {
+//   const handleQuantityChange = (key, value) => {
+//     updateCartQuantity(key, value);
+//   };
+
 //   const cartColumns = [
 //     {
 //       title: "No.",
@@ -24,6 +28,14 @@
 //       title: "Quantity",
 //       dataIndex: "quantity",
 //       key: "quantity",
+//       render: (quantity, record) => (
+//         <InputNumber
+//           min={1}
+//           max={record.maxQuantity}
+//           value={quantity}
+//           onChange={(value) => handleQuantityChange(record.key, value)}
+//         />
+//       ),
 //     },
 //     {
 //       title: "Total",
@@ -53,12 +65,18 @@
 // };
 
 // export default Cart;
-import React, { useState } from "react";
+import React from "react";
 import { Table, Button, InputNumber } from "antd";
 
 const Cart = ({ cartItems, removeFromCart, updateCartQuantity }) => {
   const handleQuantityChange = (key, value) => {
-    updateCartQuantity(key, value);
+    // Ensure value is within valid range: min 1 and max based on maxQuantity
+    if (
+      value >= 1 &&
+      value <= cartItems.find((item) => item.key === key)?.maxQuantity
+    ) {
+      updateCartQuantity(key, value);
+    }
   };
 
   const cartColumns = [
