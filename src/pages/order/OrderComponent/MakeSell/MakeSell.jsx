@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button, message, notification } from "antd";
 import CustomerSpace from "./CustomerSpace";
 import "./MakeSell.css";
@@ -6,6 +6,7 @@ import ProductSpace from "./ProductSpace";
 import {
   useAddOrderMutation,
   useCreatePaymentMutation,
+  useCreateWarrantiesMutation,
   useUpdateOrderStatusCompleteMutation,
 } from "../../../../services/orderAPI";
 import { useSelector } from "react-redux";
@@ -16,6 +17,7 @@ import {
   useUsedPolicyMutation,
   useUsePointMutation,
 } from "../../../../services/customerAPI";
+import WarrantiesForm from "./WarrantiesForm";
 
 export default function MakeSell() {
   const [addOrder, { isLoading }] = useAddOrderMutation();
@@ -23,11 +25,13 @@ export default function MakeSell() {
   const [applyPoints] = useUsePointMutation();
   const [addPoint] = useAddPointMutation();
   const [createPayment] = useCreatePaymentMutation();
+  const [createWarranties] = useCreateWarrantiesMutation();
   const [updateOrderComplete] = useUpdateOrderStatusCompleteMutation();
 
   const [customerData, setCustomerData] = useState(false);
   const [customerId, setCustomerId] = useState();
   const [customerPoint, setCustomerPoint] = useState();
+  const [warrantiesData, setWarrantiesData] = useState(null);
   const [customerDataUpdate, setCustomerDataUpdate] = useState();
   const [pointUpdate, setPointUpdate] = useState();
   const [policyId, setPolicyId] = useState();
@@ -36,6 +40,7 @@ export default function MakeSell() {
   const [orderStatus, setOrderStatus] = useState(1);
   const [orderRequests, setOrderRequests] = useState([]);
   const [discount, setDiscount] = useState(0);
+  const [isWarrantyModalVisible, setIsWarrantyModalVisible] = useState(false);
 
   const auth = useSelector(selectAuth);
   const navigate = useNavigate();
@@ -45,6 +50,12 @@ export default function MakeSell() {
       message.error("Cart is not empty.");
       return;
     }
+
+    if (warrantiesData === null) {
+      message.error("Warranties is not empty.");
+      return;
+    }
+
     const orderData = {
       orderRequests,
       orderDTO: {
@@ -65,8 +76,19 @@ export default function MakeSell() {
     try {
       const response = await addOrder(orderData);
       const orderId = response.data.order.id;
-      console.log(response);
       if (response.data) {
+        if (warrantiesData) {
+          const payloadWarranties = {
+            time_warranty: warrantiesData.timeWarranty,
+            customer_name: auth.name,
+            warranty_detail: warrantiesData.warrantyDetail,
+            order_id: orderId,
+          };
+          console.log(payloadWarranties);
+          const responseWareent = await createWarranties(payloadWarranties);
+          console.log(responseWareent);
+        }
+
         if (customerDataUpdate) {
           await addPoint({
             data: customerDataUpdate,
@@ -118,7 +140,7 @@ export default function MakeSell() {
             notification.success({
               message: "Order made successfully with momo",
             });
-            window.open(payUrl, "_blank"); // Open the payUrl in a new tab
+            window.open(payUrl, "_blank");
             navigate(`/check-payment/${orderId}/${requestId}`);
 
             // navigate(`/order/${orderId}`);
@@ -189,6 +211,25 @@ export default function MakeSell() {
     setPointUpdate(pointUpdate);
   };
 
+  console.log(warrantiesData);
+
+  const handleWarrantySubmit = (warrantyData) => {
+    setWarrantiesData(warrantyData);
+
+    setIsWarrantyModalVisible(false);
+    notification.success({
+      message: "Warranty submitted successfully!",
+    });
+  };
+
+  const showWarrantyModal = () => {
+    setIsWarrantyModalVisible(true);
+  };
+
+  const handleCancelWarrantyModal = () => {
+    setIsWarrantyModalVisible(false);
+  };
+
   return (
     <div className="make-sell-page">
       <div className="header">
@@ -214,6 +255,15 @@ export default function MakeSell() {
               onPointDiscount={handlePointDiscount}
               onSubtotalOrder={handleSubtotal}
               setPaymentMethod={handlePaymentMethod}
+            />
+            <Button type="primary" onClick={showWarrantyModal}>
+              Add Warranty
+            </Button>
+            <WarrantiesForm
+              visible={isWarrantyModalVisible}
+              onCancel={handleCancelWarrantyModal}
+              onSubmit={handleWarrantySubmit}
+              warrantiesData={warrantiesData}
             />
           </div>
         )}

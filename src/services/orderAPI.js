@@ -342,6 +342,30 @@ export const orderAPI = createApi({
       },
       invalidatesTags: [{ type: "OrderList", id: "LIST" }],
     }),
+    createWarranties: builder.mutation({
+      query: (body) => {
+        console.log(body);
+        return {
+          method: "POST",
+          url: `warranties/create`,
+          body,
+        };
+      },
+      invalidatesTags: [{ type: "WarrantiesList", id: "LIST" }],
+    }),
+    getWarrantiesByOrderId: builder.query({
+      query: ({ orderId }) => `warranties/warranties?orderId=${orderId}`,
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({
+                type: "WarrantiesList",
+                id,
+              })),
+              { type: "WarrantiesList", id: "LIST" },
+            ]
+          : [{ type: "WarrantiesList", id: "LIST" }],
+    }),
   }),
 });
 
@@ -363,4 +387,6 @@ export const {
   useGetOrderByUserIdQuery,
   useLazyGetOrderByUserIdQuery,
   useUpdatePurchasedQuantityMutation,
+  useCreateWarrantiesMutation,
+  useGetWarrantiesByOrderIdQuery,
 } = orderAPI;

@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   useGetOrderByIdQuery,
   useGetOrderDetailQuery,
-} from "../../../../services/orderAPI"; // Adjust the path as necessary
+  useGetWarrantiesByOrderIdQuery,
+} from "../../../../services/orderAPI";
 import InformationCustomer from "./InformationCustomer";
 import "../../Order.css";
 import OrderTable from "./OrderTable";
@@ -13,6 +14,8 @@ export default function OrderDetail() {
   const { id } = useParams();
   const { data: order } = useGetOrderByIdQuery(id);
   const { data: products } = useGetOrderDetailQuery(id);
+  const { data: warranties } = useGetWarrantiesByOrderIdQuery({ orderId: id });
+  console.log(warranties);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -41,7 +44,7 @@ export default function OrderDetail() {
         <hr />
       </div>
       <div className="information">
-        <InformationCustomer order={order} />
+        <InformationCustomer warranties={warranties} order={order} />
       </div>
       <div className="order-space">
         <OrderTable order={order} products={products} />

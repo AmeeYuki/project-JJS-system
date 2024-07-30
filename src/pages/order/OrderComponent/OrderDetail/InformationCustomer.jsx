@@ -1,8 +1,34 @@
-import { Col, Row } from "antd";
-import React from "react";
-import dayjs from "dayjs"; // Make sure dayjs is imported
+import { Button, Col, Modal, Row } from "antd";
+import { useState } from "react";
+import dayjs from "dayjs";
 
-export default function InformationCustomer({ order }) {
+export default function InformationCustomer({ order, warranties }) {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleOk = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+  const renderWarrantyTime = (timeWarranty) => {
+    switch (timeWarranty) {
+      case 1:
+        return "3 months";
+      case 2:
+        return "6 months";
+      case 3:
+        return "12 months";
+      default:
+        return "Unknown";
+    }
+  };
+
   return (
     <div>
       <h3 className="">Information:</h3>
@@ -80,16 +106,47 @@ export default function InformationCustomer({ order }) {
               <Col span={15}>
                 <p>{order ? order?.customer.address : null}</p>
               </Col>
-              {/* <Col span={8} offset={0}>
-                <p>Point:</p>
+              <Col span={8} offset={0}>
+                <p>Warranties:</p>
               </Col>
               <Col span={15}>
-                <p>{order ? order?.customer.accumulated_point : null}</p>
-              </Col> */}
+                <Button size="small" onClick={showModal}>
+                  View Warranties
+                </Button>{" "}
+              </Col>
             </Row>
           </Col>
         </Row>
       </div>
+      <Modal
+        title="Warranty Details"
+        visible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+      >
+        {warranties?.length > 0 ? (
+          warranties.map((warranty, index) => (
+            <div key={index} style={{ marginBottom: 16 }}>
+              <p>
+                <strong>Time Warranty:</strong>{" "}
+                {renderWarrantyTime(warranty.timeWarranty)}
+              </p>
+              <p>
+                <strong>Customer Name:</strong> {warranty.customerName}
+              </p>
+              <p>
+                <strong>Create Date:</strong>{" "}
+                {dayjs(warranty.createdDate).format("DD/MM/YYYY")}
+              </p>
+              <p>
+                <strong>Warranty Details:</strong> {warranty.warrantyDetail}
+              </p>
+            </div>
+          ))
+        ) : (
+          <p>No warranties available for this order.</p>
+        )}
+      </Modal>
     </div>
   );
 }
