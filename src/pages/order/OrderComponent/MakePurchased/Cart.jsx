@@ -1,4 +1,3 @@
-import React from "react";
 import { Table, Button, InputNumber } from "antd";
 
 const Cart = ({ cartItems, removeFromCart, updateCartQuantity }) => {

@@ -1,4 +1,3 @@
-import React from "react";
 import { Card, Col, Row } from "antd";
 import dayjs from "dayjs";
 
